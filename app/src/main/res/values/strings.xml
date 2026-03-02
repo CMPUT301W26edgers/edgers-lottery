@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">edgers-lottery</string>
+    <string name="welcomeMessage">Welcome!</string>
+    <string name="login">Login</string>
+    <string name="username">Username</string>
+    <string name="firstName">First Name</string>
+    <string name="lastName">Last Name</string>
+    <string name="password">Password</string>
+    <string name="emailAddress">email@domain.com</string>
+    <string name="phoneNumber">Phone Number (Optional)</string>
+    <string name="continueUser">Continue</string>
+    <string name="continueOrganizer">Continue as Organizer</string>
+    <string name="continueAdmin">Continue as Admin</string>
+    <string name="signIn">Sign In</string>
+    <string name="register">Create an Account</string>
+
 </resources>
