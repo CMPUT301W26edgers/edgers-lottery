@@ -31,7 +31,7 @@
     <string name="eventDetails">Event Details</string>
     <string name="joinWaitlist">Join Waitlist</string>
     <string name="leaveWaitlist">Leave Waitlist</string>
-    <string name="selectedMessage">You&apos;ve been selected!</string>
+    <string name="selectedMessage">You have been selected!</string>
     <string name="acceptInv">Accept Invite</string>
     <string name="declineInv">Decline Invite</string>
     <string name="orgMode">Organizer Mode</string>
