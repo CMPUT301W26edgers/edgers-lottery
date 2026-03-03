@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "258721868520",
+    "project_id": "edgers-lottery-db",
+    "storage_bucket": "edgers-lottery-db.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:258721868520:android:716818deadf6c1296df75d",
+        "android_client_info": {
+          "package_name": "com.example.edgers_lottery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHEm8C1lkGwxj7AyxJlPBM8SOSZdgzdPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
