@@ -3,6 +3,7 @@
     <string name="welcomeMessage">Welcome!</string>
     <string name="login">Login</string>
     <string name="loginMessage">Enter your email and password to log in</string>
+    <string name="createAccountMessage">Enter your email to sign up for this app</string>
     <string name="username">Username</string>
     <string name="firstName">First Name</string>
     <string name="lastName">Last Name</string>
@@ -78,5 +79,6 @@
     <string name="deleteImage">Delete Image</string>
     <string name="popupExportMessage">All notifications made exported</string>
     <string name="export">Export</string>
+    <string name="backButton">Back</string>
 
 </resources>
