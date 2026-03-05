@@ -2,6 +2,8 @@
     <string name="app_name">edgers-lottery</string>
     <string name="welcomeMessage">Welcome!</string>
     <string name="login">Login</string>
+    <string name="loginMessage">Enter your email and password to log in</string>
+    <string name="createAccountMessage">Enter your email to sign up for this app</string>
     <string name="username">Username</string>
     <string name="firstName">First Name</string>
     <string name="lastName">Last Name</string>
@@ -11,8 +13,9 @@
     <string name="continueUser">Continue</string>
     <string name="continueOrganizer">Continue as Organizer</string>
     <string name="continueAdmin">Continue as Admin</string>
+    <string name="createAccount">Create an account</string>
     <string name="signIn">Sign In</string>
-    <string name="register">Create an Account</string>
+    <string name="register">Register</string>
     <string name="profile">Profile</string>
     <string name="notification">Notifications</string>
     <string name="home">Home</string>
@@ -76,5 +79,6 @@
     <string name="deleteImage">Delete Image</string>
     <string name="popupExportMessage">All notifications made exported</string>
     <string name="export">Export</string>
+    <string name="backButton">Back</string>
 
 </resources>

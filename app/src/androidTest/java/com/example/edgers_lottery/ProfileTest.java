@@ -44,6 +44,38 @@ public class ProfileTest {
         latch.await(20, TimeUnit.SECONDS);
         assertTrue("Profile should have been saved", success[0]);
     }
+
+    @Test
+    public void deleteProfileTest() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        boolean[] deleted = {false};
+
+        profiles.document("2").set(new Entrant("2", "Bob", "bob@email.com", "456"))
+                .addOnSuccessListener(aVoid -> {
+                    latch.countDown();
+                    profiles.document("2")
+                            .delete()
+                            .addOnSuccessListener(aVoid1 -> {
+                                profiles.document("2")
+                                        .get()
+                                        .addOnSuccessListener(snapshot -> {
+                                            deleted[0] = !snapshot.exists();
+                                            android.util.Log.d(TAG, "Profile deleted successfully");
+                                            latch.countDown();
+                                        });
+                            })
+                            .addOnFailureListener(e -> {latch.countDown();
+                                android.util.Log.e(TAG, "Error deleting profile", e);
+                            });
+                })
+                .addOnFailureListener(e -> {latch.countDown();
+                    android.util.Log.e(TAG, "Error adding profile", e);
+                });
+
+        latch.await(20, TimeUnit.SECONDS);
+        assertTrue("Profile should be deleted", deleted[0]);
+
+    }
 }
 
 
