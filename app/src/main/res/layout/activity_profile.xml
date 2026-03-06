@@ -38,7 +38,6 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-
     </LinearLayout>
 
     <LinearLayout
@@ -185,7 +184,7 @@
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout9">
+        app:layout_constraintBottom_toTopOf="@+id/action_bar">
 
         <Button
             android:id="@+id/signout"
@@ -215,7 +214,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout9"
+        android:id="@+id/action_bar"
         android:layout_width="match_parent"
         android:layout_height="53dp"
         android:orientation="horizontal"
@@ -234,7 +233,7 @@
             app:srcCompat="@drawable/home" />
 
         <ImageButton
-            android:id="@+id/imageButton3"
+            android:id="@+id/qrButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
@@ -243,7 +242,7 @@
             app:srcCompat="@drawable/camera" />
 
         <ImageButton
-            android:id="@+id/imageButton4"
+            android:id="@+id/checkoutButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
@@ -258,7 +257,7 @@
             android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:contentDescription="@string/profile"
-            app:srcCompat="@drawable/profileSelected" />
+            app:srcCompat="@drawable/profile_selected" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
