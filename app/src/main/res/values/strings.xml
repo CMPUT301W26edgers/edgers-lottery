@@ -19,6 +19,7 @@
     <string name="profile">Profile</string>
     <string name="firstLastName">\@FirstName @LastName</string>
     <string name="userName">\@username</string>
+    <string name="userID">\@userID</string>
     <string name="notification">Notifications</string>
     <string name="home">Home</string>
     <string name="editProfile">Edit Profile</string>
