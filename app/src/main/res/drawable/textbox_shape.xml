@@ -1,3 +1,11 @@
+<!--
+Author: Siddharth Lele
+Title: How to Apply Corner Radius to LinearLayout
+Answer: https://stackoverflow.com/a/10074612
+Date: 2012-04-09
+License: CC BY-SA 4.0
+-->
+
 <shape
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
