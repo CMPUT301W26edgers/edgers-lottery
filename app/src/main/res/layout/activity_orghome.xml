@@ -158,10 +158,11 @@
         android:layout_width="269dp"
         android:layout_height="146dp"
         android:layout_marginStart="1dp"
+        android:layout_marginBottom="1dp"
         android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/linearLayout11"
-        tools:layout_editor_absoluteY="351dp">
+        app:layout_constraintStart_toEndOf="@+id/linearLayout11">
 
         <TextView
             android:id="@+id/usernameOrg"
