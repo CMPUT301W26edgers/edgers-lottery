@@ -8,4 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="loginGray">#9D9D9D</color>
+    <color name="headerGray">#E4E4E4</color>
+    <color name="red">#FF0000</color>
+    <color name="light_pink">#F4E6FF</color>
 </resources>

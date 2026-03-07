@@ -17,6 +17,9 @@
     <string name="signIn">Sign In</string>
     <string name="register">Register</string>
     <string name="profile">Profile</string>
+    <string name="firstLastName">\@FirstName @LastName</string>
+    <string name="userName">\@username</string>
+    <string name="userID">\@userID</string>
     <string name="notification">Notifications</string>
     <string name="home">Home</string>
     <string name="editProfile">Edit Profile</string>
@@ -80,5 +83,11 @@
     <string name="popupExportMessage">All notifications made exported</string>
     <string name="export">Export</string>
     <string name="backButton">Back</string>
+    <string name="aboutMe">About Me:</string>
+    <string name="contactInfo">Contact Information</string>
+    <string name="description">Description</string>
+    <string name="profileEmail">Email: </string>
+    <string name="profilePhone">Phone: </string>
+
 
 </resources>
