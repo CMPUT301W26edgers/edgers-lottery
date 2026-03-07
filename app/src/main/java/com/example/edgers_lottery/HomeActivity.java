@@ -1,5 +1,6 @@
 package com.example.edgers_lottery;
 
+import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -11,7 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 ;
 
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends Activity {
     private User user;
     private void showUserInfoDialog(DocumentSnapshot documentSnapshot) {
         String name = documentSnapshot.getString("name");
