@@ -11,6 +11,7 @@ public class Event {
     private String time; // can be changed to a time object
     private String location;
     private Organizer organizer;
+    private String organizerId;
     private int capacity;
     private String registrationStart; // can be changed to a date object
     private String registrationEnd; // can be changed to a date object
