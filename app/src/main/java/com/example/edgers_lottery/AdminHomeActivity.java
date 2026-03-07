@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.Firebase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -52,22 +53,6 @@ public class AdminHomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-    }
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    public void removeOrganizer(String organizerId) {
-        // delete all events tied to organizerId
-        db.collection("events")
-                .whereEqualTo("organizerId", organizerId)
-                .get()
-                .addOnSuccessListener(query -> {
-                    for (DocumentSnapshot doc : query.getDocuments()) {
-                        doc.getReference().delete();
-                    }
-                    // delete the user with organizerId
-                    db.collection("users")
-                            .document(organizerId)
-                            .delete();
-                });
     }
 
 }

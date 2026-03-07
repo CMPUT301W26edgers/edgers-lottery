@@ -90,7 +90,7 @@
             android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:contentDescription="@string/home"
-            app:srcCompat="@drawable/home" />
+            app:srcCompat="@drawable/home_selected" />
 
         <ImageButton
             android:id="@+id/qrButton"
@@ -108,7 +108,7 @@
             android:layout_weight="1"
             android:backgroundTint="@color/white"
             android:contentDescription="@string/checkout"
-            app:srcCompat="@drawable/cart_selected" />
+            app:srcCompat="@drawable/cart" />
 
         <ImageButton
             android:id="@+id/ProfileButton"
