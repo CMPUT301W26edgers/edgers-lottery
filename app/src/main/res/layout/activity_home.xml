@@ -104,4 +104,10 @@
             app:srcCompat="@drawable/profile" />
     </LinearLayout>
 
+    <ListView
+        android:layout_width="409dp"
+        android:layout_height="575dp"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="102dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
