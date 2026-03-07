@@ -5,6 +5,9 @@ public abstract class User {
     private String name;
     private String email;
     private String phone;
+    private String role;
+    private String password;
+
     public User() {
     }
     public User(String id,String name, String email, String phone) {
@@ -36,5 +39,21 @@ public abstract class User {
     }
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

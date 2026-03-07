@@ -14,6 +14,17 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <activity android:name=".StartActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".NewUserActivity"/>
+        <activity android:name=".HomeActivity"/>
+<!--        <activity android:name=".OrgHomeActivity"/>-->
+<!--        <activity android:name=".AdminPanelActivity"/>-->
     </application>
 
 </manifest>
