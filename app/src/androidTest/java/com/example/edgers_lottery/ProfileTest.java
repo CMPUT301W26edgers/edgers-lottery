@@ -44,6 +44,33 @@ public class ProfileTest {
         latch.await(20, TimeUnit.SECONDS);
         assertTrue("Profile should have been saved", success[0]);
     }
+    @Test
+    public void updateProfileTest() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        boolean[] updated = {false};
+        profiles.document("1").set(new Entrant("1", "John Doe", "john@email.com", "123"))
+                .addOnSuccessListener(aVoid -> {
+                    profiles.document("1").update("name", "Jane Doe")
+                            .addOnSuccessListener(aVoid1 -> {
+                                profiles.document("1")
+                                        .get()
+                                        .addOnSuccessListener(snapshot -> {
+                                            String name = snapshot.getString("name");
+                                            updated[0] = name != null && name.equals("Jane Doe");
+                                            android.util.Log.d(TAG, "Profile updated successfully");
+                                            latch.countDown();
+                                        });
+                            });
+                })
+                .addOnFailureListener(e -> {latch.countDown();
+                    android.util.Log.e(TAG, "Error adding document", e);
+                });
+
+                latch.await(20, TimeUnit.SECONDS);
+                if (updated[0]) {
+                    assertTrue("Profile should have been updated", updated[0]);
+                }
+    }
 
     @Test
     public void deleteProfileTest() throws InterruptedException {
