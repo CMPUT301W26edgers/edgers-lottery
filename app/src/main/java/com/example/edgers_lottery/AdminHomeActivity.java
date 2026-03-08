@@ -6,10 +6,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.Firebase;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-
+// can only be accessed by admins
 public class AdminHomeActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {

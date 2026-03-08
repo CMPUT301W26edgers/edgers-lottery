@@ -41,23 +41,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout16"
-        android:layout_width="57dp"
-        android:layout_height="50dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
-
-        <ImageButton
-            android:id="@+id/ProfileNotification"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:backgroundTint="@color/headerGray"
-            android:contentDescription="@string/notification"
-            app:srcCompat="@drawable/notification_icon" />
-    </LinearLayout>
-
-    <LinearLayout
         android:layout_width="57dp"
         android:layout_height="50dp"
         android:orientation="vertical"
@@ -73,57 +56,11 @@
             app:srcCompat="@drawable/left_arrow_small" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/action_bar"
-        android:layout_width="match_parent"
-        android:layout_height="53dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-
-        <ImageButton
-            android:id="@+id/HomeButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:contentDescription="@string/home"
-            app:srcCompat="@drawable/home_selected" />
-
-        <ImageButton
-            android:id="@+id/qrButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:contentDescription="@string/qrCode"
-            app:srcCompat="@drawable/camera" />
-
-        <ImageButton
-            android:id="@+id/checkoutButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:contentDescription="@string/checkout"
-            app:srcCompat="@drawable/cart" />
-
-        <ImageButton
-            android:id="@+id/ProfileButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:contentDescription="@string/profile"
-            app:srcCompat="@drawable/profile" />
-    </LinearLayout>
 
     <ListView
-        android:layout_width="409dp"
-        android:layout_height="576dp"
-        app:layout_constraintBottom_toTopOf="@+id/action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="630dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
 
