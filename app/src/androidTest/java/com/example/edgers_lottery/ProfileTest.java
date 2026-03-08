@@ -79,7 +79,6 @@ public class ProfileTest {
 
         profiles.document("2").set(new Entrant("2", "Bob", "bob@email.com", "456"))
                 .addOnSuccessListener(aVoid -> {
-                    latch.countDown();
                     profiles.document("2")
                             .delete()
                             .addOnSuccessListener(aVoid1 -> {
@@ -89,7 +88,10 @@ public class ProfileTest {
                                             deleted[0] = !snapshot.exists();
                                             android.util.Log.d(TAG, "Profile deleted successfully");
                                             latch.countDown();
-                                        });
+                                        })
+                                        .addOnFailureListener(e -> {latch.countDown();
+                                            android.util.Log.e(TAG, "Error fetching profile", e);
+                                        });;
                             })
                             .addOnFailureListener(e -> {latch.countDown();
                                 android.util.Log.e(TAG, "Error deleting profile", e);
