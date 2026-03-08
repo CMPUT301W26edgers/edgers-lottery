@@ -24,6 +24,8 @@ public class StartActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         // Check if the user is already logged in
         FirebaseUser deviceUser = FirebaseAuth.getInstance().getCurrentUser();
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+        boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
 
         if (deviceUser != null) {
             // User is logged in, navigate to the appropriate activity
@@ -44,28 +46,27 @@ public class StartActivity extends AppCompatActivity{
                             }
                             switch (role) {
                                 case "ORGANIZER":
-//                                    user = document.toObject(Organizer.class);
-                                    user.setRole(role);
+                                    user = document.toObject(User.class);
                                     CurrentUser.set(user);
+                                    prefs.edit().putBoolean("has_signed_in_before", true).apply();
                                     navigateTo(OrgHomeActivity.class);
                                     break;
                                 case "ADMIN":
-//                                    user = document.toObject(Admin.class);
-                                    user.setRole(role);
+                                    user = document.toObject(User.class);
                                     CurrentUser.set(user);
+                                    prefs.edit().putBoolean("has_signed_in_before", true).apply();
                                     navigateTo(AdminPanelActivity.class);
                                     break;
                                 default: // "entrant"
-//                                    user = document.toObject(Entrant.class);
-                                    user.setRole(role);
+                                    user = document.toObject(User.class);
                                     CurrentUser.set(user);
+                                    prefs.edit().putBoolean("has_signed_in_before", true).apply();
                                     navigateTo(HomeActivity.class);
                                     break;
                             }
                         } else { // safety call
 //                            navigateTo(NewUserActivity.class); // did not find the user in the database
-                            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
-                            boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
+
                             if (hasSignedInBefore) {
 //                                navigateTo(LoginActivity.class); // returning user who signed out
                             } else {
@@ -74,8 +75,8 @@ public class StartActivity extends AppCompatActivity{
                         }
                     });
         } else {
-            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
-            boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
+//            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+//            boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
             if (hasSignedInBefore) {
 
 //                navigateTo(LoginActivity.class); // returning user who signed out
