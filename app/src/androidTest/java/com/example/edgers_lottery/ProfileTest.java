@@ -31,7 +31,7 @@ public class ProfileTest {
     public void addProfileTest() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1); // need this to get the test to wait for the store to be done
         boolean[] success = {false};
-        profiles.document("1").set(new Entrant("1", "John Doe", "john@email.com", "123"))
+        profiles.document("1").set(new User("1", "John Doe", "john@email.com", "ENTRANT"))
                 .addOnSuccessListener(aVoid -> {
                     success[0] = true;
                     android.util.Log.d(TAG, "Profile added successfully");
@@ -48,7 +48,7 @@ public class ProfileTest {
     public void updateProfileTest() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         boolean[] updated = {false};
-        profiles.document("1").set(new Entrant("1", "John Doe", "john@email.com", "123"))
+        profiles.document("1").set(new User("1", "John Doe", "john@email.com", "ENTRANT"))
                 .addOnSuccessListener(aVoid -> {
                     profiles.document("1").update("name", "Jane Doe")
                             .addOnSuccessListener(aVoid1 -> {
@@ -77,7 +77,7 @@ public class ProfileTest {
         CountDownLatch latch = new CountDownLatch(1);
         boolean[] deleted = {false};
 
-        profiles.document("2").set(new Entrant("2", "Bob", "bob@email.com", "456"))
+        profiles.document("2").set(new User("2", "Bob", "bob@email.com", "ENTRANT"))
                 .addOnSuccessListener(aVoid -> {
                     profiles.document("2")
                             .delete()

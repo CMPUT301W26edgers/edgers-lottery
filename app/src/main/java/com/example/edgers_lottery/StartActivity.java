@@ -1,5 +1,7 @@
 package com.example.edgers_lottery;
 
+import static com.example.edgers_lottery.User.Role.ENTRANT;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,29 +36,52 @@ public class StartActivity extends AppCompatActivity{
                     .addOnSuccessListener(document -> {
                         if (document.exists()) {
                             String role = document.getString("role");
-
                             // based on the user's role, navigate to the appropriate activity
                             // this is done here with a switch case statemment
-                            switch (Objects.requireNonNull(role)) {
-                                case "organizer":
-                                    user = document.toObject(Organizer.class);
+                            if (role == null) {
+                                navigateTo(NewUserActivity.class);
+                                return;
+                            }
+                            switch (role) {
+                                case "ORGANIZER":
+//                                    user = document.toObject(Organizer.class);
+                                    user.setRole(role);
+                                    CurrentUser.set(user);
                                     navigateTo(OrgHomeActivity.class);
                                     break;
-                                case "admin":
-                                    user = document.toObject(Admin.class);
+                                case "ADMIN":
+//                                    user = document.toObject(Admin.class);
+                                    user.setRole(role);
+                                    CurrentUser.set(user);
                                     navigateTo(AdminPanelActivity.class);
                                     break;
                                 default: // "entrant"
-                                    user = document.toObject(Entrant.class);
+//                                    user = document.toObject(Entrant.class);
+                                    user.setRole(role);
+                                    CurrentUser.set(user);
                                     navigateTo(HomeActivity.class);
                                     break;
                             }
                         } else { // safety call
-                            navigateTo(NewUserActivity.class); // did not find the user in the database
+//                            navigateTo(NewUserActivity.class); // did not find the user in the database
+                            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+                            boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
+                            if (hasSignedInBefore) {
+//                                navigateTo(LoginActivity.class); // returning user who signed out
+                            } else {
+                                navigateTo(NewUserActivity.class); // brand new user
+                            }
                         }
                     });
         } else {
-            navigateTo(NewUserActivity.class); // this person is new here
+            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+            boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
+            if (hasSignedInBefore) {
+
+//                navigateTo(LoginActivity.class); // returning user who signed out
+            } else {
+                navigateTo(NewUserActivity.class); // brand new user
+            }
         }
     }
     private void navigateTo(Class<?> destination) {

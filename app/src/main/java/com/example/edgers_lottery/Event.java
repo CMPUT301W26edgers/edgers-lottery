@@ -10,14 +10,14 @@ public class Event {
     private String date; // can be changed to a date object
     private String time; // can be changed to a time object
     private String location;
-    private Organizer organizer;
+    private User organizer; // store organizer as a User object
     private String organizerId;
     private int capacity;
     private String registrationStart; // can be changed to a date object
     private String registrationEnd; // can be changed to a date object
     private Uri poster; // this will be a URI to the poster image, we can change this later
-    private ArrayList<Entrant> waitingList;
-    private ArrayList<Entrant> entrants;
+    private ArrayList<User> waitingList;
+    private ArrayList<User> entrants;
     private boolean enforeLocation;
 //    public Lottery lottery;
 
@@ -61,11 +61,11 @@ public class Event {
         this.location = location;
     }
 
-    public Organizer getOrganizer() {
+    public User getOrganizer() {
         return organizer;
     }
 
-    public void setOrganizer(Organizer organizer) {
+    public void setOrganizer(User organizer) {
         this.organizer = organizer;
     }
 
@@ -101,19 +101,19 @@ public class Event {
         this.poster = poster;
     }
 
-    public ArrayList<Entrant> getWaitingList() {
+    public ArrayList<User> getWaitingList() {
         return waitingList;
     }
 
-    public void setWaitingList(ArrayList<Entrant> waitingList) {
+    public void setWaitingList(ArrayList<User> waitingList) {
         this.waitingList = waitingList;
     }
 
-    public ArrayList<Entrant> getEntrants() {
+    public ArrayList<User> getEntrants() {
         return entrants;
     }
 
-    public void setEntrants(ArrayList<Entrant> entrants) {
+    public void setEntrants(ArrayList<User> entrants) {
         this.entrants = entrants;
     }
 
