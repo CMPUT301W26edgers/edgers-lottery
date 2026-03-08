@@ -12,7 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 ;
 
 
-public class HomeActivity extends Activity {
+public class HomeActivity extends AppCompatActivity {
     private User user;
     private void showUserInfoDialog(DocumentSnapshot documentSnapshot) {
         String name = documentSnapshot.getString("name");

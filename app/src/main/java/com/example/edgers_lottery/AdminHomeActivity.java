@@ -28,6 +28,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         organizer.setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerListActivity.class);
             startActivity(intent);
+            finish();
         });
 
         events.setOnClickListener(v -> {
