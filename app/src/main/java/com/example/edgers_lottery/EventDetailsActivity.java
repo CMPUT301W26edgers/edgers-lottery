@@ -1,5 +1,7 @@
 package com.example.edgers_lottery;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -22,8 +24,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private Button waitlistButton;
     private int capacity;
     private int entrantCount;
-    private ArrayList<Entrant> waitingList;
-    private ArrayList<Entrant> entrants;
+    private ArrayList<User> waitingList;
     private static final String TAG = "EventDetailsActivity";
     protected User user;
     @Override
@@ -41,15 +42,14 @@ public class EventDetailsActivity extends AppCompatActivity {
         Event sampleEvent = new Event();
         sampleEvent.setName("Basketball Tournament");
         sampleEvent.setDescription("A 3v3 campus tournament.");
-        sampleEvent.setDate("March 20, 2026");
-        sampleEvent.setTime("6:00 PM");
-        sampleEvent.setLocation("Main Gym");
-        sampleEvent.setCapacity(2);
+        sampleEvent.setDate("Date: March 20, 2026");
+        sampleEvent.setTime("Time: 6:00 PM");
+        sampleEvent.setLocation("Location: Main Gym");
+        sampleEvent.setCapacity(20);
         waitingList = new ArrayList<>();
-        entrants = new ArrayList<>();
-        entrants.add(new Entrant());
-        entrants.add(new Entrant());
-        sampleEvent.setEntrants(entrants);
+        user = new User();
+        user.setName("Tamu");
+        sampleEvent.setEntrants(waitingList);
         showEvent(sampleEvent);
     }
     private void showEvent(Event event) {
@@ -60,31 +60,33 @@ public class EventDetailsActivity extends AppCompatActivity {
         eventLocationText.setText(event.getLocation());
         capacity = event.getCapacity();
         entrantCount = (event.getEntrants() == null) ? 0 : event.getEntrants().size();
-        eventCapacityText.setText(String.format("Capacity: %d / %d", entrantCount, capacity));
-        if (entrantCount >= capacity) {
+        eventCapacityText.setText(String.format("Capacity: %d", capacity));
+        if (waitingList.contains(user)) {
+            joinButton.setText("Leave Waitlist");
+            joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+        } else {
             joinButton.setText("Join Waitlist");
-        }
-        else {
-            joinButton.setText("Register");
+            joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
         joinButton.setOnClickListener(v -> {
-            if (entrantCount >= capacity) {
-                waitingList.add(new Entrant());
+            if (waitingList.contains(user)) {
+                waitingList.remove(user);
+                joinButton.setText("Join Waitlist");
+                joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                Toast.makeText(this, "Removed from Waitlist", Toast.LENGTH_SHORT).show();
+            } else {
+                waitingList.add(user);
+                joinButton.setText("Leave Waitlist");
+                joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
                 Toast.makeText(this, "Added to Waitlist", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                entrants.add(new Entrant());
-                Toast.makeText(this, "Added to Entrants list", Toast.LENGTH_SHORT).show();
-
             }
         });
         waitlistButton.setOnClickListener(v->{
             StringBuilder list = new StringBuilder();
 
-            for (Entrant e : waitingList) {
-                list.append(e.toString()).append("\n");
+            for (User u : waitingList) {
+                list.append(u.getName()).append("\n");
             }
-
             new AlertDialog.Builder(this)
                     .setTitle("Waitlist")
                     .setMessage(list.toString())
