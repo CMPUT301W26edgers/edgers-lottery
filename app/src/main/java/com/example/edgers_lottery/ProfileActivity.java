@@ -8,6 +8,9 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class ProfileActivity extends AppCompatActivity {
     private static final String TAG = "ProfileActivity";
     protected static User user;
@@ -50,6 +53,43 @@ public class ProfileActivity extends AppCompatActivity {
 
         deleteProfileButton.setOnClickListener(v -> {
 
+            new AlertDialog.Builder(this)
+                    .setTitle("Delete Profile")
+                    .setMessage("Are you sure you want to delete?")
+                    .setPositiveButton("Delete", (dialog, which) -> {
+
+                        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                        FirebaseFirestore.getInstance()
+                                .collection("users")
+                                .document(uid)
+                                .delete()
+                                .addOnSuccessListener(aVoid -> {
+
+                                    // remove the firebase auth user as well, so email can be remade
+                                    if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                                        FirebaseAuth.getInstance().getCurrentUser().delete();
+                                    }
+
+                                    // prevents the crash the happens when profile deleted, creating another then delete again
+                                    CurrentUser.set(null);
+
+                                    // navigate to new user screen after deletion
+                                    Intent intent = new Intent(this, NewUserActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    new AlertDialog.Builder(ProfileActivity.this)
+                                            .setTitle("Error")
+                                            .setMessage("You will stay and enjoy the lottery")
+                                            .setPositiveButton("OK", null)
+                                            .show();
+                                });
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
 
     }

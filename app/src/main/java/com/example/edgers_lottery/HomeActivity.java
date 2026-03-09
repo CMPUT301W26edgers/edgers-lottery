@@ -1,7 +1,9 @@
 package com.example.edgers_lottery;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +33,12 @@ public class HomeActivity extends AppCompatActivity {
         if (user != null) {
             showUserInfoDialog(user);
         }
+        ImageButton profileButton = findViewById(R.id.ProfileButton);
+        profileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
 }

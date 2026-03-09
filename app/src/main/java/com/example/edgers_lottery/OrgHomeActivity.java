@@ -3,6 +3,7 @@ package com.example.edgers_lottery;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +27,12 @@ public class OrgHomeActivity extends AppCompatActivity {
         if (user != null) {
             showUserInfoDialog(user);
         }
+
+        TextView createEvent = findViewById(R.id.createEventButton).findViewById(R.id.menuTitle);
+        TextView eventsList = findViewById(R.id.eventListMenu).findViewById(R.id.menuTitle);
+
+        createEvent.setText("Create Event");
+        eventsList.setText("Events List");
 
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         profileButton.setOnClickListener(v -> {

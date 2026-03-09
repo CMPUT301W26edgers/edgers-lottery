@@ -58,8 +58,9 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:id="@+id/linearLayout16"
+        android:layout_width="413dp"
+        android:layout_height="90dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,23 +70,11 @@
             android:id="@+id/textView4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="20dp"
             android:text="@string/orgMode"
             android:textColor="@color/black"
             android:textSize="28sp"
-            android:textStyle="bold"
-            android:padding="20dp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout9"
-        android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/action_bar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -139,10 +128,9 @@
         android:id="@+id/linearLayout11"
         android:layout_width="140dp"
         android:layout_height="146dp"
-        android:layout_marginBottom="1dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout9"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout16">
 
         <ImageView
             android:id="@+id/imageView3"
@@ -155,14 +143,15 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout9"
         android:layout_width="269dp"
         android:layout_height="146dp"
         android:layout_marginStart="1dp"
-        android:layout_marginBottom="1dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/linearLayout11">
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/linearLayout11"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout16">
 
         <TextView
             android:id="@+id/usernameOrg"
@@ -188,6 +177,24 @@
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout9">
+
+        <include
+            android:id="@+id/createEventButton"
+            layout="@layout/item_admin_menu" />
+
+        <include
+            android:id="@+id/eventListMenu"
+            layout="@layout/item_admin_menu" />
+
     </LinearLayout>
 
 
