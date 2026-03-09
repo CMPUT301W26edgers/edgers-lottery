@@ -12,16 +12,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 ;
 
 
-public class HomeActivity extends Activity {
-    private User user;
-    private void showUserInfoDialog(DocumentSnapshot documentSnapshot) {
-        String name = documentSnapshot.getString("name");
-        String email = documentSnapshot.getString("email");
-        String phone = documentSnapshot.getString("phone");
-
+public class HomeActivity extends AppCompatActivity {
+    private static final String TAG = "HomeActivity";
+    protected static User user;
+    private void showUserInfoDialog(User user) {
         new AlertDialog.Builder(this)
                 .setTitle("User Info")
-                .setMessage("Name: " + name + "\nEmail: " + email + "\nPhone: " + phone)
+                .setMessage("Name: " + user.getName() + "\nEmail: " + user.getEmail())
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
     }
@@ -29,14 +26,11 @@ public class HomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        user = CurrentUser.get(); // already loaded in StartActivity
 
-        FirebaseFirestore.getInstance().collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                // GRAB DATA
-                showUserInfoDialog(documentSnapshot);
-            }
-        });
+        if (user != null) {
+            showUserInfoDialog(user);
+        }
     }
 
 }

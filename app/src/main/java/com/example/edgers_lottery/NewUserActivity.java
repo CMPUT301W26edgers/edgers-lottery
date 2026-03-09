@@ -24,6 +24,8 @@ public class NewUserActivity extends AppCompatActivity {
         lastNameEditText = findViewById(R.id.lastNameEditText);
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
+        // include switch for signing up as a entrant or an organizer
+
 
         findViewById(R.id.continueUserButton).setOnClickListener(v -> registerUser());
     }
@@ -44,15 +46,15 @@ public class NewUserActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                     String uid = authResult.getUser().getUid();
-                    saveUserToFirestore(uid, firstName, lastName, email);
+                    saveUserToFirestore(uid, firstName, lastName, email, "ENTRANT");
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Registration failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void saveUserToFirestore(String uid, String firstName, String lastName, String email) {
-        User user = new Entrant(uid, firstName + " " + lastName, email, null); // user doesnt need to enter phone number until they update person information
+    private void saveUserToFirestore(String uid, String firstName, String lastName, String email, String role) {
+        User user = new User(uid, firstName + " " + lastName, email, role); // user doesnt need to enter phone number until they update person information
         // save this user to the firebase
         FirebaseFirestore.getInstance().collection("users").document(uid).set(user)
                 .addOnSuccessListener(unused -> {
