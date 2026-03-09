@@ -68,11 +68,19 @@ public class StartActivity extends AppCompatActivity{
 //                            navigateTo(NewUserActivity.class); // did not find the user in the database
 
                             if (hasSignedInBefore) {
-//                                navigateTo(LoginActivity.class); // returning user who signed out
+                                String email = document.getString("email");
+                                if (email == null) { // has signed in before but could not find user in database
+                                    navigateTo(NewUserActivity.class);
+//                                    navigateTo(LoginActivity.class); // returning user who signed out
+                                }
                             } else {
                                 navigateTo(NewUserActivity.class); // brand new user
                             }
                         }
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle failure
+                        navigateTo(NewUserActivity.class);
                     });
         } else {
 //            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);

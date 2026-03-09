@@ -110,7 +110,7 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
 
         <ImageButton
-            android:id="@+id/ProfileNotification"
+            android:id="@+id/NotificationButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/notification"
@@ -187,7 +187,7 @@
         app:layout_constraintBottom_toTopOf="@+id/action_bar">
 
         <Button
-            android:id="@+id/signout"
+            android:id="@+id/signoutButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="30dp"
@@ -200,7 +200,7 @@
             app:icon="@drawable/signout" />
 
         <Button
-            android:id="@+id/deleteprofile"
+            android:id="@+id/deleteProfileButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
