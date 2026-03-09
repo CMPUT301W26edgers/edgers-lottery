@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+// can only be accessed by organizers
 public class OrgHomeActivity extends AppCompatActivity {
     private static final String TAG = "OrgHomeActivity";
     protected static User user;

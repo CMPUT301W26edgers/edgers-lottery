@@ -55,7 +55,7 @@ public class StartActivity extends AppCompatActivity{
                                     user = document.toObject(User.class);
                                     CurrentUser.set(user);
                                     prefs.edit().putBoolean("has_signed_in_before", true).apply();
-                                    navigateTo(AdminPanelActivity.class);
+                                    navigateTo(AdminHomeActivity.class);
                                     break;
                                 default: // "entrant"
                                     user = document.toObject(User.class);

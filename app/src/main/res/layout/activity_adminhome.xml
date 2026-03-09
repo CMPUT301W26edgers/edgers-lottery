@@ -59,7 +59,7 @@
 
     <LinearLayout
         android:id="@+id/linearLayout14"
-        android:layout_width="410dp"
+        android:layout_width="match_parent"
         android:layout_height="79dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
