@@ -25,7 +25,6 @@ public class OrganizerListActivity extends AppCompatActivity {
 
     }
 
-
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     public void removeOrganizer(String organizerId) {
         // delete all events tied to organizerId
@@ -42,4 +41,5 @@ public class OrganizerListActivity extends AppCompatActivity {
                             .delete();
                 });
     }
+
 }

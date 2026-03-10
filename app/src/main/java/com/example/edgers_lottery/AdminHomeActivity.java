@@ -2,6 +2,7 @@ package com.example.edgers_lottery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         TextView images = findViewById(R.id.imagesViewMenu).findViewById(R.id.menuTitle);
         TextView users = findViewById(R.id.userListMenu).findViewById(R.id.menuTitle);
         TextView export = findViewById(R.id.exportNotificationsMenu).findViewById(R.id.menuTitle);
+        ImageButton profileButton = findViewById(R.id.ProfileButton);
 
         organizer.setText("Organizer List");
         events.setText("Events List");
@@ -28,7 +30,6 @@ public class AdminHomeActivity extends AppCompatActivity {
         organizer.setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerListActivity.class);
             startActivity(intent);
-            finish();
         });
 
         events.setOnClickListener(v -> {
@@ -49,6 +50,12 @@ public class AdminHomeActivity extends AppCompatActivity {
         export.setOnClickListener(v -> {
             Intent intent = new Intent(this, ExportNotificationsActivity.class);
             startActivity(intent);
+        });
+
+        profileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            startActivity(intent);
+            finish();
         });
 
     }
