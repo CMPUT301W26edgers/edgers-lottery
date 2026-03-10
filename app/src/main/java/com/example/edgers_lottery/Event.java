@@ -124,4 +124,20 @@ public class Event {
     public void setEnforeLocation(boolean enforeLocation) {
         this.enforeLocation = enforeLocation;
     }
+    public Event(){
+        // set defaults like the current day or location or something
+    }
+    public Event(String name, String description, String date, String time, String location, User organizer, int capacity, String registrationStart, String registrationEnd){
+        this.name = name;
+        this.description = description;
+        this.date = date;
+        this.time = time;
+        this.location = location;
+        this.organizer = organizer;
+        this.capacity = capacity;
+        this.registrationStart = registrationStart;
+        this.registrationEnd = registrationEnd;
+        this.waitingList = new ArrayList<>();
+        this.entrants = new ArrayList<>();
+    }
 }
