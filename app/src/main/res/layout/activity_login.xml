@@ -85,10 +85,12 @@
             android:layout_marginVertical="5dp"
             android:hint="@string/password">
 
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
 <!--        we should remove the continue as admin/organizer buttons and just leave continue or new user-->
