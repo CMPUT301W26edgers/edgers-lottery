@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,13 +22,39 @@ public class ProfileActivity extends AppCompatActivity {
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+    private void editUser(User user, String newDesc, String newEmail, String newLocation){
+        user.setEmail(newEmail);
+        user.setDescription(newDesc);
+        user.setLocation(newLocation);
+        // update the user in the database
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(user.getId())
+                .set(user)
+                .addOnSuccessListener(aVoid -> {
+                    // update the user in the CurrentUser class
+                    CurrentUser.set(user);
+                    // show a success
+                    new AlertDialog.Builder(this)
+                            .setTitle("Success")
+                            .setMessage("Profile updated successfully")
+                            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                            .show();
+                });
+        // refresh the activity
+        recreate();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         user = CurrentUser.get(); // already loaded in StartActivity
-
+        // set Profile names to user name
+        TextView profileNames = findViewById(R.id.ProfileNames);
+        profileNames.setText(user.getName());
+        // set up buttons here
         ImageButton homeButton = findViewById(R.id.HomeButton);
+        Button editProfileButton = findViewById(R.id.ProfileEditButton);
         Button deleteProfileButton = findViewById(R.id.deleteProfileButton);
         Button signoutButton = findViewById(R.id.signoutButton);
         // ImageButton checkoutButton = findViewById(R.id.checkoutButton);
@@ -50,7 +77,11 @@ public class ProfileActivity extends AppCompatActivity {
                 finish();
             }
         });
-
+        editProfileButton.setOnClickListener(v -> {
+                    // create the fragment so the user can edit their profile
+                    EditProfileFragment editProfileFragment = EditProfileFragment.newInstance(user);
+                    editProfileFragment.show(getSupportFragmentManager(), "edit_profile");
+                });
         deleteProfileButton.setOnClickListener(v -> {
 
             new AlertDialog.Builder(this)
