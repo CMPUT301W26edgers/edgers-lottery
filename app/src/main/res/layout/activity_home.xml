@@ -106,6 +106,7 @@
     </LinearLayout>
 
     <ListView
+        android:id="@+id/eventsList"
         android:layout_width="409dp"
         android:layout_height="575dp"
         android:layout_marginStart="1dp"

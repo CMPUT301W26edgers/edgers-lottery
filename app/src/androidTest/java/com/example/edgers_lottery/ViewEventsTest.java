@@ -78,6 +78,7 @@ public class ViewEventsTest {
 
         // view events
         boolean[] fetched = {false};
+        CountDownLatch fetchLatch = new CountDownLatch(1);
         events.get()
                 .addOnSuccessListener(querySnapshot -> {
                     int count = 0;
@@ -87,9 +88,9 @@ public class ViewEventsTest {
                         android.util.Log.d(TAG, "Event fetched successfully");
                     }
                     android.util.Log.d(TAG, "Number of events fetched: " + count);
-                    latch3.countDown();
+                    fetchLatch.countDown();
                 });
-        latch3.await(20, TimeUnit.SECONDS);
+        fetchLatch.await(20, TimeUnit.SECONDS);
         assertTrue("Events should have been fetched", fetched[0]);
 
     }
