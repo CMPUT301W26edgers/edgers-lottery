@@ -155,15 +155,17 @@
             android:text="@string/register"
             android:textAllCaps="false" />
 
+        <!--    made this into a log in button and removed the register as organizer feature -->
+
         <Button
-            android:id="@+id/continueOrgButton"
+            android:id="@+id/logInButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="32dp"
             android:layout_marginVertical="7dp"
             android:backgroundTint="@color/loginGray"
             android:fontFamily="@font/inter_semibold"
-            android:text="@string/registerOrg"
+            android:text="@string/log_in_as_existing_user"
             android:textColor="@color/black"
             android:textAllCaps="false" />
 

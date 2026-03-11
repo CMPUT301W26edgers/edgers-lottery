@@ -28,7 +28,8 @@ public class NewUserActivity extends AppCompatActivity {
 
 
         findViewById(R.id.continueUserButton).setOnClickListener(v -> registerUser());
-        findViewById(R.id.continueOrgButton).setOnClickListener(v -> registerOrganizer());
+        findViewById(R.id.logInButton).setOnClickListener(v -> loginAsExistingUser()); // removed organizer button
+//        findViewById(R.id.continueOrgButton).setOnClickListener(v -> registerOrganizer());
     }
 
     private void registerUser() {
@@ -53,7 +54,7 @@ public class NewUserActivity extends AppCompatActivity {
                     Toast.makeText(this, "Registration failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
+// decommisioned function
     private void registerOrganizer() {
         String firstName = firstNameEditText.getText().toString().trim(); // remove whitespace
         String lastName = lastNameEditText.getText().toString().trim();
@@ -76,7 +77,12 @@ public class NewUserActivity extends AppCompatActivity {
                     Toast.makeText(this, "Registration failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
-
+    private void loginAsExistingUser() {
+        // swithc activities to the login activity
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
     private void saveUserToFirestore(String uid, String firstName, String lastName, String email, String role) {
         User user = new User(uid, firstName + " " + lastName, email, role); // user doesnt need to enter phone number until they update person information
         // save this user to the firebase
