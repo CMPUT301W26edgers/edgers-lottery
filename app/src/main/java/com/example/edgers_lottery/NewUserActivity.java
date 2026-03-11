@@ -84,6 +84,9 @@ public class NewUserActivity extends AppCompatActivity {
                 .addOnSuccessListener(unused -> {
                     // go to HomeActivity now, user created
                     Toast.makeText(this, "User created successfully", Toast.LENGTH_SHORT).show();
+
+                    CurrentUser.set(user);
+
                     if ("ORGANIZER".equals(role)) {
                         Intent intent = new Intent(this, OrgHomeActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
