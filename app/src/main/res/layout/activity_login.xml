@@ -91,7 +91,7 @@
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
-
+<!--        we should remove the continue as admin/organizer buttons and just leave continue or new user-->
         <Button
             android:id="@+id/continueUserButton"
             android:layout_width="match_parent"
@@ -103,29 +103,29 @@
             android:text="@string/continueUser"
             android:textAllCaps="false" />
 
-        <Button
-            android:id="@+id/continueOrgButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="7dp"
-            android:layout_marginHorizontal="32dp"
-            android:backgroundTint="@color/loginGray"
-            android:fontFamily="@font/inter_semibold"
-            android:text="@string/continueOrganizer"
-            android:textAllCaps="false"
-            android:textColor="@color/black" />
+<!--        <Button-->
+<!--            android:id="@+id/continueOrgButton"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginVertical="7dp"-->
+<!--            android:layout_marginHorizontal="32dp"-->
+<!--            android:backgroundTint="@color/loginGray"-->
+<!--            android:fontFamily="@font/inter_semibold"-->
+<!--            android:text="@string/continueOrganizer"-->
+<!--            android:textAllCaps="false"-->
+<!--            android:textColor="@color/black" />-->
 
-        <Button
-            android:id="@+id/continueAdminButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="7dp"
-            android:layout_marginHorizontal="32dp"
-            android:text="@string/continueAdmin"
-            android:textColor="@color/black"
-            android:backgroundTint="@color/loginGray"
-            android:fontFamily="@font/inter_semibold"
-            android:textAllCaps="false"  />
+<!--        <Button-->
+<!--            android:id="@+id/continueAdminButton"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginVertical="7dp"-->
+<!--            android:layout_marginHorizontal="32dp"-->
+<!--            android:text="@string/continueAdmin"-->
+<!--            android:textColor="@color/black"-->
+<!--            android:backgroundTint="@color/loginGray"-->
+<!--            android:fontFamily="@font/inter_semibold"-->
+<!--            android:textAllCaps="false"  />-->
 
         <Button
             android:id="@+id/createAccountButton"
