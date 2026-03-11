@@ -27,6 +27,7 @@
         <activity android:name=".AdminHomeActivity"/>
         <!-- <activity android:name=".LoginActivity"/> -->
         <activity android:name=".ProfileActivity"/>
+        <activity android:name=".OrganizerListActivity"/>
 <!--  merge conflict here is resolved-->
         <activity android:name=".EventUserChoice" />
     </application>
