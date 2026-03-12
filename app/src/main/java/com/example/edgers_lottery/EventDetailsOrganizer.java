@@ -1,4 +1,5 @@
 package com.example.edgers_lottery;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -22,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-
+import android.widget.TextView;
 
 public class EventDetailsOrganizer extends AppCompatActivity{
 
@@ -69,6 +70,21 @@ public class EventDetailsOrganizer extends AppCompatActivity{
 
         TextView countdown = findViewById(R.id.tvRegistrationCountdown);
         String dateString = getIntent().getStringExtra("registration_date");
+        String eventName = getIntent().getStringExtra("eventName");
+        int entrant = getIntent().getIntExtra("entrants", 0);
+        String descrptionText = getIntent().getStringExtra("description");
+
+
+
+        TextView LocationName = findViewById(R.id.tvEventTitle);
+        //TextView Date = findViewById(R.id.tvDate);
+        TextView entrantLimit = findViewById(R.id.tvEntrantLimit);
+        TextView description = findViewById(R.id.tvDescription);
+
+        LocationName.setText(eventName);
+        //Date.setText(eventName);
+        entrantLimit.setText("Entrant: " + entrant);
+        description.setText("Description: " + descrptionText);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -87,7 +103,18 @@ public class EventDetailsOrganizer extends AppCompatActivity{
 
 
         ImageButton btnBackEventDetails = findViewById(R.id.btnBackEventDetails);
-        btnBackEventDetails.setOnClickListener(v -> finish());
+        btnBackEventDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(this, OrganizerHomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        ImageButton btnTabEditEvent = findViewById(R.id.btnTabEditEvent);
+        btnTabEditEvent.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CreateEditEventActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
     }
 }

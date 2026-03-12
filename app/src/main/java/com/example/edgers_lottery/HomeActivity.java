@@ -78,6 +78,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         setContentView(R.layout.activity_home);
         user = CurrentUser.get(); // already loaded in StartActivity
 
+        
         if (user != null) {
             showUserInfoDialog(user);
         }
@@ -89,10 +90,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         }
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         Button historyButton = findViewById(R.id.btnHistory);
-//        Button qrButton = findViewById(R.id.qrButton);
-//        Button checkoutButton = findViewById(R.id.checkoutButton);
+//        ImageButton qrButton = findViewById(R.id.qrButton);
+//        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
 //        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
+        Button organizerButton = findViewById(R.id.btnOrganizerMode);
 
 
         profileButton.setOnClickListener(v -> {

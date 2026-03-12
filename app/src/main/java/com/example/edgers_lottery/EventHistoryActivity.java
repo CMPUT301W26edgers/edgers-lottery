@@ -3,6 +3,8 @@ package com.example.edgers_lottery; // Update if your package name is different!
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.ImageButton;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +19,7 @@ public class EventHistoryActivity extends AppCompatActivity {
     private EventHistoryAdapter adapter;
     private List<Event> eventList;
     private FirebaseFirestore db;
+
     private String currentUserId;
 
     @Override
@@ -31,9 +34,9 @@ public class EventHistoryActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // 2. Get the current user's ID (Assuming you use Device ID for testing)
-        currentUserId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        currentUserId = CurrentUser.get().getId();
 
-        Log.d("MY_ID", currentUserId);
+
         // 3. Setup the Adapter
         eventList = new ArrayList<>();
         adapter = new EventHistoryAdapter(this, eventList, currentUserId);
@@ -41,6 +44,11 @@ public class EventHistoryActivity extends AppCompatActivity {
 
         // 4. Load the data!
         fetchUserEventHistory();
+
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
     }
 
     @Override

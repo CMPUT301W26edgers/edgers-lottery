@@ -4,21 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_height="662dp"
+        android:layout_marginTop="1dp"
 
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Event Details"
-            android:textSize="25sp"
-            tools:layout_editor_absoluteX="49dp"
-            tools:layout_editor_absoluteY="42dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout17">
 
         <ImageView
             android:id="@+id/imageView2"
@@ -38,77 +33,114 @@
             android:id="@+id/location_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Location Name"
-            />
+            android:text="Location Name" />
 
         <TextView
             android:id="@+id/date_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Date" />
+
         <TextView
             android:id="@+id/event_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Time"
-            />
+            android:text="Time" />
+
         <TextView
             android:id="@+id/event_capacity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="event_capacity"
-            />
+            android:text="event_capacity" />
 
         <TextView
             android:id="@+id/registration_ends_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Registration Day ends in" />
+
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             app:cardCornerRadius="10dp"
             app:cardElevation="4dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
-            <TextView
-                android:id="@+id/event_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event description"
-                />
+
+                <TextView
+                    android:id="@+id/event_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Event description" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
+
                     <Button
                         android:id="@+id/join_button"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
                         android:backgroundTint="#4CAF50"
-                        android:text="Join_Button"
-                        />
+                        android:text="Join_Button" />
+
                     <Button
                         android:id="@+id/view_waitlist"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginStart="8dp"
+                        android:layout_weight="1"
                         android:backgroundTint="#9E9E9E"
-                        android:text="View waitlist"/>
+                        android:text="View waitlist" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
         <TextView
             android:id="@+id/lottery_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This event uses a lottery system to ensure fair access. Anyone can join the waitlist during the registration period, and once it closes, participants are randomly selected to fill the available spots. If someone declines or cancels, another person will be randomly chosen from the waitlist."/>
+            android:text="This event uses a lottery system to ensure fair access. Anyone can join the waitlist during the registration period, and once it closes, participants are randomly selected to fill the available spots. If someone declines or cancels, another person will be randomly chosen from the waitlist." />
+    </LinearLayout>
+
+    <LinearLayout
+
+        android:id="@+id/linearLayout17"
+        android:layout_width="match_parent"
+        android:layout_height="67dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/left_arrow_small"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Details"
+            android:textSize="25sp"
+            android:padding="15dp"
+            android:textColor="@color/black"
+            tools:layout_editor_absoluteX="49dp"
+            tools:layout_editor_absoluteY="42dp" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
