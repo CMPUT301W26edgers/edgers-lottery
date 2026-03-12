@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 
@@ -18,6 +19,7 @@ import kotlin.text.UStringsKt;
 
 public class EventDetailsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private ImageView backButton;
     private TextView eventNameText;
 
     private TextView eventDescriptionText;
@@ -40,6 +42,11 @@ public class EventDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
+        backButton = findViewById(R.id.btn_back);
+
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
         db = FirebaseFirestore.getInstance();
         eventNameText = findViewById(R.id.event_name);
         eventDescriptionText = findViewById(R.id.event_description);
@@ -78,6 +85,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             finish(); // Go back if there's no ID
         }
     }
+
 
     private void showEvent(Event event) {
         eventNameText.setText(event.getName());
