@@ -90,6 +90,7 @@
     <string name="profilePhone">Phone: </string>
     <string name="registerOrg">Register as Organizer</string>
     <string name="log_in_as_existing_user">Log In As Existing User</string>
+    <string name="location">Location:</string>
 
 
 </resources>
