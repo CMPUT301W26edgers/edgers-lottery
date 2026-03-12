@@ -11,6 +11,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.firestore.DocumentReference;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.slider.Slider;
@@ -86,6 +87,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         String price = priceInput.getText().toString().replace("$", "").trim();
         String eventName = eventNameInput.getText().toString().trim();
         String descriptionText = descriptionInput.getText().toString().trim();
+
         int entrant = (int) sliderEntrants.getValue();
 
         if (deadline.isEmpty() || price.isEmpty() || eventName.isEmpty()) {
@@ -104,6 +106,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("description", descriptionText);
         eventData.put("capacity", entrant);
 
+
         // Save image to Firestore if one has been selected
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
@@ -117,9 +120,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
             eventData.put("image", null);
         }
 
-        db.collection("events")
-                .add(eventData)
-                .addOnSuccessListener(documentReference -> {
+        DocumentReference docRef = db.collection("events").document();
+        String eventId = docRef.getId();
+
+        eventData.put("id", eventId);
+
+        docRef.set(eventData)
+                .addOnSuccessListener(unused -> {
                     Intent intent = new Intent(this, EventDetailsOrganizer.class);
                     intent.putExtra("eventName", eventName);
                     intent.putExtra("registration_date", deadline);
@@ -131,6 +138,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+
+
     }
 
     private void pickImage() {
