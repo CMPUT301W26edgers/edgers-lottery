@@ -59,7 +59,7 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/btnTabDetails"
+                    android:id="@+id/detailBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:text="Details"
@@ -69,7 +69,7 @@
                     app:cornerRadius="20dp"/>
 
                 <Button
-                    android:id="@+id/btnTabWaitlist"
+                    android:id="@+id/waitListBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:text="Waitlist"
@@ -78,7 +78,7 @@
                     app:cornerRadius="20dp"/>
 
                 <Button
-                    android:id="@+id/btnTabEntrants"
+                    android:id="@+id/entrantBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:text="Entrants"
@@ -87,7 +87,7 @@
                     app:cornerRadius="20dp"/>
 
                 <Button
-                    android:id="@+id/btnTabEditEvent"
+                    android:id="@+id/editEventBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:text="Edit Event"
