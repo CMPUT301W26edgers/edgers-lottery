@@ -3,6 +3,7 @@ package com.example.edgers_lottery;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -35,6 +36,7 @@ public class HomeActivity extends AppCompatActivity {
         user = CurrentUser.get(); // already loaded in StartActivity
 
 
+        
         if (user != null) {
             showUserInfoDialog(user);
         }
@@ -45,6 +47,8 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         ImageButton profileButton = findViewById(R.id.ProfileButton);
+        Button historyButton = findViewById(R.id.btnHistory);
+
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
@@ -75,6 +79,10 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        historyButton.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, EventHistoryActivity.class);
+            startActivity(intent);
+        });
     }
 
 

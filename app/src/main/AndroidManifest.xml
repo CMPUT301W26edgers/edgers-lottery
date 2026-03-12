@@ -25,12 +25,15 @@
         <activity android:name=".HomeActivity"/>
         <activity android:name=".OrgHomeActivity"/>
         <activity android:name=".AdminHomeActivity"/>
-        <!-- <activity android:name=".LoginActivity"/> -->
+         <activity android:name=".LoginActivity"/>
         <activity android:name=".ProfileActivity"/>
+        <activity android:name=".OrganizerListActivity"/>
 <!--  merge conflict here is resolved-->
+        <!--  merge conflict here is resolved-->
         <activity android:name=".EventUserChoice" />
         <activity android:name=".EventDetailsActivity"/>
 
+        <activity android:name=".EventHistoryActivity" android:exported="false"/>
     </application>
 
 </manifest>

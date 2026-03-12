@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class Event {
     private String id; // events need unique IDs made by
     private String name;
+    private String id;
     private String description;
     private String date; // can be changed to a date object
     private String time; // can be changed to a time object
@@ -19,6 +20,7 @@ public class Event {
     private String registrationEnd; // can be changed to a date object
     private Uri poster; // this will be a URI to the poster image, we can change this later
     private ArrayList<User> waitingList;
+    private ArrayList<User> invitedUsers; // after lottery, keep selected users here
     private ArrayList<User> entrants;
     private boolean enforceLocation;
 //    public Lottery lottery;
@@ -38,6 +40,10 @@ public class Event {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getId() {return id;}
+
+    public String setId(String id) {return this.id = id;}
 
     public String getDescription() {
         return description;
@@ -117,6 +123,14 @@ public class Event {
 
     public void setWaitingList(ArrayList<User> waitingList) {
         this.waitingList = waitingList;
+    }
+
+    public ArrayList<User> getInvitedUsers() {
+        return invitedUsers;
+    }
+
+    public void setInvitedUsers(ArrayList<User> invitedUsers) {
+        this.invitedUsers = invitedUsers;
     }
 
     public ArrayList<User> getEntrants() {

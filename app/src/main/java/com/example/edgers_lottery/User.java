@@ -1,10 +1,33 @@
 package com.example.edgers_lottery;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String id;
     private String name;
     private String email;
     private String phone;
+    private String description;
+    private String location;
+    private String username;
+
+
+    public String getLocation() {
+        return location != null ? location : "";
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getDescription() {
+        return description != null ? description : "";
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public static enum Role {
         ENTRANT,
         ORGANIZER,
@@ -28,8 +51,8 @@ public class User {
         this.name = name;
     }
     public String getEmail() {
-        return email;
-    }
+        return email ;
+    } //!= null ? email : "" mmight need this later?
     public void setEmail(String email) {
         this.email = email;
     }
@@ -37,7 +60,7 @@ public class User {
         return phone;
     }
     public void setPhone(String phone) {
-        this.phone = phone;
+        this.phone = phone != null ? phone : "";
     }
     public String getId() {
         return id;
@@ -50,5 +73,11 @@ public class User {
     }
     public void setRole(String role) {
         this.role = role;
+    }
+    public String getUsername() {
+        return username != null ? username : "no username";
+    }
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
