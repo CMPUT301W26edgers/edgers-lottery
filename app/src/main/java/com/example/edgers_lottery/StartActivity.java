@@ -45,12 +45,6 @@ public class StartActivity extends AppCompatActivity{
                                 return;
                             }
                             switch (role) {
-                                case "ORGANIZER":
-                                    user = document.toObject(User.class);
-                                    CurrentUser.set(user);
-                                    prefs.edit().putBoolean("has_signed_in_before", true).apply();
-                                    navigateTo(OrgHomeActivity.class);
-                                    break;
                                 case "ADMIN":
                                     user = document.toObject(User.class);
                                     CurrentUser.set(user);

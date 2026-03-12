@@ -15,7 +15,7 @@
             android:id="@+id/btnBackEventDetails"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/right_arrow_small"
+            android:src="@drawable/left_arrow_small"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>

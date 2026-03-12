@@ -1,5 +1,6 @@
 package com.example.edgers_lottery;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.app.DatePickerDialog;
@@ -48,6 +49,20 @@ public class CreateEditEventActivity extends AppCompatActivity {
         initViews();
         setupListeners();
         setupEdgeToEdge();
+
+        Button btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(this, OrganizerHomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        Button btnTabDetails = findViewById(R.id.btnTabDetails);
+        btnTabDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EventDetailsOrganizer.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void initViews() {

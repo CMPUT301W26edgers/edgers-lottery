@@ -19,12 +19,26 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
+        <LinearLayout
+            android:layout_width="57dp"
+            android:layout_height="50dp"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/white"
+                android:contentDescription="@string/backButton"
+                app:srcCompat="@drawable/left_arrow_small" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/historyTitleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="My Events History"
-            android:textSize="22sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#212121"/>
     </LinearLayout>
