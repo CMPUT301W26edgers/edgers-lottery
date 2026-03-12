@@ -32,7 +32,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private ArrayList<User> waitingList;
     private static final String TAG = "EventDetailsActivity";
     protected User user;
-    protected User user2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
