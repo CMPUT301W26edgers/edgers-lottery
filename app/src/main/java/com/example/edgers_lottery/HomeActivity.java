@@ -3,6 +3,7 @@ package com.example.edgers_lottery;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AlertDialog;
@@ -29,15 +30,22 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         user = CurrentUser.get(); // already loaded in StartActivity
-
+        
         if (user != null) {
             showUserInfoDialog(user);
         }
         ImageButton profileButton = findViewById(R.id.ProfileButton);
+        Button historyButton = findViewById(R.id.btnHistory);
+
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
             finish();
+        });
+
+        historyButton.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, EventHistoryActivity.class);
+            startActivity(intent);
         });
     }
 
