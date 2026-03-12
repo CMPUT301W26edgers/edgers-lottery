@@ -12,6 +12,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 
 public class EventArrayAdapter extends ArrayAdapter<Event> {
@@ -35,11 +37,23 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
             TextView organizerTextView = view.findViewById(R.id.organizer_text);
             TextView dateTextView = view.findViewById(R.id.date_text);
             TextView registrationEndTextView = view.findViewById(R.id.registration_end_text);
-
-            titleTextView.setText(event.getName());
-            organizerTextView.setText(event.getOrganizer().getName());
-            dateTextView.setText(event.getDate());
-            registrationEndTextView.setText(event.getRegistrationEnd());
+// these ternary operators are TEMPORARY FIXES
+            titleTextView.setText(event.getName() != null ? event.getName() : "Unknown Event");
+            if (event.getOrganizerId() != null) {
+                FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .document(event.getOrganizerId())
+                        .get()
+                        .addOnSuccessListener(doc -> {
+                            User organizer = doc.toObject(User.class);
+                            assert organizer != null;
+                            organizerTextView.setText(organizer.getName());
+                        });
+            } else {
+                organizerTextView.setText("Unknown Organizer");
+            }
+            dateTextView.setText(event.getDate() != null ? event.getDate() : "Unknown Date");
+            registrationEndTextView.setText(event.getRegistrationEnd() != null ? event.getRegistrationEnd() : "Unknown Registration End");
             }
         return view;
         }

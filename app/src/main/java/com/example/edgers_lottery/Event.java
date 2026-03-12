@@ -10,7 +10,8 @@ public class Event {
     private String date; // can be changed to a date object
     private String time; // can be changed to a time object
     private String location;
-    private User organizer; // store organizer as a User object
+//    private User organizer; // store organizer as a User object
+    // this actaully cannot be a User because firebase does not know how to do stuff with that
     private String organizerId;
     private int capacity;
     private String registrationStart; // can be changed to a date object
@@ -18,7 +19,7 @@ public class Event {
     private Uri poster; // this will be a URI to the poster image, we can change this later
     private ArrayList<User> waitingList;
     private ArrayList<User> entrants;
-    private boolean enforeLocation;
+    private boolean enforceLocation;
 //    public Lottery lottery;
 
     public String getName() {
@@ -61,13 +62,13 @@ public class Event {
         this.location = location;
     }
 
-    public User getOrganizer() {
-        return organizer;
-    }
-
-    public void setOrganizer(User organizer) {
-        this.organizer = organizer;
-    }
+//    public User getOrganizer() {
+//        return organizer;
+//    }
+//
+//    public void setOrganizer(User organizer) {
+//        this.organizer = organizer;
+//    }
 
     public int getCapacity() {
         return capacity;
@@ -117,13 +118,22 @@ public class Event {
         this.entrants = entrants;
     }
 
-    public boolean isEnforeLocation() {
-        return enforeLocation;
+    public boolean isEnforceLocation() {
+        return enforceLocation;
     }
 
-    public void setEnforeLocation(boolean enforeLocation) {
-        this.enforeLocation = enforeLocation;
+    public void setEnforceLocation(boolean enforceLocation) {
+        this.enforceLocation = enforceLocation;
     }
+
+    public String getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
+    }
+
     public Event(){
         // set defaults like the current day or location or something
     }
@@ -133,7 +143,7 @@ public class Event {
         this.date = date;
         this.time = time;
         this.location = location;
-        this.organizer = organizer;
+//        this.organizer = organizer;
         this.capacity = capacity;
         this.registrationStart = registrationStart;
         this.registrationEnd = registrationEnd;
