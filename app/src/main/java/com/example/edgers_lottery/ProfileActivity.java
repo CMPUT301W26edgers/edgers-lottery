@@ -22,7 +22,7 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
     }
-    private void editUser(User user, String newDesc, String newEmail, String newLocation){
+    public void editUser(User user, String newDesc, String newEmail, String newLocation){
         user.setEmail(newEmail);
         user.setDescription(newDesc);
         user.setLocation(newLocation);
