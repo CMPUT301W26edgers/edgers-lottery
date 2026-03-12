@@ -94,7 +94,10 @@ public class CreateEditEventActivity extends AppCompatActivity {
         }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String eventId= db.collection("events").document().getId();
+
         Map<String, Object> eventData = new HashMap<>();
+        eventData.put("eventId", eventId);
         eventData.put("name", eventName);
         eventData.put("date", deadline);
         eventData.put("price", price);
@@ -117,7 +120,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         db.collection("events")
                 .add(eventData)
                 .addOnSuccessListener(documentReference -> {
-                    String eventId = documentReference.getId();
                     Intent intent = new Intent(this, EventDetailsOrganizer.class);
                     intent.putExtra("eventName", eventName);
                     intent.putExtra("registration_date", deadline);
