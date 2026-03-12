@@ -46,6 +46,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")  // add this
+    implementation("com.google.firebase:firebase-auth:22.3.1")
+//    implementation("com.google.firebase:firebase-firestore:24.10.0")
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")
     androidTestImplementation ("androidx.test:runner:1.5.2")
 }

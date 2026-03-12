@@ -88,6 +88,7 @@
     <string name="description">Description</string>
     <string name="profileEmail">Email: </string>
     <string name="profilePhone">Phone: </string>
+    <string name="registerOrg">Register as Organizer</string>
 
 
 </resources>
