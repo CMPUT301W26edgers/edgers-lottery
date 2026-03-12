@@ -23,7 +23,10 @@ public class EventUserChoice extends AppCompatActivity {
     private Button btnAcceptInvite;
     private Button btnRejectInvite;
     private TextView tvDescriptionTitle;
-    private TextView tvEventPrice;
+    private TextView tvLocationName;
+    private TextView tvEventDate;
+    private TextView tvDescriptionBody;
+    //private TextView tvEventPrice;
 
     // 2. Data Objects
     private User currentUser;
@@ -49,7 +52,12 @@ public class EventUserChoice extends AppCompatActivity {
         btnAcceptInvite = findViewById(R.id.btn_accept_invite);
         btnRejectInvite = findViewById(R.id.btn_decline_invite);
         tvDescriptionTitle = findViewById(R.id.tv_description_title);
+        tvLocationName = findViewById(R.id.tv_location_name);
+        tvEventDate = findViewById(R.id.tv_event_date);
+        tvDescriptionBody = findViewById(R.id.tv_description_body);
+        //tvEventPrice = findViewById(R.id.tv_event_price);
         // Add more fields here as needed based on your XML (e.g., location, date)
+
 
         currentEventId = getIntent().getStringExtra("eventId");
 
@@ -71,6 +79,20 @@ public class EventUserChoice extends AppCompatActivity {
 
                             // Now that we have the data, update the UI!
                             tvDescriptionTitle.setText(currentEvent.getName());
+                            // tvEventPrice.setText(String.valueOf(currentEvent.getPrice()));
+                            if (currentEvent.getDescription() != null) {
+                                tvDescriptionBody.setText(currentEvent.getDescription());
+                            }
+
+                            if (currentEvent.getLocation() != null) {
+                                tvLocationName.setText(currentEvent.getLocation());
+                            }
+
+                            if (currentEvent.getDate() != null && currentEvent.getTime() != null) {
+                                tvEventDate.setText(currentEvent.getDate() + " at " + currentEvent.getTime());
+                            } else if (currentEvent.getDate() != null) {
+                                tvEventDate.setText(currentEvent.getDate());
+                            }
                         } else {
                             Toast.makeText(this, "Event no longer exists.", Toast.LENGTH_SHORT).show();
                             finish();
@@ -138,7 +160,7 @@ public class EventUserChoice extends AppCompatActivity {
         // 1. Remove the user from the local invited list
         if (currentEvent.getInvitedUsers() != null) {
             // NOTE: For this to work perfectly, your User class MUST have overridden the .equals() method!
-            currentEvent.getInvitedUsers().remove(currentUser);
+            removeUserFromListSafely(currentUser.getId(), currentEvent.getInvitedUsers());
         }
 
         // 2. Push the updated list to Firebase Firestore
@@ -195,7 +217,7 @@ public class EventUserChoice extends AppCompatActivity {
         // 2. Remove from invited list
         if (currentEvent.getInvitedUsers() != null) {
             // NOTE: For this to work perfectly, your User class MUST have overridden the .equals() method!
-            currentEvent.getInvitedUsers().remove(currentUser);
+            removeUserFromListSafely(currentUser.getId(), currentEvent.getInvitedUsers());
         }
 
         // 3. Push BOTH updated lists to Firebase Firestore
@@ -225,4 +247,18 @@ public class EventUserChoice extends AppCompatActivity {
         }
         return false;
     }
+
+    /**
+     * Helper method to safely remove a user from a list using their true ID.
+     */
+    private void removeUserFromListSafely(String targetUserId, ArrayList<User> userList) {
+        if (userList == null || targetUserId == null) return;
+        for (int i = userList.size() - 1; i >= 0; i--) {
+            if (userList.get(i).getId() != null && userList.get(i).getId().equals(targetUserId)) {
+                userList.remove(i);
+                break; // Stop looking once we find and remove them
+            }
+        }
+    }
 }
+

@@ -38,6 +38,7 @@
         app:layout_constraintTop_toTopOf="@id/tvTitle"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+
     <LinearLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
@@ -47,6 +48,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvTitle">
 
         <Button
+            android:id="@+id/btnTabDetails"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
@@ -55,6 +57,7 @@
             app:cornerRadius="20dp"/>
 
         <Button
+            android:id="@+id/waitListBtn"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
@@ -63,6 +66,7 @@
             app:cornerRadius="20dp"/>
 
         <Button
+            android:id="@+id/entrantBtn"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
@@ -71,6 +75,7 @@
             app:cornerRadius="20dp"/>
 
         <Button
+            android:id="@+id/editEventBtn"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"

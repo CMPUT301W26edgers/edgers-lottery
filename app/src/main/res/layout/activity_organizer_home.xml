@@ -8,16 +8,25 @@
     android:background="#F5F0FF">
 
     <!-- Header -->
+
+    <!-- Profile Section with CardView for 3D pop -->
+
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:backgroundTint="#F5F0FF"
+        android:contentDescription="@string/backButton"
+        app:srcCompat="@drawable/left_arrow_small" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Organizer Mode"
-        android:textSize="24sp"
-        android:textStyle="bold"
         android:layout_marginTop="16dp"
-        android:textColor="#4B0082"/>
+        android:text="Organizer Mode"
+        android:textColor="#4B0082"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
-    <!-- Profile Section with CardView for 3D pop -->
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,7 +62,7 @@
                     android:id="@+id/tvUsername"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@username"
+                    android:text="username"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#333333"/>
@@ -62,7 +71,7 @@
                     android:id="@+id/tvUserID"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@userID"
+                    android:text="userID"
                     android:textSize="14sp"
                     android:textColor="#666666"/>
             </LinearLayout>

@@ -107,6 +107,17 @@
                 android:backgroundTint="@color/white"
                 android:stateListAnimator="@null"
                 app:cornerRadius="20dp" />
+
+            <Button
+                android:id="@+id/btnOrganizerMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📄 Organizer Mode"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/white"
+                android:stateListAnimator="@null"
+                app:cornerRadius="20dp" />
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -170,7 +181,7 @@
     <ListView
         android:id="@+id/eventsList"
         android:layout_width="409dp"
-        android:layout_height="575dp"
+        android:layout_height="525dp"
         android:layout_marginStart="1dp"
         android:layout_marginEnd="1dp"
         android:layout_marginBottom="1dp"

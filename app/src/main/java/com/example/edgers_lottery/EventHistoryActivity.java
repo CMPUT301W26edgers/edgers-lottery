@@ -3,6 +3,8 @@ package com.example.edgers_lottery; // Update if your package name is different!
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.ImageButton;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,6 +44,11 @@ public class EventHistoryActivity extends AppCompatActivity {
 
         // 4. Load the data!
         fetchUserEventHistory();
+
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
     }
 
     @Override
