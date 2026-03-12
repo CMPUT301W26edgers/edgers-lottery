@@ -4,6 +4,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -49,6 +50,12 @@ public class EventDetailsActivity extends AppCompatActivity {
         user = new User();
         user.setName("Tamu");
         waitingList = new ArrayList<>();
+
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
+
         db.collection("events").document("Basketball").get()
                 .addOnSuccessListener(document -> {
                     if (document.exists()) {

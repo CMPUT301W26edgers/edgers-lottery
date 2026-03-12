@@ -1,4 +1,5 @@
 package com.example.edgers_lottery;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -102,7 +103,18 @@ public class EventDetailsOrganizer extends AppCompatActivity{
 
 
         ImageButton btnBackEventDetails = findViewById(R.id.btnBackEventDetails);
-        btnBackEventDetails.setOnClickListener(v -> finish());
+        btnBackEventDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(this, OrganizerHomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        ImageButton btnTabEditEvent = findViewById(R.id.btnTabEditEvent);
+        btnTabEditEvent.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CreateEditEventActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
     }
 }

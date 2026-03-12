@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,7 +36,6 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         user = CurrentUser.get(); // already loaded in StartActivity
 
-
         
         if (user != null) {
             showUserInfoDialog(user);
@@ -48,10 +48,11 @@ public class HomeActivity extends AppCompatActivity {
         }
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         Button historyButton = findViewById(R.id.btnHistory);
-//        Button qrButton = findViewById(R.id.qrButton);
-//        Button checkoutButton = findViewById(R.id.checkoutButton);
+//        ImageButton qrButton = findViewById(R.id.qrButton);
+//        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
 //        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
+        Button organizerButton = findViewById(R.id.btnOrganizerMode);
 
 
         profileButton.setOnClickListener(v -> {
@@ -87,6 +88,17 @@ public class HomeActivity extends AppCompatActivity {
         historyButton.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, EventHistoryActivity.class);
             startActivity(intent);
+        });
+
+        organizerButton.setOnClickListener(v -> {
+            if (user != null && "ORGANIZER".equals(user.getRole())) {
+                Intent intent = new Intent(this, OrganizerHomeActivity.class);
+                intent.putExtra("username", user.getName());
+                intent.putExtra("userid", user.getId());
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "You are not an Organizer", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
