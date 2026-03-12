@@ -153,6 +153,16 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
                     .setNegativeButton("Cancel", null)
                     .show();
         });
+        signoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            CurrentUser.set(null); // sign user out
+            Intent intent = new Intent(this, LoginActivity.class);
+            // send them here instead of start activity because there's no point in
+            // having them get thru it for no reason just to end up in the same place
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
 
     }
 
