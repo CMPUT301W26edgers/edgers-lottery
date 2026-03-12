@@ -48,6 +48,11 @@ public class HomeActivity extends AppCompatActivity {
         }
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         Button historyButton = findViewById(R.id.btnHistory);
+//        Button qrButton = findViewById(R.id.qrButton);
+//        Button checkoutButton = findViewById(R.id.checkoutButton);
+//        Button favoritesButton = findViewById(R.id.btnFavorites);
+        Button filterButton = findViewById(R.id.btnFilter);
+
 
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
