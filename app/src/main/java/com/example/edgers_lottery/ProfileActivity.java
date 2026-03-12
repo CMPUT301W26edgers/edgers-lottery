@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements EditProfileFragment.EditProfileDialogListener {
     private static final String TAG = "ProfileActivity";
     protected static User user;
     private void showUserInfoDialog(User user) {
