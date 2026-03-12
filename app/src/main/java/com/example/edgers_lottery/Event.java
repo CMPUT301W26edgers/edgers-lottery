@@ -5,6 +5,7 @@ import android.net.Uri;
 import java.util.ArrayList;
 
 public class Event {
+    private String id; // events need unique IDs made by
     private String name;
     private String description;
     private String date; // can be changed to a date object
@@ -21,6 +22,14 @@ public class Event {
     private ArrayList<User> entrants;
     private boolean enforceLocation;
 //    public Lottery lottery;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

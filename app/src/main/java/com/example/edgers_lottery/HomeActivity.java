@@ -68,6 +68,14 @@ public class HomeActivity extends AppCompatActivity {
                     // Handle failure
                     android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
                 });
+        eventsList.setOnItemClickListener((parent, view, position, id) -> {
+            Event selectedEvent = eventsArray.get(position);
+            Intent intent = new Intent(this, EventDetailsActivity.class);
+            intent.putExtra("eventId", selectedEvent.getId());
+            startActivity(intent);
+        });
+
     }
+
 
 }
