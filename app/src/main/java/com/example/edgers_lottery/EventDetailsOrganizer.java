@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import android.widget.TextView;
 
-
 public class EventDetailsOrganizer extends AppCompatActivity{
 
     private void showQrCodeDialog(Bitmap qrBitmap) {
