@@ -9,6 +9,8 @@ public class User implements Serializable {
     private String phone;
     private String description;
     private String location;
+    private String username;
+
 
     public String getLocation() {
         return location != null ? location : "";
@@ -71,5 +73,11 @@ public class User implements Serializable {
     }
     public void setRole(String role) {
         this.role = role;
+    }
+    public String getUsername() {
+        return username != null ? username : "no username";
+    }
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
