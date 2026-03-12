@@ -1,6 +1,5 @@
 package com.example.edgers_lottery;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -11,24 +10,67 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 ;import java.util.ArrayList;
 
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements EditProfileFragment.EditProfileDialogListener, FilterEventsFragment.EditFilterDialogListener {
     private static final String TAG = "HomeActivity";
     protected static User user;
     FirebaseFirestore db;
     ArrayList<Event> eventsArray = new ArrayList<>();
     ListView eventsList;
+    EventArrayAdapter adapter;
+    // filter elements
+    String interests = "";
+    String availabilityStart = "";
+    String availabilityEnd = "";
+
     private void showUserInfoDialog(User user) {
         new AlertDialog.Builder(this)
                 .setTitle("User Info")
                 .setMessage("Name: " + user.getName() + "\nEmail: " + user.getEmail())
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
+    }
+    public void editFilter(String interests, String registrationStart, String registrationEnd) {
+        this.interests = interests;
+        this.availabilityStart = registrationStart;
+        this.availabilityEnd = registrationEnd;
+        Toast.makeText(this, "Filters updated: " + interests + ", " + registrationStart + ", " + registrationEnd, Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void onFilterApplied(String interests, String availabilityStart, String availabilityEnd) {
+        this.interests = interests;
+        this.availabilityStart = availabilityStart;
+        this.availabilityEnd = availabilityEnd;
+
+        android.util.Log.d(TAG, "Interest:" + interests + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
+
+        eventsArray.clear();
+        db.collection("events").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        Event event = document.toObject(Event.class);
+                        event.setId(document.getId());
+                        boolean matchesInterest = interests == null || interests.isEmpty()
+                                || (event.getName() != null && event.getName().toLowerCase().contains(interests.toLowerCase()))
+                                || (event.getDescription() != null && event.getDescription().toLowerCase().contains(interests.toLowerCase()));
+                        boolean matchesStart = availabilityStart == null || availabilityStart.isEmpty()
+                                || event.getDate().compareTo(availabilityStart) >= 0;
+                        boolean matchesEnd = availabilityEnd == null || availabilityEnd.isEmpty()
+                                || event.getDate().compareTo(availabilityEnd) <= 0;
+
+                        if (matchesInterest && matchesStart && matchesEnd) {
+                            eventsArray.add(event);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
+                });
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +105,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // view events here!
         eventsList = findViewById(R.id.eventsList);
-        EventArrayAdapter adapter = new EventArrayAdapter(this, eventsArray);
+        adapter = new EventArrayAdapter(this, eventsArray);
         eventsList.setAdapter(adapter);
         db = FirebaseFirestore.getInstance();
         db.collection("events").get()
@@ -89,16 +131,12 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, EventHistoryActivity.class);
             startActivity(intent);
         });
+        filterButton.setOnClickListener(v -> {
+            FilterEventsFragment filterEventsFragment = new FilterEventsFragment();
+            filterEventsFragment.show(getSupportFragmentManager(), "filter_events");
+            android.util.Log.d(TAG, "Interest:"+interests+", Start:"+availabilityStart+", End:"+availabilityEnd);
+            // filter events here!
 
-        organizerButton.setOnClickListener(v -> {
-            if (user != null && "ORGANIZER".equals(user.getRole())) {
-                Intent intent = new Intent(this, OrganizerHomeActivity.class);
-                intent.putExtra("username", user.getName());
-                intent.putExtra("userid", user.getId());
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "You are not an Organizer", Toast.LENGTH_SHORT).show();
-            }
         });
     }
 
