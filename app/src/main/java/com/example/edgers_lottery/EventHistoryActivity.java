@@ -17,6 +17,7 @@ public class EventHistoryActivity extends AppCompatActivity {
     private EventHistoryAdapter adapter;
     private List<Event> eventList;
     private FirebaseFirestore db;
+
     private String currentUserId;
 
     @Override
@@ -31,9 +32,9 @@ public class EventHistoryActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // 2. Get the current user's ID (Assuming you use Device ID for testing)
-        currentUserId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        currentUserId = CurrentUser.get().getId();
 
-        Log.d("MY_ID", currentUserId);
+
         // 3. Setup the Adapter
         eventList = new ArrayList<>();
         adapter = new EventHistoryAdapter(this, eventList, currentUserId);
