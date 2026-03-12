@@ -48,12 +48,16 @@ public class HomeActivity extends AppCompatActivity {
         }
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         Button historyButton = findViewById(R.id.btnHistory);
+        ImageButton qrButton = findViewById(R.id.qrButton);
 //        Button qrButton = findViewById(R.id.qrButton);
 //        Button checkoutButton = findViewById(R.id.checkoutButton);
 //        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
 
-
+        qrButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
+        });
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
