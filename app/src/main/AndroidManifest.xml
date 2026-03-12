@@ -35,6 +35,8 @@
         <activity android:name=".EventDetailsOrganizer"/>
         <!--  merge conflict here is resolved-->
         <activity android:name=".EventUserChoice" />
+        <activity android:name=".EventWaitlistTab"/>
+        <activity android:name=".EventEntrantOrganizer" />
         <activity android:name=".EventDetailsActivity"/>
 
         <activity android:name=".EventHistoryActivity" android:exported="false"/>
