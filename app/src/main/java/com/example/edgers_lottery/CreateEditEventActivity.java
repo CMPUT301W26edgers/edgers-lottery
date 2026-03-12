@@ -17,14 +17,25 @@ import com.google.android.material.slider.Slider;
 import java.util.Calendar;
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.firebase.Firebase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+
 public class CreateEditEventActivity extends AppCompatActivity {
 
-    // 1. All fields at the top
     private ImageView ivImage;
     private EditText registrationDeadlineInput, priceInput, descriptionInput;
     private TextInputLayout priceLayout;
     private SwitchMaterial swGeo, swWaitlist;
     private Slider sliderEntrants;
+    private EditText eventNameInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,13 +43,11 @@ public class CreateEditEventActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_end_event);
 
-        // 2. onCreate just calls setup methods, nothing else
         initViews();
         setupListeners();
         setupEdgeToEdge();
     }
 
-    // 3. All findViewById calls in one place
     private void initViews() {
         registrationDeadlineInput = findViewById(R.id.registration_deadline);
         priceLayout = findViewById(R.id.priceLayout);
@@ -48,13 +57,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
         swWaitlist = findViewById(R.id.swWaitlist);
         sliderEntrants = findViewById(R.id.sliderEntrants);
         ivImage = findViewById(R.id.ivImage);
+        eventNameInput = findViewById(R.id.event_name);
 
         sliderEntrants.setValueFrom(1);
         sliderEntrants.setValueTo(100);
         sliderEntrants.setStepSize(1);
     }
 
-    // 4. All listeners in one place
     private void setupListeners() {
         findViewById(R.id.btnBack).setOnClickListener(v -> navigateBack());
         findViewById(R.id.btnAddImage).setOnClickListener(v -> pickImage());
@@ -68,7 +77,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         swWaitlist.setOnCheckedChangeListener((btn, isChecked) -> onWaitlistToggled(isChecked));
     }
 
-    // 5. Each action is its own method
     private void navigateBack() {
         startActivity(new Intent(this, OrganizerHomeActivity.class));
     }
@@ -76,16 +84,53 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private void navigateToEventDetails() {
         String deadline = registrationDeadlineInput.getText().toString().trim();
         String price = priceInput.getText().toString().replace("$", "").trim();
+        String eventName = eventNameInput.getText().toString().trim();
+        String descriptionText = descriptionInput.getText().toString().trim();
+        int entrant = (int) sliderEntrants.getValue();
 
-        if (deadline.isEmpty() || price.isEmpty()) {
+        if (deadline.isEmpty() || price.isEmpty() || eventName.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields before continuing", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Intent intent = new Intent(this, EventDetailsOrganizer.class);
-        intent.putExtra("registration_date", deadline);
-        startActivity(intent);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("name", eventName);
+        eventData.put("date", deadline);
+        eventData.put("price", price);
+        eventData.put("description", descriptionText);
+        eventData.put("capacity", entrant);
+
+        // Save image to Firestore if one has been selected
+        Drawable drawable = ivImage.getDrawable();
+        if (drawable instanceof BitmapDrawable) {
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+            byte[] imageBytes = baos.toByteArray();
+            String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+            eventData.put("image", encodedImage);
+        } else {
+            eventData.put("image", null);
+        }
+
+        db.collection("events")
+                .add(eventData)
+                .addOnSuccessListener(documentReference -> {
+                    String eventId = documentReference.getId();
+                    Intent intent = new Intent(this, EventDetailsOrganizer.class);
+                    intent.putExtra("eventName", eventName);
+                    intent.putExtra("registration_date", deadline);
+                    intent.putExtra("event_id", eventId);
+                    intent.putExtra("description", descriptionText);
+                    intent.putExtra("entrants", entrant);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
+
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
