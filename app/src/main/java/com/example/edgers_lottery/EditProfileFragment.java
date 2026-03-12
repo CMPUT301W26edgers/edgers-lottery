@@ -59,7 +59,7 @@ public class EditProfileFragment extends DialogFragment {
         if (context instanceof EditProfileDialogListener) {
             listener = (EditProfileDialogListener) context;
         } else {
-            throw new RuntimeException(context + " must implement EditCityDialogListener");
+            throw new RuntimeException(context + " must implement EditProfileDialogListener");
         }
     }
     @NonNull
