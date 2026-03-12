@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.Firebase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -40,6 +41,9 @@ public class EventUserChoice extends AppCompatActivity {
         // Initialize Firebase
         db = FirebaseFirestore.getInstance();
 
+        // get the current user details
+        currentUser = CurrentUser.get();
+
         // 4. Link UI Elements to XML IDs
         btnBack = findViewById(R.id.btn_back);
         btnAcceptInvite = findViewById(R.id.btn_accept_invite);
@@ -47,8 +51,40 @@ public class EventUserChoice extends AppCompatActivity {
         tvDescriptionTitle = findViewById(R.id.tv_description_title);
         // Add more fields here as needed based on your XML (e.g., location, date)
 
-        // 5. Populate the screen with data
-        tvDescriptionTitle.setText(currentEvent.getName());
+        currentEventId = getIntent().getStringExtra("eventId");
+
+        if (currentEventId != null) {
+            // Fetch the real, up-to-date event from Firestore
+            db.collection("events").document(currentEventId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Convert the Firebase document back into an Event object
+                            currentEvent = documentSnapshot.toObject(Event.class);
+                            currentEvent.setId(documentSnapshot.getId()); // ensure ID is set
+
+                            // if the user previously accepted to the event, we kick them out!
+                            if (isUserInList(currentUser.getId(), currentEvent.getEntrants())) {
+                                Toast.makeText(EventUserChoice.this, "You have already accepted this invitation!", Toast.LENGTH_SHORT).show();
+                                finish(); // Kick them out immediately
+                                return;   // Stop running the rest of the code
+                            }
+
+                            // Now that we have the data, update the UI!
+                            tvDescriptionTitle.setText(currentEvent.getName());
+                        } else {
+                            Toast.makeText(this, "Event no longer exists.", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to load event data.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    });
+        } else {
+            Toast.makeText(this, "Error: No Event ID provided.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         // 6. Set up Click Listeners
         setupClickListeners();
@@ -81,54 +117,48 @@ public class EventUserChoice extends AppCompatActivity {
                 .show();
     }
 
-    // Handles the Firestore Database update
-//    private void processDecline() {
-//        // Disable the button so they can't click it twice while it loads
-//        btnRejectInvite.setEnabled(false);
-//        btnRejectInvite.setText("Processing...");
-//
-//        // 1. Remove the user from the local list
-//        if (currentEvent.getEntrants() != null) {
-//            currentEvent.getEntrants().remove(currentUser);
-//        }
-//
-//        // 2. Push the updated list to Firebase Firestore
-//        // We look for the "events" collection, find the specific event document, and update the "entrants" field
-//        db.collection("events").document(currentEventId)
-//                .update("entrants", currentEvent.getEntrants())
-//                .addOnSuccessListener(aVoid -> {
-//                    // Success! The database was updated.
-//                    Toast.makeText(EventUserChoice.this, "Invitation declined successfully.", Toast.LENGTH_SHORT).show();
-//
-//                    // Close the screen and send them back
-//                    finish();
-//                })
-//                .addOnFailureListener(e -> {
-//                    // Uh oh, something went wrong (e.g., no internet)
-//                    Toast.makeText(EventUserChoice.this, "Error declining invite: " + e.getMessage(), Toast.LENGTH_LONG).show();
-//
-//                    // Re-enable the button so they can try again
-//                    btnRejectInvite.setEnabled(true);
-//                    btnRejectInvite.setText("Reject Invite");
-//                });
-//    }
-
     private void processDecline() {
+        // Disable the button so they can't click it twice while it loads
         btnRejectInvite.setEnabled(false);
         btnRejectInvite.setText("Processing...");
 
-        // 🛠️ CHANGED: We DO NOT touch the "entrants" list here anymore.
-        // Because they aren't in the entrants list, we have nothing to remove from it!
-        // Instead, this is where you will update the list they *were* on (like an invited list).
+        // Safety Check 1: Ensure we have the Event ID
+        if (currentEventId == null && currentEvent != null) {
+            currentEventId = currentEvent.getId();
+        }
 
-        /* TODO: Once your teammate updates the Event class, add this logic:
-        1. currentEvent.getInvitedUsers().remove(currentUser);
-        2. db.collection("events").document(currentEventId).update("invitedUsers", currentEvent.getInvitedUsers())
-        */
+        // Safety Check 2: Ensure we actually have a logged-in user!
+        if (currentUser == null) {
+            Toast.makeText(this, "Error: Current user not found!", Toast.LENGTH_LONG).show();
+            btnRejectInvite.setEnabled(true);
+            btnRejectInvite.setText("Reject Invite");
+            return;
+        }
 
-        // For now, since Issue #12 is just rejecting, we will just show success and close!
-        Toast.makeText(EventUserChoice.this, "Invitation declined successfully.", Toast.LENGTH_SHORT).show();
-        finish();
+        // 1. Remove the user from the local invited list
+        if (currentEvent.getInvitedUsers() != null) {
+            // NOTE: For this to work perfectly, your User class MUST have overridden the .equals() method!
+            currentEvent.getInvitedUsers().remove(currentUser);
+        }
+
+        // 2. Push the updated list to Firebase Firestore
+        db.collection("events").document(currentEventId)
+                .update("invitedUsers", currentEvent.getInvitedUsers())
+                .addOnSuccessListener(aVoid -> {
+                    // Success! The database was updated.
+                    Toast.makeText(EventUserChoice.this, "Invitation declined successfully.", Toast.LENGTH_SHORT).show();
+
+                    // Close the screen and send them back
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    // Uh oh, something went wrong
+                    Toast.makeText(EventUserChoice.this, "Error declining invite: " + e.getMessage(), Toast.LENGTH_LONG).show();
+
+                    // Re-enable the button so they can try again
+                    btnRejectInvite.setEnabled(true);
+                    btnRejectInvite.setText("Reject Invite");
+                });
     }
 
 
@@ -139,34 +169,60 @@ public class EventUserChoice extends AppCompatActivity {
         btnRejectInvite.setEnabled(false);
         btnAcceptInvite.setText("Processing...");
 
-        // 1. Safety check: If the entrants list is completely empty/null, create it first
+        // Safety Check 1: Ensure we have the Event ID
+        if (currentEventId == null && currentEvent != null) {
+            currentEventId = currentEvent.getId();
+        }
+
+        // Safety Check 2: Ensure we actually have a logged-in user!
+        if (currentUser == null) {
+            Toast.makeText(this, "Error: Current user not found!", Toast.LENGTH_LONG).show();
+            // Re-enable buttons
+            btnAcceptInvite.setEnabled(true);
+            btnRejectInvite.setEnabled(true);
+            btnAcceptInvite.setText("Accept Invite");
+            return;
+        }
+
+        // 1. Add to entrants list
         if (currentEvent.getEntrants() == null) {
             currentEvent.setEntrants(new ArrayList<>());
         }
-
-        // 2. Add the user to the local list (only if they aren't somehow already in it)
-        if (!currentEvent.getEntrants().contains(currentUser)) {
+        if (!isUserInList(currentUser.getId(), currentEvent.getEntrants())) {
             currentEvent.getEntrants().add(currentUser);
         }
 
-        // 3. Push the updated list to Firebase Firestore
-        db.collection("events").document(currentEventId)
-                .update("entrants", currentEvent.getEntrants())
-                .addOnSuccessListener(aVoid -> {
-                    // Success! The database was updated.
-                    Toast.makeText(EventUserChoice.this, "Invitation accepted! You're on the list.", Toast.LENGTH_SHORT).show();
+        // 2. Remove from invited list
+        if (currentEvent.getInvitedUsers() != null) {
+            // NOTE: For this to work perfectly, your User class MUST have overridden the .equals() method!
+            currentEvent.getInvitedUsers().remove(currentUser);
+        }
 
-                    // Close the screen
+        // 3. Push BOTH updated lists to Firebase Firestore
+        db.collection("events").document(currentEventId)
+                .update(
+                        "entrants", currentEvent.getEntrants(),
+                        "invitedUsers", currentEvent.getInvitedUsers() // 🟢 We must update this field too!
+                )
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(EventUserChoice.this, "Invitation accepted! You're on the list.", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    // Uh oh, something went wrong
                     Toast.makeText(EventUserChoice.this, "Error accepting invite: " + e.getMessage(), Toast.LENGTH_LONG).show();
-
-                    // Re-enable the buttons so they can try again
                     btnAcceptInvite.setEnabled(true);
                     btnRejectInvite.setEnabled(true);
                     btnAcceptInvite.setText("Accept Invite");
                 });
+    }
+
+    private boolean isUserInList(String targetUserId, ArrayList<User> userList) {
+        if (userList == null || targetUserId == null) return false;
+        for (User user : userList) {
+            if (user.getId() != null && user.getId().equals(targetUserId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
