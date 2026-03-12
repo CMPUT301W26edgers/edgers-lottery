@@ -34,10 +34,12 @@ public class EditProfileFragment extends DialogFragment {
     }
 
     interface EditProfileDialogListener {
-        default void editUser(User user, String newDesc, String newEmail, String newLocation){
+        default void editUser(User user, String newDesc, String newEmail, String newLocation, String newPhone, String newUsername){
             user.setEmail(newEmail);
             user.setDescription(newDesc);
             user.setLocation(newLocation);
+            user.setPhone(newPhone);
+            user.setUsername(newUsername);
             // update the user in the database
             FirebaseFirestore.getInstance()
                     .collection("users")
@@ -67,6 +69,8 @@ public class EditProfileFragment extends DialogFragment {
         EditText editDescription = view.findViewById(R.id.edit_description_text);
         EditText editEmail = view.findViewById(R.id.edit_email_text);
         EditText editLocation = view.findViewById(R.id.edit_location_text);
+        EditText editPhone = view.findViewById(R.id.edit_phone_text);
+        EditText editUsername = view.findViewById(R.id.edit_username_text);
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -74,9 +78,12 @@ public class EditProfileFragment extends DialogFragment {
         if (getArguments()!=null){
             editingProfile = (User) getArguments().getSerializable("profile"); // get that city that was clicked
             assert editingProfile != null;
+
             editDescription.setText(editingProfile.getDescription());
             editEmail.setText(editingProfile.getEmail());
             editLocation.setText(editingProfile.getLocation());
+            editPhone.setText(editingProfile.getPhone());
+            editUsername.setText(editingProfile.getUsername());
         }
         return builder
                 .setView(view)
@@ -86,7 +93,7 @@ public class EditProfileFragment extends DialogFragment {
                     assert getArguments() != null;
                     editingProfile = (User) getArguments().getSerializable("profile");
                     assert editingProfile != null;
-                    listener.editUser(editingProfile, editDescription.getText().toString(), editEmail.getText().toString(), editLocation.getText().toString());
+                    listener.editUser(editingProfile, editDescription.getText().toString(), editEmail.getText().toString(), editLocation.getText().toString(), editPhone.getText().toString(), editUsername.getText().toString());
                 })
                 .create();
     }
