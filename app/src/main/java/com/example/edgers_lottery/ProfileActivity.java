@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,9 +12,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements EditProfileFragment.EditProfileDialogListener {
     private static final String TAG = "ProfileActivity";
     protected static User user;
+    private TextView nameTextView;
+    private TextView emailTextView;
+    private TextView descriptionTextView;
+    private TextView locationTextView;
+    private TextView usernameTextView;
+    private TextView phoneTextView;
+
+
     private void showUserInfoDialog(User user) {
         new AlertDialog.Builder(this)
                 .setTitle("User Info")
@@ -21,13 +30,62 @@ public class ProfileActivity extends AppCompatActivity {
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+    public void editUser(User user, String newDesc, String newEmail, String newLocation, String newPhone, String newUsername){
+        user.setEmail(newEmail);
+        user.setDescription(newDesc);
+        user.setLocation(newLocation);
+        user.setPhone(newPhone);
+        user.setUsername(newUsername);
+        // update the user in the database
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(user.getId())
+                .set(user)
+                .addOnSuccessListener(aVoid -> {
+                    // update the user in the CurrentUser class
+                    CurrentUser.set(user);
+                    // show a success
+                    new AlertDialog.Builder(this)
+                            .setTitle("Success")
+                            .setMessage("Profile updated successfully")
+                            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                            .show();
+                });
+        emailTextView.setText(user.getEmail());
+        descriptionTextView.setText(user.getDescription());
+        locationTextView.setText(user.getLocation());
+        usernameTextView.setText(user.getUsername());
+        phoneTextView.setText(user.getPhone());
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         user = CurrentUser.get(); // already loaded in StartActivity
+        // set Profile names to user name
+        TextView profileNames = findViewById(R.id.ProfileNames);
+        profileNames.setText(user.getName());
 
+        usernameTextView = findViewById(R.id.Username);
+        usernameTextView.setText(user.getUsername());
+
+        descriptionTextView = findViewById(R.id.descriptionText);
+        descriptionTextView.setText(user.getDescription());
+
+        emailTextView = findViewById(R.id.ProfileEmail);
+        emailTextView.setText("Email: " + user.getEmail());
+
+        phoneTextView = findViewById(R.id.ProfilePhone);
+        phoneTextView.setText("Phone: " + user.getPhone());
+
+        locationTextView = findViewById(R.id.ProfileLocation);
+        locationTextView.setText("Location: " + user.getLocation());
+
+
+        // set up buttons here
         ImageButton homeButton = findViewById(R.id.HomeButton);
+        Button editProfileButton = findViewById(R.id.ProfileEditButton);
         Button deleteProfileButton = findViewById(R.id.deleteProfileButton);
         Button signoutButton = findViewById(R.id.signoutButton);
         // ImageButton checkoutButton = findViewById(R.id.checkoutButton);
@@ -50,7 +108,11 @@ public class ProfileActivity extends AppCompatActivity {
                 finish();
             }
         });
-
+        editProfileButton.setOnClickListener(v -> {
+            // create the fragment so the user can edit their profile
+            EditProfileFragment editProfileFragment = EditProfileFragment.newInstance(user);
+            editProfileFragment.show(getSupportFragmentManager(), "edit_profile");
+        });
         deleteProfileButton.setOnClickListener(v -> {
 
             new AlertDialog.Builder(this)
@@ -90,6 +152,16 @@ public class ProfileActivity extends AppCompatActivity {
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
+        });
+        signoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            CurrentUser.set(null); // sign user out
+            Intent intent = new Intent(this, LoginActivity.class);
+            // send them here instead of start activity because there's no point in
+            // having them get thru it for no reason just to end up in the same place
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
 
     }

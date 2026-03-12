@@ -70,8 +70,8 @@ public class StartActivity extends AppCompatActivity{
                             if (hasSignedInBefore) {
                                 String email = document.getString("email");
                                 if (email == null) { // has signed in before but could not find user in database
-                                    navigateTo(NewUserActivity.class);
-//                                    navigateTo(LoginActivity.class); // returning user who signed out
+//                                    navigateTo(NewUserActivity.class);
+                                    navigateTo(LoginActivity.class); // returning user who signed out
                                 }
                             } else {
                                 navigateTo(NewUserActivity.class); // brand new user
@@ -86,8 +86,7 @@ public class StartActivity extends AppCompatActivity{
 //            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
 //            boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
             if (hasSignedInBefore) {
-
-//                navigateTo(LoginActivity.class); // returning user who signed out
+                navigateTo(LoginActivity.class); // returning user who signed out
             } else {
                 navigateTo(NewUserActivity.class); // brand new user
             }

@@ -9,9 +9,11 @@
     <TextView
         android:id="@+id/organizerName"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="20sp" />
+        android:layout_marginStart="12dp"
+        android:textSize="20sp"
+        android:textColor="@color/black" />
 
     <ImageButton
         android:id="@+id/deleteButton"

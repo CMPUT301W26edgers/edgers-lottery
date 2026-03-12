@@ -13,7 +13,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
     </LinearLayout>
 
     <LinearLayout
@@ -37,7 +36,6 @@
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -58,6 +56,71 @@
             app:srcCompat="@drawable/notification_icon" />
     </LinearLayout>
 
+    <HorizontalScrollView
+        android:id="@+id/filter_buttons_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnFavorites"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="♡ Favorites"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/white"
+                android:layout_marginEnd="8dp"
+                android:stateListAnimator="@null"
+                app:cornerRadius="20dp" />
+
+            <Button
+                android:id="@+id/btnHistory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⏱ History"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/white"
+                android:layout_marginEnd="8dp"
+                android:stateListAnimator="@null"
+                app:cornerRadius="20dp" />
+
+            <Button
+                android:id="@+id/btnFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📄 Filter Events"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/white"
+                android:stateListAnimator="@null"
+                app:cornerRadius="20dp" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <ListView
+        android:id="@+id/eventListView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="1dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/action_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter_buttons_scroll" />
+
     <LinearLayout
         android:id="@+id/action_bar"
         android:layout_width="match_parent"
@@ -66,7 +129,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
 
         <ImageButton
             android:id="@+id/HomeButton"
@@ -106,15 +168,15 @@
     </LinearLayout>
 
     <ListView
+        android:id="@+id/eventsList"
         android:layout_width="409dp"
         android:layout_height="575dp"
         android:layout_marginStart="1dp"
-        android:layout_marginTop="2dp"
         android:layout_marginEnd="1dp"
         android:layout_marginBottom="1dp"
         app:layout_constraintBottom_toTopOf="@+id/action_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+        app:layout_constraintTop_toBottomOf="@+id/filter_buttons_scroll" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
