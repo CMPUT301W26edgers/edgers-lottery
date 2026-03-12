@@ -29,6 +29,8 @@
         <activity android:name=".ProfileActivity"/>
 <!--  merge conflict here is resolved-->
         <activity android:name=".EventUserChoice" />
+        <activity android:name=".EventDetailsActivity"/>
+
     </application>
 
 </manifest>
