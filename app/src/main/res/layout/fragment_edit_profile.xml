@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/edit_description_text"
+        android:layout_width="match_parent"
+        android:layout_height="91dp"
+        android:ems="10"
+        android:hint="Tell Us About Yourself"
+        android:inputType="textMultiLine" />
+    <EditText
+        android:id="@+id/edit_email_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textEmailAddress"
+        android:hint="Enter an email address" />
+    <EditText
+        android:id="@+id/edit_location_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="Enter your location (city)" />
+    <EditText
+        android:id="@+id/edit_phone_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="Enter your phone number" />
+    <EditText
+        android:id="@+id/edit_username_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="Enter your username" />
+</LinearLayout>

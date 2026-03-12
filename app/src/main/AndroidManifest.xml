@@ -25,7 +25,7 @@
         <activity android:name=".HomeActivity"/>
         <activity android:name=".OrgHomeActivity"/>
         <activity android:name=".AdminHomeActivity"/>
-        <!-- <activity android:name=".LoginActivity"/> -->
+         <activity android:name=".LoginActivity"/>
         <activity android:name=".ProfileActivity"/>
         <activity android:name=".OrganizerListActivity"/>
 <!--  merge conflict here is resolved-->
