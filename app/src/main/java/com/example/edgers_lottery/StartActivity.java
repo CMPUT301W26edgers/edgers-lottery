@@ -86,7 +86,6 @@ public class StartActivity extends AppCompatActivity{
 //            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
 //            boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
             if (hasSignedInBefore) {
-
 //                navigateTo(LoginActivity.class); // returning user who signed out
             } else {
                 navigateTo(NewUserActivity.class); // brand new user
