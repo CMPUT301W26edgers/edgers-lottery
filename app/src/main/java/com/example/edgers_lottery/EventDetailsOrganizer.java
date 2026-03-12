@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import android.widget.TextView;
 
 
 public class EventDetailsOrganizer extends AppCompatActivity{
@@ -69,6 +70,21 @@ public class EventDetailsOrganizer extends AppCompatActivity{
 
         TextView countdown = findViewById(R.id.tvRegistrationCountdown);
         String dateString = getIntent().getStringExtra("registration_date");
+        String eventName = getIntent().getStringExtra("eventName");
+        int entrant = getIntent().getIntExtra("entrants", 0);
+        String descrptionText = getIntent().getStringExtra("description");
+
+
+
+        TextView LocationName = findViewById(R.id.tvEventTitle);
+        //TextView Date = findViewById(R.id.tvDate);
+        TextView entrantLimit = findViewById(R.id.tvEntrantLimit);
+        TextView description = findViewById(R.id.tvDescription);
+
+        LocationName.setText(eventName);
+        //Date.setText(eventName);
+        entrantLimit.setText("Entrant: " + entrant);
+        description.setText("Description: " + descrptionText);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 

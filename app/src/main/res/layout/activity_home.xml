@@ -98,10 +98,10 @@
                 app:cornerRadius="20dp" />
 
             <Button
-                android:id="@+id/btnUpcoming"
+                android:id="@+id/btnFilter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📄 Upcoming Events"
+                android:text="📄 Filter Events"
                 android:textAllCaps="false"
                 android:textColor="@color/black"
                 android:backgroundTint="@color/white"
@@ -166,5 +166,17 @@
             android:contentDescription="@string/profile"
             app:srcCompat="@drawable/profile" />
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/eventsList"
+        android:layout_width="409dp"
+        android:layout_height="575dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintBottom_toTopOf="@+id/action_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter_buttons_scroll" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

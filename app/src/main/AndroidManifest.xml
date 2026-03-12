@@ -14,7 +14,7 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-        <activity android:name=".StartActivity"
+        <activity android:name=".OrganizerHomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,9 +28,15 @@
          <activity android:name=".LoginActivity"/>
         <activity android:name=".ProfileActivity"/>
         <activity android:name=".OrganizerListActivity"/>
-<!--  merge conflict here is resolved-->
+        <!--  merge conflict here is resolved-->
+        <!--<activity android:name=".OrganizerHomeActivity"/> -->
+        <activity android:name=".CreateEditEventActivity"/>
+        <activity android:name=".EventDetailsActivity"/>
+        <activity android:name=".EventDetailsOrganizer"/>
         <!--  merge conflict here is resolved-->
         <activity android:name=".EventUserChoice" />
+        <activity android:name=".EventDetailsActivity"/>
+
         <activity android:name=".EventHistoryActivity" android:exported="false"/>
     </application>
 
