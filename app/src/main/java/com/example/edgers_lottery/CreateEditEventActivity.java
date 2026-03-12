@@ -16,6 +16,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.slider.Slider;
 import java.util.Calendar;
 import androidx.appcompat.app.AlertDialog;
+import android.view.View;
 
 public class CreateEditEventActivity extends AppCompatActivity {
 
@@ -61,6 +62,16 @@ public class CreateEditEventActivity extends AppCompatActivity {
         findViewById(R.id.btnSave).setOnClickListener(v -> onSaveClicked());
         findViewById(R.id.btnRemove).setOnClickListener(v -> onRemoveClicked());
         findViewById(R.id.btnCreateEvent).setOnClickListener(v -> navigateToEventDetails());
+
+        findViewById(R.id.detailBtn).setOnClickListener(v -> {
+            startActivity(new Intent(this, EventDetailsOrganizer.class));
+        });
+        findViewById(R.id.waitListBtn).setOnClickListener(v -> {
+            startActivity(new Intent(this, EventWaitlistTab.class));
+        });
+        findViewById(R.id.entrantBtn).setOnClickListener(v -> {
+            startActivity(new Intent(this, EventEntrantOrganizer.class));
+        });
 
         registrationDeadlineInput.setOnClickListener(v -> showDatePicker());
 
@@ -145,7 +156,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
     }
 
     private void onWaitlistToggled(boolean isChecked) {
-        // handle waitlist toggle
+
     }
 
     private void setupEdgeToEdge() {
