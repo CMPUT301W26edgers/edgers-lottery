@@ -6,15 +6,20 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
+import kotlin.text.UStringsKt;
+
 
 public class EventDetailsActivity extends AppCompatActivity {
+    private FirebaseFirestore db;
     private TextView eventNameText;
+
     private TextView eventDescriptionText;
     private TextView eventDateText;
     private TextView eventTimeText;
@@ -27,10 +32,12 @@ public class EventDetailsActivity extends AppCompatActivity {
     private ArrayList<User> waitingList;
     private static final String TAG = "EventDetailsActivity";
     protected User user;
+    protected User user2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
+        db = FirebaseFirestore.getInstance();
         eventNameText = findViewById(R.id.event_name);
         eventDescriptionText = findViewById(R.id.event_description);
         eventDateText = findViewById(R.id.date_text);
@@ -39,18 +46,26 @@ public class EventDetailsActivity extends AppCompatActivity {
         eventCapacityText = findViewById(R.id.event_capacity);
         joinButton = findViewById(R.id.join_button);
         waitlistButton = findViewById(R.id.view_waitlist);
-        Event sampleEvent = new Event();
-        sampleEvent.setName("Basketball Tournament");
-        sampleEvent.setDescription("A 3v3 campus tournament.");
-        sampleEvent.setDate("Date: March 20, 2026");
-        sampleEvent.setTime("Time: 6:00 PM");
-        sampleEvent.setLocation("Location: Main Gym");
-        sampleEvent.setCapacity(20);
-        waitingList = new ArrayList<>();
         user = new User();
         user.setName("Tamu");
-        sampleEvent.setEntrants(waitingList);
-        showEvent(sampleEvent);
+        waitingList = new ArrayList<>();
+        db.collection("events").document("Basketball").get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        Event event = document.toObject(Event.class);
+                        if (event != null) {
+                            waitingList = event.getWaitingList() != null
+                                    ? event.getWaitingList()
+                                    : new ArrayList<>();
+                            showEvent(event);
+                        }
+                    } else {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to load event", Toast.LENGTH_SHORT).show()
+                );
     }
     private void showEvent(Event event) {
         eventNameText.setText(event.getName());
