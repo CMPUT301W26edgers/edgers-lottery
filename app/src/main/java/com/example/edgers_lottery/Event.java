@@ -7,7 +7,6 @@ import java.util.ArrayList;
 public class Event {
     private String id; // events need unique IDs made by
     private String name;
-    private String id;
     private String description;
     private String date; // can be changed to a date object
     private String time; // can be changed to a time object
@@ -40,10 +39,6 @@ public class Event {
     public void setName(String name) {
         this.name = name;
     }
-
-    public String getId() {return id;}
-
-    public String setId(String id) {return this.id = id;}
 
     public String getDescription() {
         return description;
