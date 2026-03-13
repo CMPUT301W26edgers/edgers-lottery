@@ -51,7 +51,7 @@ public class OrganizerHomeActivity extends AppCompatActivity {
                     .setTitle("Go Back")
                     .setMessage("Are you sure you want to go back to User Home?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        currentUser.setRole("USER");
+                        currentUser.setRole("ENTRANT");
                         Intent intent = new Intent(this, HomeActivity.class);
                         startActivity(intent);
                         finish();
