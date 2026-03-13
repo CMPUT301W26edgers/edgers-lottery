@@ -2,6 +2,7 @@ package com.example.edgers_lottery;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -50,7 +51,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         setupListeners();
         setupEdgeToEdge();
 
-        Button btnBack = findViewById(R.id.btnBack);
+        ImageButton btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerHomeActivity.class);
             startActivity(intent);
@@ -147,8 +148,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
         }
 
         DocumentReference docRef = db.collection("events").document();
-
         String eventId = docRef.getId();
+
         eventData.put("id", eventId);
 
         docRef.set(eventData)
