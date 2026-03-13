@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 
@@ -19,6 +20,7 @@ import kotlin.text.UStringsKt;
 
 public class EventDetailsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private ImageView backButton;
     private TextView eventNameText;
 
     private TextView eventDescriptionText;
@@ -41,6 +43,11 @@ public class EventDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
+        backButton = findViewById(R.id.btn_back);
+
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
         db = FirebaseFirestore.getInstance();
         eventNameText = findViewById(R.id.event_name);
         eventDescriptionText = findViewById(R.id.event_description);
@@ -80,6 +87,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
     }
 
+
     private void showEvent(Event event) {
         eventNameText.setText(event.getName());
         eventDescriptionText.setText(event.getDescription());
@@ -109,13 +117,11 @@ public class EventDetailsActivity extends AppCompatActivity {
                 joinButton.setText("Join Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
             } else {
-                // Add them
-                waitingList.add(user);
+                addUserToList();
                 joinButton.setText("Leave Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
             }
 
-            // ☁️ FIREBASE UPDATE: Actually save this new list to the cloud!
             db.collection("events").document(eventId)
                     .update("waitingList", waitingList)
                     .addOnSuccessListener(aVoid -> {
@@ -134,8 +140,9 @@ public class EventDetailsActivity extends AppCompatActivity {
             for (User u : waitingList) {
                 list.append(u.getName()).append("\n");
             }
+            int totalUsers = waitingList.size();
             new AlertDialog.Builder(this)
-                    .setTitle("Waitlist")
+                    .setTitle("Waitlist (" + totalUsers + " users)")
                     .setMessage(list.toString())
                     .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
                     .show();
@@ -145,7 +152,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     /**
      * Helper method to safely check if our user's ID is already in the list.
      */
-    private boolean isUserInList(String targetUserId, ArrayList<User> userList) {
+    boolean isUserInList(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return false;
         for (User user : userList) {
             if (user.getId() != null && user.getId().equals(targetUserId)) {
@@ -154,10 +161,13 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
         return false;
     }
+    void addUserToList() {
+        if (!isUserInList(user.getId(), waitingList)) {
+            waitingList.add(user);
+        }
+    }
 
-    /**
-     * Helper method to safely remove a user from a list using their ID.
-     */
+
     private void removeUserFromListSafely(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return;
         for (int i = userList.size() - 1; i >= 0; i--) {
