@@ -19,34 +19,69 @@ import java.util.ArrayList;
 import kotlin.text.UStringsKt;
 
 /**
- * Activity that displays the details of a single event to an entrant.
- * Allows the current user to join or leave the event waitlist.
- * Loads event data from Firestore using the {@code eventId} passed via intent extra.
+ * Activity that displays the details of a lottery event for an entrant.
+ *
+ * <p>Loads event data from Firestore using an event ID passed via Intent,
+ * then displays event details and allows the current user to join or leave
+ * the event's waiting list. Also provides a dialog to view all current
+ * waitlist members.</p>
  */
 public class EventDetailsActivity extends AppCompatActivity {
 
+    /** Firestore database instance used to read and update event data. */
     private FirebaseFirestore db;
+
+    /** Button that navigates back to the previous screen. */
     private ImageView backButton;
+
+    /** Displays the name of the event. */
     private TextView eventNameText;
+
+    /** Displays the description of the event. */
     private TextView eventDescriptionText;
+
+    /** Displays the date of the event. */
     private TextView eventDateText;
+
+    /** Displays the time of the event. */
     private TextView eventTimeText;
+
+    /** Displays the location of the event. */
     private TextView eventLocationText;
+
+    /** Displays the maximum capacity of the event. */
     private TextView eventCapacityText;
+
+    /** Button that allows the current user to join or leave the waitlist. */
     private Button joinButton;
+
+    /** Button that opens a dialog showing all current waitlist members. */
     private Button waitlistButton;
+
+    /** The maximum number of entrants allowed for this event. */
     private int capacity;
+
+    /** The current number of confirmed entrants for this event. */
     private int entrantCount;
+
+    /** The list of users currently on the waiting list for this event. */
     ArrayList<User> waitingList;
+
+    /** Tag used for logging within this activity. */
     private static final String TAG = "EventDetailsActivity";
+
+    /** The currently logged-in user. */
     protected User user;
+
+    /** The Firestore document ID of the event being displayed. */
     private String eventId;
 
     /**
-     * Initializes the activity, loads event data from Firestore using the provided event ID,
-     * and sets up the back button.
+     * Initializes the activity, binds UI components, retrieves the event ID
+     * from the launching Intent, and loads the event data from Firestore.
      *
-     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     * @param savedInstanceState the previously saved instance state, or {@code null}
+     *                           if this is a fresh start
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +89,9 @@ public class EventDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_event_details);
         backButton = findViewById(R.id.backButton);
 
-        backButton.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
         db = FirebaseFirestore.getInstance();
         eventNameText = findViewById(R.id.event_name);
         eventDescriptionText = findViewById(R.id.event_description);
@@ -67,8 +104,6 @@ public class EventDetailsActivity extends AppCompatActivity {
         user = CurrentUser.get();
 
         eventId = getIntent().getStringExtra("eventId");
-        ImageButton backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> finish());
 
         if (eventId != null) {
             db.collection("events").document(eventId).get()
@@ -96,11 +131,14 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Populates the UI with event details and configures the join/leave waitlist button
-     * based on the current user's waitlist status and available capacity.
-     * Also sets up the waitlist viewer dialog button.
+     * Populates the UI with event details and configures the join/leave and
+     * waitlist buttons based on the current user's waitlist status.
      *
-     * @param event the {@link Event} object to display
+     * <p>The join button changes between "Join Waitlist", "Leave Waitlist",
+     * and "Waitlist Full" depending on whether the user is already on the
+     * list and whether capacity has been reached.</p>
+     *
+     * @param event the {@link Event} object whose details will be displayed
      */
     private void showEvent(Event event) {
         eventNameText.setText(event.getName());
@@ -154,8 +192,9 @@ public class EventDetailsActivity extends AppCompatActivity {
             for (User u : waitingList) {
                 list.append(u.getName()).append("\n");
             }
+            int totalUsers = waitingList.size();
             new AlertDialog.Builder(this)
-                    .setTitle("Waitlist (" + waitingList.size() + " users)")
+                    .setTitle("Waitlist (" + totalUsers + " users)")
                     .setMessage(list.toString())
                     .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
                     .show();
@@ -166,8 +205,9 @@ public class EventDetailsActivity extends AppCompatActivity {
      * Checks whether a user with the given ID exists in the provided list.
      *
      * @param targetUserId the ID of the user to search for
-     * @param userList     the list of users to search
-     * @return true if the user is found, false otherwise
+     * @param userList     the list of {@link User} objects to search within
+     * @return {@code true} if a user with the given ID is found; {@code false} otherwise,
+     *         or if either argument is {@code null}
      */
     public static boolean isUserInList(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return false;
@@ -180,7 +220,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Adds a user to the waiting list if they are not already in it.
+     * Adds a user to the waiting list if they are not already present.
      *
      * @param user        the {@link User} to add
      * @param waitingList the list to add the user to
@@ -193,7 +233,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Removes a user from the list by their ID, iterating in reverse to avoid index issues.
+     * Removes the first occurrence of a user with the given ID from the list,
+     * iterating in reverse to avoid index shifting issues during removal.
      *
      * @param targetUserId the ID of the user to remove
      * @param userList     the list to remove the user from
