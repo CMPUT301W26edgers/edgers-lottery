@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-;import java.util.ArrayList;
+import java.util.ArrayList;
 
 
 public class HomeActivity extends AppCompatActivity implements EditProfileFragment.EditProfileDialogListener, FilterEventsFragment.EditFilterDialogListener {
@@ -90,7 +90,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         }
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         Button historyButton = findViewById(R.id.btnHistory);
-//        ImageButton qrButton = findViewById(R.id.qrButton);
+        ImageButton qrButton = findViewById(R.id.qrButton);
 //        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
 //        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
@@ -101,6 +101,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
             finish();
+        });
+
+        qrButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
         });
 
         // view events here!
