@@ -109,7 +109,7 @@ public class EventDetailsOrganizer extends AppCompatActivity{
             finish();
         });
 
-        ImageButton btnTabEditEvent = findViewById(R.id.btnTabEditEvent);
+        Button btnTabEditEvent = findViewById(R.id.editEventBtn);
         btnTabEditEvent.setOnClickListener(v -> {
             Intent intent = new Intent(this, CreateEditEventActivity.class);
             startActivity(intent);
