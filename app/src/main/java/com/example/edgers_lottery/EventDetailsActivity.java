@@ -25,28 +25,60 @@ import kotlin.text.UStringsKt;
  */
 public class EventDetailsActivity extends AppCompatActivity {
 
+    /** Firestore database instance used to read and update event data. */
     private FirebaseFirestore db;
+
+    /** Button that navigates back to the previous screen. */
     private ImageView backButton;
+
+    /** Displays the name of the event. */
     private TextView eventNameText;
+
+    /** Displays the description of the event. */
     private TextView eventDescriptionText;
+
+    /** Displays the date of the event. */
     private TextView eventDateText;
+
+    /** Displays the time of the event. */
     private TextView eventTimeText;
+
+    /** Displays the location of the event. */
     private TextView eventLocationText;
+
+    /** Displays the maximum capacity of the event. */
     private TextView eventCapacityText;
+
+    /** Button that allows the current user to join or leave the waitlist. */
     private Button joinButton;
+
+    /** Button that opens a dialog showing all current waitlist members. */
     private Button waitlistButton;
+
+    /** The maximum number of entrants allowed for this event. */
     private int capacity;
+
+    /** The current number of confirmed entrants for this event. */
     private int entrantCount;
+
+    /** The list of users currently on the waiting list for this event. */
     ArrayList<User> waitingList;
+
+    /** Tag used for logging within this activity. */
     private static final String TAG = "EventDetailsActivity";
+
+    /** The currently logged-in user. */
     protected User user;
+
+    /** The Firestore document ID of the event being displayed. */
     private String eventId;
 
     /**
-     * Initializes the activity, loads event data from Firestore using the provided event ID,
-     * and sets up the back button.
+     * Initializes the activity, binds UI components, retrieves the event ID
+     * from the launching Intent, and loads the event data from Firestore.
      *
-     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     * @param savedInstanceState the previously saved instance state, or {@code null}
+     *                           if this is a fresh start
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +86,9 @@ public class EventDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_event_details);
         backButton = findViewById(R.id.backButton);
 
-        backButton.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(v -> {
+            finish();
+        });
         db = FirebaseFirestore.getInstance();
         eventNameText = findViewById(R.id.event_name);
         eventDescriptionText = findViewById(R.id.event_description);
