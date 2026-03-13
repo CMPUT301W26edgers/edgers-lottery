@@ -37,6 +37,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private SwitchMaterial swGeo, swWaitlist;
     private Slider sliderEntrants;
     private EditText eventNameInput;
+    private String currentEventId;
+
+    private String eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +66,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
         sliderEntrants.setValueFrom(1);
         sliderEntrants.setValueTo(100);
         sliderEntrants.setStepSize(1);
+        currentEventId = getIntent().getStringExtra("event_id"); // null if creating new
+
     }
 
     private void setupListeners() {
@@ -73,13 +78,19 @@ public class CreateEditEventActivity extends AppCompatActivity {
         findViewById(R.id.btnCreateEvent).setOnClickListener(v -> navigateToEventDetails());
 
         findViewById(R.id.detailBtn).setOnClickListener(v -> {
-            startActivity(new Intent(this, EventDetailsOrganizer.class));
+            Intent intent = new Intent(this, EventDetailsOrganizer.class);
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            startActivity(intent);
         });
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
-            startActivity(new Intent(this, EventWaitlistTab.class));
+            Intent intent = new Intent(this, EventWaitlistTab.class);
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            startActivity(intent);
         });
         findViewById(R.id.entrantBtn).setOnClickListener(v -> {
-            startActivity(new Intent(this, EventEntrantOrganizer.class));
+            Intent intent = new Intent(this, EventEntrantOrganizer.class);
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            startActivity(intent);
         });
 
         registrationDeadlineInput.setOnClickListener(v -> showDatePicker());
@@ -105,7 +116,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String eventId= db.collection("events").document().getId();
+        String eventId = db.collection("events").document().getId();
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("eventId", eventId);
@@ -214,9 +225,61 @@ public class CreateEditEventActivity extends AppCompatActivity {
         });
     }
 
-    private void saveChanges() { }
+    private void saveChanges() {
+        String eventName = eventNameInput.getText().toString().trim();
+        String deadline = registrationDeadlineInput.getText().toString().trim();
+        String price = priceInput.getText().toString().replace("$", "").trim();
+        String description = descriptionInput.getText().toString().trim();
+        int entrants = (int) sliderEntrants.getValue();
 
-    private void deleteEvent() { }
+        if (currentEventId == null) {
+            Toast.makeText(this, "No event to update", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", eventName);
+        updates.put("date", deadline);
+        updates.put("price", price);
+        updates.put("description", description);
+        updates.put("capacity", entrants);
+        updates.put("geoRequired", swGeo.isChecked());
+        updates.put("waitlistEnabled", swWaitlist.isChecked());
+
+        // Update image if changed
+        Drawable drawable = ivImage.getDrawable();
+        if (drawable instanceof BitmapDrawable) {
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+            updates.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection("events")
+                .document(currentEventId)
+                .update(updates)
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(this, "Event updated!", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void deleteEvent() {
+        if (currentEventId == null) return;
+
+        FirebaseFirestore.getInstance()
+                .collection("events")
+                .document(currentEventId)
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, OrganizerHomeActivity.class));
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }{ }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
