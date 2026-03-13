@@ -12,19 +12,43 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+/**
+ * Dialog fragment that allows a user to filter events by interests and availability dates.
+ * Requires the host activity to implement {@link EditFilterDialogListener}.
+ */
 import java.util.Calendar;
 
 public class FilterEventsFragment extends DialogFragment {
+
     private static final String TAG = "FilterEventsFragment";
     EditText editInterests;
     EditText editAvailabilityStart;
     EditText editAvailabilityEnd;
+     /**
+     * Listener interface that must be implemented by the host activity.
+     * Called when the user confirms or applies a filter.
+     */
     interface EditFilterDialogListener {
 //        void editFilter(String interests, String registrationStart, String registrationEnd);
 
+        /**
+         * Called when the user confirms the filter by tapping the Filter button.
+         *
+         * @param interests         the interests keyword to filter by
+         * @param availabilityStart the start of the availability window
+         * @param availabilityEnd   the end of the availability window
+         */
         void onFilterApplied(String interests, String availabilityStart, String availabilityEnd);
     }
+
     private EditFilterDialogListener listener;
+
+    /**
+     * Attaches the fragment to the host context and verifies it implements {@link EditFilterDialogListener}.
+     *
+     * @param context the host activity context
+     * @throws RuntimeException if the host activity does not implement {@link EditFilterDialogListener}
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -34,6 +58,14 @@ public class FilterEventsFragment extends DialogFragment {
             throw new RuntimeException(context + " must implement EditFilterDialogListener");
         }
     }
+
+    /**
+     * Inflates the filter dialog layout and builds the alert dialog with Cancel and Filter buttons.
+     * On confirmation, delegates the filter values to {@link EditFilterDialogListener#onFilterApplied}.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     * @return the fully constructed {@link Dialog}
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_filter_events, null);
@@ -58,7 +90,6 @@ public class FilterEventsFragment extends DialogFragment {
                     String availabilityEnd = editAvailabilityEnd.getText().toString().trim();
 
                     listener.onFilterApplied(interests, availabilityStart, availabilityEnd);
-
                 })
                 .create();
     }

@@ -18,12 +18,16 @@ import java.util.ArrayList;
 
 import kotlin.text.UStringsKt;
 
-
+/**
+ * Activity that displays the details of a single event to an entrant.
+ * Allows the current user to join or leave the event waitlist.
+ * Loads event data from Firestore using the {@code eventId} passed via intent extra.
+ */
 public class EventDetailsActivity extends AppCompatActivity {
+
     private FirebaseFirestore db;
     private ImageView backButton;
     private TextView eventNameText;
-
     private TextView eventDescriptionText;
     private TextView eventDateText;
     private TextView eventTimeText;
@@ -35,20 +39,22 @@ public class EventDetailsActivity extends AppCompatActivity {
     private int entrantCount;
     ArrayList<User> waitingList;
     private static final String TAG = "EventDetailsActivity";
-
     protected User user;
-
     private String eventId;
 
+    /**
+     * Initializes the activity, loads event data from Firestore using the provided event ID,
+     * and sets up the back button.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
         backButton = findViewById(R.id.backButton);
 
-        backButton.setOnClickListener(v -> {
-            finish();
-        });
+        backButton.setOnClickListener(v -> finish());
         db = FirebaseFirestore.getInstance();
         eventNameText = findViewById(R.id.event_name);
         eventDescriptionText = findViewById(R.id.event_description);
@@ -69,7 +75,6 @@ public class EventDetailsActivity extends AppCompatActivity {
                     .addOnSuccessListener(document -> {
                         if (document.exists()) {
                             Event event = document.toObject(Event.class);
-                            // Set the ID here too, just in case!
                             if (event != null) {
                                 event.setId(document.getId());
                                 waitingList = event.getWaitingList() != null
@@ -86,11 +91,17 @@ public class EventDetailsActivity extends AppCompatActivity {
                     );
         } else {
             Toast.makeText(this, "Error: No Event ID provided.", Toast.LENGTH_SHORT).show();
-            finish(); // Go back if there's no ID
+            finish();
         }
     }
 
-
+    /**
+     * Populates the UI with event details and configures the join/leave waitlist button
+     * based on the current user's waitlist status and available capacity.
+     * Also sets up the waitlist viewer dialog button.
+     *
+     * @param event the {@link Event} object to display
+     */
     private void showEvent(Event event) {
         eventNameText.setText(event.getName());
         eventDescriptionText.setText(event.getDescription());
@@ -101,28 +112,22 @@ public class EventDetailsActivity extends AppCompatActivity {
         entrantCount = (event.getEntrants() == null) ? 0 : event.getEntrants().size();
         eventCapacityText.setText(String.format("Capacity: %d", capacity));
 
-        // Bulletproof check for initial button state
         if (isUserInList(user.getId(), waitingList)) {
             joinButton.setText("Leave Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-        }
-        // check waitlist capacity
-        else if (capacity > 0 && waitingList.size() >= capacity) {
+        } else if (capacity > 0 && waitingList.size() >= capacity) {
             joinButton.setEnabled(false);
             joinButton.setText("Waitlist Full");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.YELLOW));
-        }
-        else {
+        } else {
             joinButton.setText("Join Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
 
         joinButton.setOnClickListener(v -> {
-            // Disable button temporarily to prevent spam clicking while Firebase updates
             joinButton.setEnabled(false);
 
             if (isUserInList(user.getId(), waitingList)) {
-                // Safely remove them
                 removeUserFromListSafely(user.getId(), waitingList);
                 joinButton.setText("Join Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
@@ -136,23 +141,21 @@ public class EventDetailsActivity extends AppCompatActivity {
                     .update("waitingList", waitingList)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Waitlist updated successfully!", Toast.LENGTH_SHORT).show();
-                        joinButton.setEnabled(true); // Re-enable button
+                        joinButton.setEnabled(true);
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Failed to update waitlist.", Toast.LENGTH_SHORT).show();
-                        joinButton.setEnabled(true); // Re-enable button even if it fails
+                        joinButton.setEnabled(true);
                     });
         });
 
         waitlistButton.setOnClickListener(v -> {
             StringBuilder list = new StringBuilder();
-
             for (User u : waitingList) {
                 list.append(u.getName()).append("\n");
             }
-            int totalUsers = waitingList.size();
             new AlertDialog.Builder(this)
-                    .setTitle("Waitlist (" + totalUsers + " users)")
+                    .setTitle("Waitlist (" + waitingList.size() + " users)")
                     .setMessage(list.toString())
                     .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
                     .show();
@@ -160,7 +163,11 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Helper method to safely check if our user's ID is already in the list.
+     * Checks whether a user with the given ID exists in the provided list.
+     *
+     * @param targetUserId the ID of the user to search for
+     * @param userList     the list of users to search
+     * @return true if the user is found, false otherwise
      */
     public static boolean isUserInList(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return false;
@@ -171,6 +178,13 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
         return false;
     }
+
+    /**
+     * Adds a user to the waiting list if they are not already in it.
+     *
+     * @param user        the {@link User} to add
+     * @param waitingList the list to add the user to
+     */
     public static void addUserToList(User user, ArrayList<User> waitingList) {
         if (user == null || waitingList == null) return;
         if (!isUserInList(user.getId(), waitingList)) {
@@ -178,7 +192,12 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Removes a user from the list by their ID, iterating in reverse to avoid index issues.
+     *
+     * @param targetUserId the ID of the user to remove
+     * @param userList     the list to remove the user from
+     */
     public static void removeUserFromListSafely(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return;
         for (int i = userList.size() - 1; i >= 0; i--) {

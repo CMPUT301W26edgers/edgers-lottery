@@ -1,4 +1,5 @@
 package com.example.edgers_lottery;
+
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -30,7 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 import com.google.firebase.firestore.DocumentReference;
 
-
+/**
+ * Activity for creating a new event or editing an existing one.
+ * Handles event name, registration deadline, price, description,
+ * entrant capacity, geolocation toggle, waitlist toggle, and an optional image.
+ * If launched with an {@code event_id} intent extra, the activity operates in edit mode.
+ * Otherwise it creates a new Firestore document for the event.
+ */
 public class CreateEditEventActivity extends AppCompatActivity {
 
     private ImageView ivImage;
@@ -40,9 +47,15 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private Slider sliderEntrants;
     private EditText eventNameInput;
     private String currentEventId;
-
     private String eventId;
 
+    /**
+     * Initializes the activity, enables edge-to-edge display, inflates the layout,
+     * and delegates to {@link #initViews()}, {@link #setupListeners()},
+     * and {@link #setupEdgeToEdge()}.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +67,10 @@ public class CreateEditEventActivity extends AppCompatActivity {
         setupEdgeToEdge();
     }
 
+    /**
+     * Binds all UI views and reads the optional {@code event_id} intent extra
+     * to determine whether the activity is in create or edit mode.
+     */
     private void initViews() {
         registrationDeadlineInput = findViewById(R.id.registration_deadline);
         priceLayout = findViewById(R.id.priceLayout);
@@ -68,10 +85,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
         sliderEntrants.setValueFrom(1);
         sliderEntrants.setValueTo(100);
         sliderEntrants.setStepSize(1);
-        currentEventId = getIntent().getStringExtra("event_id"); // null if creating new
-
+        currentEventId = getIntent().getStringExtra("event_id");
     }
 
+    /**
+     * Attaches click and toggle listeners to all interactive UI elements including
+     * navigation buttons, save, remove, image picker, date picker, and switches.
+     */
     private void setupListeners() {
         findViewById(R.id.btnBack).setOnClickListener(v -> navigateBack());
         findViewById(R.id.btnAddImage).setOnClickListener(v -> pickImage());
@@ -81,30 +101,37 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
         findViewById(R.id.detailBtn).setOnClickListener(v -> {
             Intent intent = new Intent(this, EventDetailsOrganizer.class);
-            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
             Intent intent = new Intent(this, EventWaitlistTab.class);
-            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
         findViewById(R.id.entrantBtn).setOnClickListener(v -> {
             Intent intent = new Intent(this, EventEntrantOrganizer.class);
-            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
 
         registrationDeadlineInput.setOnClickListener(v -> showDatePicker());
-
         swGeo.setOnCheckedChangeListener((btn, isChecked) -> onGeoToggled(isChecked));
         swWaitlist.setOnCheckedChangeListener((btn, isChecked) -> onWaitlistToggled(isChecked));
     }
 
+    /**
+     * Navigates back to {@link OrganizerHomeActivity}.
+     */
     private void navigateBack() {
         startActivity(new Intent(this, OrganizerHomeActivity.class));
     }
 
+    /**
+     * Validates all input fields, creates a new Firestore event document with a
+     * generated ID, optionally encodes and stores an event image as Base64,
+     * and navigates to {@link EventDetailsOrganizer} on success.
+     */
     private void navigateToEventDetails() {
         String deadline = registrationDeadlineInput.getText().toString().trim();
         String price = priceInput.getText().toString().replace("$", "").trim();
@@ -123,7 +150,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("eventId", eventId);
-        eventData.put("id", eventId);           // also store it as "id" to match file 2
+        eventData.put("id", eventId);
         eventData.put("name", eventName);
         eventData.put("date", deadline);
         eventData.put("price", price);
@@ -142,7 +169,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
             eventData.put("image", null);
         }
 
-        docRef.set(eventData)                   // use set() on the ref instead of add()
+        docRef.set(eventData)
                 .addOnSuccessListener(unused -> {
                     Intent intent = new Intent(this, EventDetailsOrganizer.class);
                     intent.putExtra("eventName", eventName);
@@ -152,17 +179,23 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     intent.putExtra("entrants", entrant);
                     startActivity(intent);
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Launches the system image picker to allow the user to select an event image.
+     */
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, 100);
     }
 
+    /**
+     * Displays a {@link DatePickerDialog} pre-set to today's date.
+     * Prevents selection of past dates and formats the chosen date as {@code yyyy-MM-dd}.
+     */
     private void showDatePicker() {
         Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(this,
@@ -182,6 +215,10 @@ public class CreateEditEventActivity extends AppCompatActivity {
         ).show();
     }
 
+    /**
+     * Validates the price field and shows a confirmation dialog before saving changes.
+     * Displays an error on the price input if the value is missing or not a valid number.
+     */
     private void onSaveClicked() {
         String priceText = priceInput.getText().toString().replace("$", "").trim();
 
@@ -202,6 +239,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows a confirmation dialog before permanently deleting the current event.
+     */
     private void onRemoveClicked() {
         new AlertDialog.Builder(this)
                 .setTitle("Delete event?")
@@ -211,14 +251,27 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Called when the geolocation toggle switch is changed.
+     *
+     * @param isChecked true if geolocation is now enabled, false otherwise
+     */
     private void onGeoToggled(boolean isChecked) {
         // handle geolocation toggle
     }
 
+    /**
+     * Called when the waitlist toggle switch is changed.
+     *
+     * @param isChecked true if the waitlist is now enabled, false otherwise
+     */
     private void onWaitlistToggled(boolean isChecked) {
-
     }
 
+    /**
+     * Applies system window insets as padding to the root view to support
+     * edge-to-edge display on modern Android versions.
+     */
     private void setupEdgeToEdge() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -227,6 +280,11 @@ public class CreateEditEventActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Reads all current field values and updates the existing Firestore event document
+     * identified by {@code currentEventId}. Also encodes and updates the event image
+     * if one has been selected. Shows a toast on success or failure.
+     */
     private void saveChanges() {
         String eventName = eventNameInput.getText().toString().trim();
         String deadline = registrationDeadlineInput.getText().toString().trim();
@@ -248,7 +306,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         updates.put("geoRequired", swGeo.isChecked());
         updates.put("waitlistEnabled", swWaitlist.isChecked());
 
-        // Update image if changed
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -267,6 +324,10 @@ public class CreateEditEventActivity extends AppCompatActivity {
                         Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Deletes the current event document from Firestore and navigates back
+     * to {@link OrganizerHomeActivity} on success.
+     */
     private void deleteEvent() {
         if (currentEventId == null) return;
 
@@ -281,8 +342,16 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }{ }
+    }
 
+    /**
+     * Receives the result from the image picker and sets the selected image
+     * on the event image view.
+     *
+     * @param requestCode the request code passed to {@code startActivityForResult}
+     * @param resultCode  the result code returned by the image picker activity
+     * @param data        the intent containing the selected image URI
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

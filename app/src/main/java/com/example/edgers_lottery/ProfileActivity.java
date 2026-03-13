@@ -12,6 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Activity that displays and manages the current user's profile.
+ * Supports editing profile fields, deleting the account, and signing out.
+ * Implements {@link EditProfileFragment.EditProfileDialogListener} to receive profile edit results.
+ */
 public class ProfileActivity extends AppCompatActivity implements EditProfileFragment.EditProfileDialogListener {
     private static final String TAG = "ProfileActivity";
     protected static User user;
@@ -22,7 +27,11 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
     private TextView usernameTextView;
     private TextView phoneTextView;
 
-
+    /**
+     * Displays an alert dialog showing the given user's name and email.
+     *
+     * @param user the {@link User} whose info is displayed
+     */
     private void showUserInfoDialog(User user) {
         new AlertDialog.Builder(this)
                 .setTitle("User Info")
@@ -30,21 +39,30 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
     }
-    public void editUser(User user, String newDesc, String newEmail, String newLocation, String newPhone, String newUsername){
+
+    /**
+     * Applies edited profile fields to the given user, persists the changes to Firestore,
+     * and refreshes the displayed profile TextViews.
+     *
+     * @param user        the {@link User} object to update
+     * @param newDesc     the new description entered by the user
+     * @param newEmail    the new email entered by the user
+     * @param newLocation the new location entered by the user
+     * @param newPhone    the new phone number entered by the user
+     * @param newUsername the new username entered by the user
+     */
+    public void editUser(User user, String newDesc, String newEmail, String newLocation, String newPhone, String newUsername) {
         user.setEmail(newEmail);
         user.setDescription(newDesc);
         user.setLocation(newLocation);
         user.setPhone(newPhone);
         user.setUsername(newUsername);
-        // update the user in the database
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(user.getId())
                 .set(user)
                 .addOnSuccessListener(aVoid -> {
-                    // update the user in the CurrentUser class
                     CurrentUser.set(user);
-                    // show a success
                     new AlertDialog.Builder(this)
                             .setTitle("Success")
                             .setMessage("Profile updated successfully")
@@ -56,14 +74,20 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
         locationTextView.setText(user.getLocation());
         usernameTextView.setText(user.getUsername());
         phoneTextView.setText(user.getPhone());
-
     }
+
+    /**
+     * Initializes the activity, populates profile fields from the current user,
+     * and sets up listeners for the home, edit, delete, and sign-out buttons.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        user = CurrentUser.get(); // already loaded in StartActivity
-        // set Profile names to user name
+        user = CurrentUser.get();
+
         TextView profileNames = findViewById(R.id.ProfileNames);
         profileNames.setText(user.getName());
 
@@ -82,14 +106,10 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
         locationTextView = findViewById(R.id.ProfileLocation);
         locationTextView.setText("Location: " + user.getLocation());
 
-
-        // set up buttons here
         ImageButton homeButton = findViewById(R.id.HomeButton);
         Button editProfileButton = findViewById(R.id.ProfileEditButton);
         Button deleteProfileButton = findViewById(R.id.deleteProfileButton);
         Button signoutButton = findViewById(R.id.signoutButton);
-        // ImageButton checkoutButton = findViewById(R.id.checkoutButton);
-
 
         homeButton.setOnClickListener(v -> {
             String role = user.getRole();
@@ -103,35 +123,27 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
                 finish();
             }
         });
+
         editProfileButton.setOnClickListener(v -> {
-            // create the fragment so the user can edit their profile
             EditProfileFragment editProfileFragment = EditProfileFragment.newInstance(user);
             editProfileFragment.show(getSupportFragmentManager(), "edit_profile");
         });
-        deleteProfileButton.setOnClickListener(v -> {
 
+        deleteProfileButton.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Delete Profile")
                     .setMessage("Are you sure you want to delete?")
                     .setPositiveButton("Delete", (dialog, which) -> {
-
                         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
                         FirebaseFirestore.getInstance()
                                 .collection("users")
                                 .document(uid)
                                 .delete()
                                 .addOnSuccessListener(aVoid -> {
-
-                                    // remove the firebase auth user as well, so email can be remade
                                     if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                                         FirebaseAuth.getInstance().getCurrentUser().delete();
                                     }
-
-                                    // prevents the crash the happens when profile deleted, creating another then delete again
                                     CurrentUser.set(null);
-
-                                    // navigate to new user screen after deletion
                                     Intent intent = new Intent(this, NewUserActivity.class);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     startActivity(intent);
@@ -148,17 +160,14 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
                     .setNegativeButton("Cancel", null)
                     .show();
         });
+
         signoutButton.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            CurrentUser.set(null); // sign user out
+            CurrentUser.set(null);
             Intent intent = new Intent(this, LoginActivity.class);
-            // send them here instead of start activity because there's no point in
-            // having them get thru it for no reason just to end up in the same place
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         });
-
     }
-
 }
