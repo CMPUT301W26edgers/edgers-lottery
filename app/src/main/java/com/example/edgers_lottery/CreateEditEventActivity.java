@@ -27,6 +27,7 @@ import android.util.Base64;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import com.google.firebase.firestore.DocumentReference;
 
 
 public class CreateEditEventActivity extends AppCompatActivity {
@@ -116,17 +117,18 @@ public class CreateEditEventActivity extends AppCompatActivity {
         }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String eventId = db.collection("events").document().getId();
+        DocumentReference docRef = db.collection("events").document();
+        String eventId = docRef.getId();
 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("eventId", eventId);
+        eventData.put("id", eventId);           // also store it as "id" to match file 2
         eventData.put("name", eventName);
         eventData.put("date", deadline);
         eventData.put("price", price);
         eventData.put("description", descriptionText);
         eventData.put("capacity", entrant);
 
-        // Save image to Firestore if one has been selected
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -139,9 +141,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
             eventData.put("image", null);
         }
 
-        db.collection("events")
-                .add(eventData)
-                .addOnSuccessListener(documentReference -> {
+        docRef.set(eventData)                   // use set() on the ref instead of add()
+                .addOnSuccessListener(unused -> {
                     Intent intent = new Intent(this, EventDetailsOrganizer.class);
                     intent.putExtra("eventName", eventName);
                     intent.putExtra("registration_date", deadline);

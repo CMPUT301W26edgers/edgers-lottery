@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.app.Dialog;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class EventDetailsOrganizer extends AppCompatActivity {
 
     private String eventId;
+    private TextView locationName, entrantLimit, description, countdown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,34 +36,57 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
         initViews();
         setupListeners();
+
+        if (eventId != null) {
+            loadEventFromFirestore();
+        } else {
+            Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void initViews() {
-        String dateString = getIntent().getStringExtra("registration_date");
-        String eventName = getIntent().getStringExtra("eventName");
-        int entrant = getIntent().getIntExtra("entrants", 0);
-        String descriptionText = getIntent().getStringExtra("description");
+        locationName = findViewById(R.id.tvEventTitle);
+        entrantLimit = findViewById(R.id.tvEntrantLimit);
+        description = findViewById(R.id.tvDescription);
+        countdown = findViewById(R.id.tvRegistrationCountdown);
+    }
 
-        TextView locationName = findViewById(R.id.tvEventTitle);
-        TextView entrantLimit = findViewById(R.id.tvEntrantLimit);
-        TextView description = findViewById(R.id.tvDescription);
-        TextView countdown = findViewById(R.id.tvRegistrationCountdown);
+    private void loadEventFromFirestore() {
+        FirebaseFirestore.getInstance()
+                .collection("events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        String eventName  = doc.getString("name");
+                        String dateString = doc.getString("date");
+                        String desc       = doc.getString("description");
+                        Long capacity     = doc.getLong("capacity");
 
-        locationName.setText(eventName);
-        entrantLimit.setText("Entrant: " + entrant);
-        description.setText("Description: " + descriptionText);
+                        locationName.setText(eventName != null ? eventName : "Unnamed Event");
+                        entrantLimit.setText("Entrants: " + (capacity != null ? capacity : 0));
+                        description.setText("Description: " + (desc != null ? desc : ""));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        try {
-            Date eventDate = sdf.parse(dateString);
-            Date today = new Date();
-            long diffMillis = eventDate.getTime() - today.getTime();
-            long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
-            countdown.setText("Registration ends in " + daysRemaining + " days");
-        } catch (ParseException e) {
-            e.printStackTrace();
-            countdown.setText("Invalid registration date");
-        }
+                        if (dateString != null) {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                            try {
+                                Date eventDate = sdf.parse(dateString);
+                                long diffMillis = eventDate.getTime() - new Date().getTime();
+                                long daysRemaining = TimeUnit.MILLISECONDS.toDays(diffMillis);
+                                countdown.setText("Registration ends in " + daysRemaining + " days");
+                            } catch (ParseException e) {
+                                countdown.setText("Invalid registration date");
+                            }
+                        } else {
+                            countdown.setText("No registration date set");
+                        }
+                    } else {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to load event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void setupListeners() {
@@ -70,7 +94,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
         findViewById(R.id.btnQrCode).setOnClickListener(v -> {
             try {
-                Bitmap qr = generateQrCode("your-event-id-or-url-here");
+                Bitmap qr = generateQrCode(eventId != null ? eventId : "no-id");
                 showQrCodeDialog(qr);
             } catch (WriterException e) {
                 e.printStackTrace();
@@ -112,9 +136,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         ImageView ivQrCode = dialog.findViewById(R.id.ivQrCode);
         ivQrCode.setImageBitmap(qrBitmap);
 
-        TextView btnClose = dialog.findViewById(R.id.btnCloseWindow);
-        btnClose.setOnClickListener(v -> dialog.dismiss());
-
+        dialog.findViewById(R.id.btnCloseWindow).setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
 
