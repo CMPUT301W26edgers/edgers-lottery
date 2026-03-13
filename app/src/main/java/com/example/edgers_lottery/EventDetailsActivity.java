@@ -32,7 +32,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private Button waitlistButton;
     private int capacity;
     private int entrantCount;
-    private ArrayList<User> waitingList;
+    ArrayList<User> waitingList;
     private static final String TAG = "EventDetailsActivity";
 
     protected User user;
@@ -43,7 +43,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
-        backButton = findViewById(R.id.btn_back);
+        backButton = findViewById(R.id.backButton);
 
         backButton.setOnClickListener(v -> {
             finish();
@@ -117,7 +117,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 joinButton.setText("Join Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
             } else {
-                addUserToList();
+                addUserToList(user, waitingList);
                 joinButton.setText("Leave Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
             }
@@ -152,7 +152,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     /**
      * Helper method to safely check if our user's ID is already in the list.
      */
-    boolean isUserInList(String targetUserId, ArrayList<User> userList) {
+    public static boolean isUserInList(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return false;
         for (User user : userList) {
             if (user.getId() != null && user.getId().equals(targetUserId)) {
@@ -161,14 +161,15 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
         return false;
     }
-    void addUserToList() {
+    public static void addUserToList(User user, ArrayList<User> waitingList) {
+        if (user == null || waitingList == null) return;
         if (!isUserInList(user.getId(), waitingList)) {
             waitingList.add(user);
         }
     }
 
 
-    private void removeUserFromListSafely(String targetUserId, ArrayList<User> userList) {
+    public static void removeUserFromListSafely(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return;
         for (int i = userList.size() - 1; i >= 0; i--) {
             if (userList.get(i).getId() != null && userList.get(i).getId().equals(targetUserId)) {
