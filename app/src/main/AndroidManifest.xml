@@ -20,7 +20,7 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <activity android:name=".StartActivity"
+        <activity android:name=".OrganizerHomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".QrScannerActivity"/>
-        <activity android:name=".OrganizerHomeActivity"/>
         <activity android:name=".NewUserActivity"/>
         <activity android:name=".HomeActivity"/>
         <activity android:name=".AdminHomeActivity"/>
