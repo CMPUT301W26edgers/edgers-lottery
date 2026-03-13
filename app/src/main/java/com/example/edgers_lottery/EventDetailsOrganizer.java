@@ -22,11 +22,23 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Activity that displays event details from the organizer's perspective.
+ * Shows event name, description, entrant capacity, and a countdown to the registration deadline.
+ * Allows the organizer to view the QR code, manage the waitlist and entrants, or edit the event.
+ * Requires an {@code event_id} intent extra to load the correct Firestore document.
+ */
 public class EventDetailsOrganizer extends AppCompatActivity {
 
     private String eventId;
     private TextView locationName, entrantLimit, description, countdown;
 
+    /**
+     * Initializes the activity, reads the event ID from the intent,
+     * and loads event data from Firestore if the ID is present.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +56,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         }
     }
 
+    /**
+     * Binds all TextView fields to their corresponding layout views.
+     */
     private void initViews() {
         locationName = findViewById(R.id.tvEventTitle);
         entrantLimit = findViewById(R.id.tvEntrantLimit);
@@ -51,6 +66,10 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         countdown = findViewById(R.id.tvRegistrationCountdown);
     }
 
+    /**
+     * Fetches event data from Firestore and populates the UI fields.
+     * Calculates and displays the number of days remaining until the registration deadline.
+     */
     private void loadEventFromFirestore() {
         FirebaseFirestore.getInstance()
                 .collection("events")
@@ -89,6 +108,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 );
     }
 
+    /**
+     * Attaches click listeners to the back, QR code, waitlist, entrant, and edit event buttons.
+     */
     private void setupListeners() {
         findViewById(R.id.btnBackEventDetails).setOnClickListener(v -> finish());
 
@@ -123,6 +145,11 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays a full-screen dialog showing the generated QR code bitmap.
+     *
+     * @param qrBitmap the QR code bitmap to display
+     */
     private void showQrCodeDialog(Bitmap qrBitmap) {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -140,6 +167,13 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Generates a QR code bitmap encoding the given string content.
+     *
+     * @param content the string to encode in the QR code, typically the event ID
+     * @return a {@link Bitmap} of the generated QR code
+     * @throws WriterException if the QR code could not be generated
+     */
     private Bitmap generateQrCode(String content) throws WriterException {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(
                 content, BarcodeFormat.QR_CODE, 600, 600

@@ -12,9 +12,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-;import java.util.ArrayList;
+import java.util.ArrayList;
 
-
+/**
+ * Main home screen activity that displays a browsable list of events.
+ * Supports filtering by interest and date range, and provides navigation to profile,
+ * event history, event details, and organizer mode.
+ * Implements {@link EditProfileFragment.EditProfileDialogListener} and
+ * {@link FilterEventsFragment.EditFilterDialogListener}.
+ */
 public class HomeActivity extends AppCompatActivity implements EditProfileFragment.EditProfileDialogListener, FilterEventsFragment.EditFilterDialogListener {
     private static final String TAG = "HomeActivity";
     protected static User user;
@@ -22,11 +28,15 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     ArrayList<Event> eventsArray = new ArrayList<>();
     ListView eventsList;
     EventArrayAdapter adapter;
-    // filter elements
     String interests = "";
     String availabilityStart = "";
     String availabilityEnd = "";
 
+    /**
+     * Displays an alert dialog showing the given user's name and email.
+     *
+     * @param user the {@link User} whose info is displayed
+     */
     private void showUserInfoDialog(User user) {
         new AlertDialog.Builder(this)
                 .setTitle("User Info")
@@ -34,12 +44,29 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
+    /**
+     * Updates the active filter criteria and shows a confirmation toast.
+     *
+     * @param interests         keyword to match against event name or description
+     * @param registrationStart earliest event date to include, in {@code yyyy-MM-dd} format
+     * @param registrationEnd   latest event date to include, in {@code yyyy-MM-dd} format
+     */
     public void editFilter(String interests, String registrationStart, String registrationEnd) {
         this.interests = interests;
         this.availabilityStart = registrationStart;
         this.availabilityEnd = registrationEnd;
         Toast.makeText(this, "Filters updated: " + interests + ", " + registrationStart + ", " + registrationEnd, Toast.LENGTH_SHORT).show();
     }
+
+    /**
+     * Applies the given filter criteria and reloads the events list from Firestore.
+     * Only events matching the interest keyword and date range are added to the list.
+     *
+     * @param interests         keyword to match against event name or description
+     * @param availabilityStart earliest event date to include, in {@code yyyy-MM-dd} format
+     * @param availabilityEnd   latest event date to include, in {@code yyyy-MM-dd} format
+     */
     @Override
     public void onFilterApplied(String interests, String availabilityStart, String availabilityEnd) {
         this.interests = interests;
@@ -72,30 +99,32 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                     android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
                 });
     }
+
+    /**
+     * Initializes the activity, loads the current user, fetches events from Firestore,
+     * and sets up navigation and filter button listeners.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        user = CurrentUser.get(); // already loaded in StartActivity
+        user = CurrentUser.get();
 
-        
         if (user != null) {
             showUserInfoDialog(user);
-        }
-        else { // not supposed to be here then
+        } else {
             Intent intent = new Intent(this, StartActivity.class);
             startActivity(intent);
             finish();
             return;
         }
+
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         Button historyButton = findViewById(R.id.btnHistory);
-//        ImageButton qrButton = findViewById(R.id.qrButton);
-//        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
-//        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
         Button organizerButton = findViewById(R.id.btnOrganizerMode);
-
 
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
@@ -103,7 +132,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
             finish();
         });
 
-        // view events here!
         eventsList = findViewById(R.id.eventsList);
         adapter = new EventArrayAdapter(this, eventsArray);
         eventsList.setAdapter(adapter);
@@ -117,9 +145,9 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                     adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
-                    // Handle failure
                     android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
                 });
+
         eventsList.setOnItemClickListener((parent, view, position, id) -> {
             Event selectedEvent = eventsArray.get(position);
             Intent intent = new Intent(this, EventDetailsActivity.class);
@@ -131,14 +159,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
             Intent intent = new Intent(HomeActivity.this, EventHistoryActivity.class);
             startActivity(intent);
         });
+
         filterButton.setOnClickListener(v -> {
             FilterEventsFragment filterEventsFragment = new FilterEventsFragment();
             filterEventsFragment.show(getSupportFragmentManager(), "filter_events");
-            android.util.Log.d(TAG, "Interest:"+interests+", Start:"+availabilityStart+", End:"+availabilityEnd);
-            // filter events here!
-
+            android.util.Log.d(TAG, "Interest:" + interests + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
         });
     }
-
-
 }

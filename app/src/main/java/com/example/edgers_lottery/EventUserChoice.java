@@ -16,9 +16,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
+/**
+ * Activity that allows a user to accept or decline an event invitation.
+ * Loads the event from Firestore using the {@code eventId} intent extra,
+ * displays event details, and updates the entrants and invited users lists in Firestore
+ * based on the user's choice.
+ */
 public class EventUserChoice extends AppCompatActivity {
 
-    // 1. UI Elements
     private ImageView btnBack;
     private Button btnAcceptInvite;
     private Button btnRejectInvite;
@@ -26,28 +31,27 @@ public class EventUserChoice extends AppCompatActivity {
     private TextView tvLocationName;
     private TextView tvEventDate;
     private TextView tvDescriptionBody;
-    //private TextView tvEventPrice;
 
-    // 2. Data Objects
     private User currentUser;
     private Event currentEvent;
-    private String currentEventId; // We need the document ID to update Firestore!
+    private String currentEventId;
 
-    // 3. Firebase Database
     private FirebaseFirestore db;
 
+    /**
+     * Initializes the activity, loads event data from Firestore, populates the UI,
+     * and redirects the user if they have already accepted the invitation.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_acceptance_choice);
 
-        // Initialize Firebase
         db = FirebaseFirestore.getInstance();
-
-        // get the current user details
         currentUser = CurrentUser.get();
 
-        // 4. Link UI Elements to XML IDs
         btnBack = findViewById(R.id.btn_back);
         btnAcceptInvite = findViewById(R.id.btn_accept_invite);
         btnRejectInvite = findViewById(R.id.btn_decline_invite);
@@ -55,39 +59,30 @@ public class EventUserChoice extends AppCompatActivity {
         tvLocationName = findViewById(R.id.tv_location_name);
         tvEventDate = findViewById(R.id.tv_event_date);
         tvDescriptionBody = findViewById(R.id.tv_description_body);
-        //tvEventPrice = findViewById(R.id.tv_event_price);
-        // Add more fields here as needed based on your XML (e.g., location, date)
-
 
         currentEventId = getIntent().getStringExtra("eventId");
 
         if (currentEventId != null) {
-            // Fetch the real, up-to-date event from Firestore
             db.collection("events").document(currentEventId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            // Convert the Firebase document back into an Event object
                             currentEvent = documentSnapshot.toObject(Event.class);
-                            currentEvent.setId(documentSnapshot.getId()); // ensure ID is set
+                            currentEvent.setId(documentSnapshot.getId());
 
-                            // if the user previously accepted to the event, we kick them out!
                             if (isUserInList(currentUser.getId(), currentEvent.getEntrants())) {
                                 Toast.makeText(EventUserChoice.this, "You have already accepted this invitation!", Toast.LENGTH_SHORT).show();
-                                finish(); // Kick them out immediately
-                                return;   // Stop running the rest of the code
+                                finish();
+                                return;
                             }
 
-                            // Now that we have the data, update the UI!
                             tvDescriptionTitle.setText(currentEvent.getName());
-                            // tvEventPrice.setText(String.valueOf(currentEvent.getPrice()));
+
                             if (currentEvent.getDescription() != null) {
                                 tvDescriptionBody.setText(currentEvent.getDescription());
                             }
-
                             if (currentEvent.getLocation() != null) {
                                 tvLocationName.setText(currentEvent.getLocation());
                             }
-
                             if (currentEvent.getDate() != null && currentEvent.getTime() != null) {
                                 tvEventDate.setText(currentEvent.getDate() + " at " + currentEvent.getTime());
                             } else if (currentEvent.getDate() != null) {
@@ -108,48 +103,42 @@ public class EventUserChoice extends AppCompatActivity {
             return;
         }
 
-        // 6. Set up Click Listeners
         setupClickListeners();
     }
 
+    /**
+     * Attaches click listeners to the back, accept, and decline buttons.
+     */
     private void setupClickListeners() {
-        // Back Button: close this screen
         btnBack.setOnClickListener(v -> finish());
-
-        // Accept Button: Add user to event's entrants list
         btnAcceptInvite.setOnClickListener(v -> processAccept());
-
-        // Reject Button: get decline confirmation from user
         btnRejectInvite.setOnClickListener(v -> showDeclineConfirmationDialog());
     }
 
-    // Displays the popup asking "Are you sure?"
+    /**
+     * Shows a confirmation dialog before processing the user's decline of the invitation.
+     */
     private void showDeclineConfirmationDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Decline Invitation")
                 .setMessage("Are you sure you want to decline this invitation? \n \nThis action cannot be undone and your spot will be given to another person on the waitlist.")
-                .setPositiveButton("Yes, Decline", (dialog, which) -> {
-                    // User confirmed! Execute the database update.
-                    processDecline();
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> {
-                    // User changed their mind. Dismiss the dialog.
-                    dialog.dismiss();
-                })
+                .setPositiveButton("Yes, Decline", (dialog, which) -> processDecline())
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
+    /**
+     * Removes the current user from the event's invited list in Firestore.
+     * Disables the decline button while the update is in progress.
+     */
     private void processDecline() {
-        // Disable the button so they can't click it twice while it loads
         btnRejectInvite.setEnabled(false);
         btnRejectInvite.setText("Processing...");
 
-        // Safety Check 1: Ensure we have the Event ID
         if (currentEventId == null && currentEvent != null) {
             currentEventId = currentEvent.getId();
         }
 
-        // Safety Check 2: Ensure we actually have a logged-in user!
         if (currentUser == null) {
             Toast.makeText(this, "Error: Current user not found!", Toast.LENGTH_LONG).show();
             btnRejectInvite.setEnabled(true);
@@ -157,56 +146,44 @@ public class EventUserChoice extends AppCompatActivity {
             return;
         }
 
-        // 1. Remove the user from the local invited list
         if (currentEvent.getInvitedUsers() != null) {
-            // NOTE: For this to work perfectly, your User class MUST have overridden the .equals() method!
             removeUserFromListSafely(currentUser.getId(), currentEvent.getInvitedUsers());
         }
 
-        // 2. Push the updated list to Firebase Firestore
         db.collection("events").document(currentEventId)
                 .update("invitedUsers", currentEvent.getInvitedUsers())
                 .addOnSuccessListener(aVoid -> {
-                    // Success! The database was updated.
                     Toast.makeText(EventUserChoice.this, "Invitation declined successfully.", Toast.LENGTH_SHORT).show();
-
-                    // Close the screen and send them back
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    // Uh oh, something went wrong
                     Toast.makeText(EventUserChoice.this, "Error declining invite: " + e.getMessage(), Toast.LENGTH_LONG).show();
-
-                    // Re-enable the button so they can try again
                     btnRejectInvite.setEnabled(true);
                     btnRejectInvite.setText("Reject Invite");
                 });
     }
 
-
-    // Handles the Firestore Database update for Accepting
+    /**
+     * Adds the current user to the event's entrants list and removes them from the invited list in Firestore.
+     * Disables both buttons while the update is in progress.
+     */
     private void processAccept() {
-        // Disable buttons so they can't double-click while it loads
         btnAcceptInvite.setEnabled(false);
         btnRejectInvite.setEnabled(false);
         btnAcceptInvite.setText("Processing...");
 
-        // Safety Check 1: Ensure we have the Event ID
         if (currentEventId == null && currentEvent != null) {
             currentEventId = currentEvent.getId();
         }
 
-        // Safety Check 2: Ensure we actually have a logged-in user!
         if (currentUser == null) {
             Toast.makeText(this, "Error: Current user not found!", Toast.LENGTH_LONG).show();
-            // Re-enable buttons
             btnAcceptInvite.setEnabled(true);
             btnRejectInvite.setEnabled(true);
             btnAcceptInvite.setText("Accept Invite");
             return;
         }
 
-        // 1. Add to entrants list
         if (currentEvent.getEntrants() == null) {
             currentEvent.setEntrants(new ArrayList<>());
         }
@@ -214,17 +191,14 @@ public class EventUserChoice extends AppCompatActivity {
             currentEvent.getEntrants().add(currentUser);
         }
 
-        // 2. Remove from invited list
         if (currentEvent.getInvitedUsers() != null) {
-            // NOTE: For this to work perfectly, your User class MUST have overridden the .equals() method!
             removeUserFromListSafely(currentUser.getId(), currentEvent.getInvitedUsers());
         }
 
-        // 3. Push BOTH updated lists to Firebase Firestore
         db.collection("events").document(currentEventId)
                 .update(
                         "entrants", currentEvent.getEntrants(),
-                        "invitedUsers", currentEvent.getInvitedUsers() // 🟢 We must update this field too!
+                        "invitedUsers", currentEvent.getInvitedUsers()
                 )
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(EventUserChoice.this, "Invitation accepted! You're on the list.", Toast.LENGTH_SHORT).show();
@@ -238,6 +212,13 @@ public class EventUserChoice extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Checks whether a user with the given ID exists in the provided list.
+     *
+     * @param targetUserId the ID of the user to search for
+     * @param userList     the list of {@link User} objects to search
+     * @return true if the user is found, false otherwise
+     */
     private boolean isUserInList(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return false;
         for (User user : userList) {
@@ -249,16 +230,18 @@ public class EventUserChoice extends AppCompatActivity {
     }
 
     /**
-     * Helper method to safely remove a user from a list using their true ID.
+     * Removes a user from the list by their ID, iterating in reverse to avoid index issues.
+     *
+     * @param targetUserId the ID of the user to remove
+     * @param userList     the list to remove the user from
      */
     private void removeUserFromListSafely(String targetUserId, ArrayList<User> userList) {
         if (userList == null || targetUserId == null) return;
         for (int i = userList.size() - 1; i >= 0; i--) {
             if (userList.get(i).getId() != null && userList.get(i).getId().equals(targetUserId)) {
                 userList.remove(i);
-                break; // Stop looking once we find and remove them
+                break;
             }
         }
     }
 }
-

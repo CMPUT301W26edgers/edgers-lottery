@@ -11,19 +11,29 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
-
-// can only be accessed by admins
+/**
+ * Admin-only activity that displays a list of all organizer accounts.
+ * Supports removing an organizer and all their associated events from Firestore.
+ */
 public class OrganizerListActivity extends AppCompatActivity {
+
+    private ListView organizerList;
+    private ArrayList<User> organizers = new ArrayList<>();
+    private OrganizerListAdapter adapter;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    /**
+     * Initializes the activity, sets up the back button, and loads the organizer list.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organizerlist);
 
         ImageButton backButton = findViewById(R.id.backButton);
-
-        backButton.setOnClickListener(v -> {
-            finish();
-        });
+        backButton.setOnClickListener(v -> finish());
 
         organizerList = findViewById(R.id.organizerList);
         adapter = new OrganizerListAdapter(this, organizers);
@@ -31,12 +41,13 @@ public class OrganizerListActivity extends AppCompatActivity {
         loadOrganizers();
     }
 
-    private ListView organizerList;
-    private ArrayList<User> organizers = new ArrayList<>();
-    private OrganizerListAdapter adapter;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    /**
+     * Deletes the organizer with the given ID and all their associated events from Firestore,
+     * then reloads the organizer list.
+     *
+     * @param organizerId the Firestore document ID of the organizer to remove
+     */
     public void removeOrganizer(String organizerId) {
-        // delete all events tied to organizerId
         db.collection("events")
                 .whereEqualTo("organizerId", organizerId)
                 .get()
@@ -44,7 +55,6 @@ public class OrganizerListActivity extends AppCompatActivity {
                     for (DocumentSnapshot doc : query.getDocuments()) {
                         doc.getReference().delete();
                     }
-                    // delete the user with organizerId and reloads list
                     db.collection("users")
                             .document(organizerId)
                             .delete()
@@ -52,8 +62,10 @@ public class OrganizerListActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Fetches all users with the ORGANIZER role from Firestore and refreshes the list.
+     */
     private void loadOrganizers() {
-        // loads users with role "ORGANIZER" from the database
         db.collection("users")
                 .whereEqualTo("role", "ORGANIZER")
                 .get()
@@ -69,5 +81,4 @@ public class OrganizerListActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                 });
     }
-
 }
