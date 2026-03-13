@@ -58,9 +58,9 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                                 || (event.getName() != null && event.getName().toLowerCase().contains(interests.toLowerCase()))
                                 || (event.getDescription() != null && event.getDescription().toLowerCase().contains(interests.toLowerCase()));
                         boolean matchesStart = availabilityStart == null || availabilityStart.isEmpty()
-                                || event.getDate().compareTo(availabilityStart) >= 0;
+                                || (event.getDate() != null && event.getDate().compareTo(availabilityStart) >= 0);
                         boolean matchesEnd = availabilityEnd == null || availabilityEnd.isEmpty()
-                                || event.getDate().compareTo(availabilityEnd) <= 0;
+                                || (event.getDate() != null && event.getDate().compareTo(availabilityEnd) <= 0);
 
                         if (matchesInterest && matchesStart && matchesEnd) {
                             eventsArray.add(event);
