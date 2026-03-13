@@ -10,7 +10,7 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
+        android:padding="16dp"
         android:background="#F9F7FB">
 
         <ImageButton
@@ -48,54 +48,58 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/tvTitle">
 
             <Button
                 android:id="@+id/detailBtn"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="36dp"
                 android:layout_weight="1"
                 android:text="Details"
+                android:textSize="12sp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:cornerRadius="20dp"/>
+                app:cornerRadius="18dp"/>
 
             <Button
                 android:id="@+id/waitListBtn"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="36dp"
                 android:layout_weight="1"
                 android:text="Waitlist"
+                android:textSize="12sp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:cornerRadius="20dp"/>
+                app:cornerRadius="18dp"/>
 
             <Button
                 android:id="@+id/entrantBtn"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="36dp"
                 android:layout_weight="1"
                 android:text="Entrants"
+                android:textSize="12sp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:cornerRadius="20dp"/>
+                app:cornerRadius="18dp"/>
 
             <Button
                 android:id="@+id/editEventBtn"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="36dp"
                 android:layout_weight="1"
                 android:text="Edit Event"
+                android:textSize="12sp"
                 android:backgroundTint="#000000"
                 android:textColor="#FFFFFF"
-                app:cornerRadius="20dp"/>
+                app:cornerRadius="18dp"/>
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cvImageUpload"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="8dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="14dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@id/tabLayout">
 
@@ -108,8 +112,8 @@
 
                 <ImageView
                     android:id="@+id/ivImage"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:src="@drawable/volleyball_background"/>
 
                 <Button
@@ -128,12 +132,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Event Name"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="14dp"
             app:boxBackgroundMode="filled"
-            app:boxCornerRadiusTopStart="24dp"
-            app:boxCornerRadiusTopEnd="24dp"
-            app:boxCornerRadiusBottomStart="24dp"
-            app:boxCornerRadiusBottomEnd="24dp"
+            app:boxCornerRadiusTopStart="20dp"
+            app:boxCornerRadiusTopEnd="20dp"
+            app:boxCornerRadiusBottomStart="20dp"
+            app:boxCornerRadiusBottomEnd="20dp"
             app:layout_constraintTop_toBottomOf="@id/cvImageUpload">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -143,13 +147,36 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/eventDateLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Event Date"
+            android:layout_marginTop="10dp"
+            app:boxBackgroundMode="filled"
+            app:boxCornerRadiusTopStart="20dp"
+            app:boxCornerRadiusTopEnd="20dp"
+            app:boxCornerRadiusBottomStart="20dp"
+            app:boxCornerRadiusBottomEnd="20dp"
+            app:layout_constraintTop_toBottomOf="@id/eventNameLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/event_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="mm/dd/yyyy"
+                android:focusable="false"
+                android:clickable="true"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <LinearLayout
             android:id="@+id/rowMeta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/eventNameLayout">
+            app:layout_constraintTop_toBottomOf="@id/eventDateLayout">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="0dp"
@@ -157,10 +184,10 @@
                 android:layout_weight="1.5"
                 android:hint="Registration Deadline"
                 app:boxBackgroundMode="filled"
-                app:boxCornerRadiusTopStart="24dp"
-                app:boxCornerRadiusTopEnd="24dp"
-                app:boxCornerRadiusBottomStart="24dp"
-                app:boxCornerRadiusBottomEnd="24dp">
+                app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/registration_deadline"
@@ -177,10 +204,10 @@
                 android:layout_marginStart="10dp"
                 android:hint="Price"
                 app:boxBackgroundMode="filled"
-                app:boxCornerRadiusTopStart="24dp"
-                app:boxCornerRadiusTopEnd="24dp"
-                app:boxCornerRadiusBottomStart="24dp"
-                app:boxCornerRadiusBottomEnd="24dp">
+                app:boxCornerRadiusTopStart="20dp"
+                app:boxCornerRadiusTopEnd="20dp"
+                app:boxCornerRadiusBottomStart="20dp"
+                app:boxCornerRadiusBottomEnd="20dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/price"
@@ -191,20 +218,61 @@
 
         </LinearLayout>
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/swGeo"
+        <!-- Grouped switches in a single card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvToggles"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Geolocation Requirement"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/rowMeta"/>
+            android:layout_marginTop="10dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeWidth="1dp"
+            app:strokeColor="#E0E0E0"
+            app:layout_constraintTop_toBottomOf="@id/rowMeta">
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/swWaitlist"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="4dp">
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/swGeo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:text="Geolocation Requirement"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#E0E0E0"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/swWaitlist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:text="Waitlist Entrants Limit"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/tvCapacityLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Waitlist Entrants Limit"
-            app:layout_constraintTop_toBottomOf="@id/swGeo"/>
+            android:text="Capacity"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="4dp"
+            app:layout_constraintTop_toBottomOf="@id/cvToggles"/>
 
         <com.google.android.material.slider.Slider
             android:id="@+id/sliderEntrants"
@@ -212,26 +280,26 @@
             android:layout_height="wrap_content"
             android:valueFrom="1"
             android:valueTo="100"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/swWaitlist"/>
+            android:layout_marginTop="0dp"
+            app:layout_constraintTop_toBottomOf="@id/tvCapacityLabel"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Description"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             app:boxBackgroundMode="filled"
-            app:boxCornerRadiusTopStart="24dp"
-            app:boxCornerRadiusTopEnd="24dp"
-            app:boxCornerRadiusBottomStart="24dp"
-            app:boxCornerRadiusBottomEnd="24dp"
+            app:boxCornerRadiusTopStart="20dp"
+            app:boxCornerRadiusTopEnd="20dp"
+            app:boxCornerRadiusBottomStart="20dp"
+            app:boxCornerRadiusBottomEnd="20dp"
             app:layout_constraintTop_toBottomOf="@id/sliderEntrants">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTilDescription"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="48dp"
                 android:gravity="top"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -240,7 +308,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/tilDescription">
 
             <Button
@@ -251,7 +319,7 @@
                 android:text="Create Event"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#6200EE"
-                android:elevation="6dp"
+                android:elevation="4dp"
                 app:cornerRadius="24dp"/>
 
             <Button
@@ -263,7 +331,7 @@
                 android:text="Save Changes"
                 android:backgroundTint="#00A651"
                 android:textColor="#FFFFFF"
-                android:elevation="6dp"
+                android:elevation="4dp"
                 app:cornerRadius="24dp"/>
 
         </LinearLayout>
@@ -275,8 +343,8 @@
             android:text="Remove Event"
             android:backgroundTint="#D11A2A"
             android:textColor="#FFFFFF"
-            android:layout_marginTop="12dp"
-            android:elevation="6dp"
+            android:layout_marginTop="10dp"
+            android:elevation="4dp"
             app:cornerRadius="24dp"
             app:layout_constraintTop_toBottomOf="@id/rowButtons"/>
 

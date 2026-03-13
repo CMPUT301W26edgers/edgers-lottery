@@ -41,7 +41,7 @@ import com.google.firebase.firestore.DocumentReference;
 public class CreateEditEventActivity extends AppCompatActivity {
 
     private ImageView ivImage;
-    private EditText registrationDeadlineInput, priceInput, descriptionInput;
+    private EditText registrationDeadlineInput, eventDateInput, priceInput, descriptionInput;
     private TextInputLayout priceLayout;
     private SwitchMaterial swGeo, swWaitlist;
     private Slider sliderEntrants;
@@ -73,6 +73,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
      */
     private void initViews() {
         registrationDeadlineInput = findViewById(R.id.registration_deadline);
+        eventDateInput = findViewById(R.id.event_date);
         priceLayout = findViewById(R.id.priceLayout);
         priceInput = findViewById(R.id.price);
         descriptionInput = findViewById(R.id.editTilDescription);
@@ -85,7 +86,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         sliderEntrants.setValueFrom(1);
         sliderEntrants.setValueTo(100);
         sliderEntrants.setStepSize(1);
-        currentEventId = getIntent().getStringExtra("event_id");
+        currentEventId = getIntent().getStringExtra("event_id"); // null if creating new
     }
 
     /**
@@ -115,7 +116,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        registrationDeadlineInput.setOnClickListener(v -> showDatePicker());
+        registrationDeadlineInput.setOnClickListener(v -> showDatePicker(registrationDeadlineInput));
+        eventDateInput.setOnClickListener(v -> showDatePicker(eventDateInput));
+
         swGeo.setOnCheckedChangeListener((btn, isChecked) -> onGeoToggled(isChecked));
         swWaitlist.setOnCheckedChangeListener((btn, isChecked) -> onWaitlistToggled(isChecked));
     }
@@ -134,12 +137,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
      */
     private void navigateToEventDetails() {
         String deadline = registrationDeadlineInput.getText().toString().trim();
+        String eventDate = eventDateInput.getText().toString().trim();
         String price = priceInput.getText().toString().replace("$", "").trim();
         String eventName = eventNameInput.getText().toString().trim();
         String descriptionText = descriptionInput.getText().toString().trim();
         int entrant = (int) sliderEntrants.getValue();
 
-        if (deadline.isEmpty() || price.isEmpty() || eventName.isEmpty()) {
+        if (deadline.isEmpty() || eventDate.isEmpty() || price.isEmpty() || eventName.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields before continuing", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -152,6 +156,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("eventId", eventId);
         eventData.put("id", eventId);
         eventData.put("name", eventName);
+        //eventData.put("eventDate", eventDate);
         eventData.put("date", deadline);
         eventData.put("price", price);
         eventData.put("description", descriptionText);
@@ -173,6 +178,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .addOnSuccessListener(unused -> {
                     Intent intent = new Intent(this, EventDetailsOrganizer.class);
                     intent.putExtra("eventName", eventName);
+                    intent.putExtra("event_date", eventDate);
                     intent.putExtra("registration_date", deadline);
                     intent.putExtra("event_id", eventId);
                     intent.putExtra("description", descriptionText);
@@ -193,21 +199,71 @@ public class CreateEditEventActivity extends AppCompatActivity {
     }
 
     /**
-     * Displays a {@link DatePickerDialog} pre-set to today's date.
-     * Prevents selection of past dates and formats the chosen date as {@code yyyy-MM-dd}.
+     * Parses a "yyyy-MM-dd" string into a Calendar with time zeroed out.
+     * Returns null if the string is empty or unparseable.
      */
-    private void showDatePicker() {
+    private Calendar parseDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) return null;
+        try {
+            String[] parts = dateStr.split("-");
+            Calendar cal = Calendar.getInstance();
+            cal.set(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) - 1, Integer.parseInt(parts[2]));
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            return cal;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Shows a DatePickerDialog and writes the selected date into targetInput.
+     * Rejects past dates. If the other date field is already set, also enforces:
+     *   - event date must be on or after registration deadline
+     *   - registration deadline must be on or before event date
+     */
+    private void showDatePicker(EditText targetInput) {
         Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(this,
                 (view, year, month, day) -> {
                     Calendar selected = Calendar.getInstance();
                     selected.set(year, month, day);
-                    if (selected.before(calendar)) {
+                    selected.set(Calendar.HOUR_OF_DAY, 0);
+                    selected.set(Calendar.MINUTE, 0);
+                    selected.set(Calendar.SECOND, 0);
+                    selected.set(Calendar.MILLISECOND, 0);
+
+                    Calendar today = Calendar.getInstance();
+                    today.set(Calendar.HOUR_OF_DAY, 0);
+                    today.set(Calendar.MINUTE, 0);
+                    today.set(Calendar.SECOND, 0);
+                    today.set(Calendar.MILLISECOND, 0);
+
+                    if (selected.before(today)) {
                         Toast.makeText(this, "Please select a future date", Toast.LENGTH_SHORT).show();
-                    } else {
-                        String date = String.format("%04d-%02d-%02d", year, month + 1, day);
-                        registrationDeadlineInput.setText(date);
+                        return;
                     }
+
+                    if (targetInput == eventDateInput) {
+                        // Event date must be on or after registration deadline
+                        Calendar deadline = parseDate(registrationDeadlineInput.getText().toString().trim());
+                        if (deadline != null && selected.before(deadline)) {
+                            Toast.makeText(this, "Event date cannot be before the registration deadline", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    } else if (targetInput == registrationDeadlineInput) {
+                        // Registration deadline must be on or before event date
+                        Calendar eventDate = parseDate(eventDateInput.getText().toString().trim());
+                        if (eventDate != null && selected.after(eventDate)) {
+                            Toast.makeText(this, "Registration deadline cannot be after the event date", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
+                    String date = String.format("%04d-%02d-%02d", year, month + 1, day);
+                    targetInput.setText(date);
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -287,6 +343,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
      */
     private void saveChanges() {
         String eventName = eventNameInput.getText().toString().trim();
+        String eventDate = eventDateInput.getText().toString().trim();
         String deadline = registrationDeadlineInput.getText().toString().trim();
         String price = priceInput.getText().toString().replace("$", "").trim();
         String description = descriptionInput.getText().toString().trim();
@@ -299,6 +356,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("name", eventName);
+        updates.put("eventDate", eventDate);
         updates.put("date", deadline);
         updates.put("price", price);
         updates.put("description", description);
