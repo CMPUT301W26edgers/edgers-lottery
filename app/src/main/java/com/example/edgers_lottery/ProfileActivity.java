@@ -93,12 +93,7 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
 
         homeButton.setOnClickListener(v -> {
             String role = user.getRole();
-            if (role.equals("ORGANIZER")){
-                Intent intent = new Intent(this, OrgHomeActivity.class);
-                startActivity(intent);
-                finish();
-            }
-            else if (role.equals("ADMIN")) {
+            if (role.equals("ADMIN")) {
                 Intent intent = new Intent(this, AdminHomeActivity.class);
                 startActivity(intent);
                 finish();

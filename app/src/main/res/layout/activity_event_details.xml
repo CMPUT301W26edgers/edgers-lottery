@@ -1,146 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="#FAFAFA"
+    tools:context=".EventDetailsActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="662dp"
-        android:layout_marginTop="1dp"
-
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
+    <ImageView
+        android:id="@+id/backButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:src="@android:drawable/ic_menu_revert"
+        android:contentDescription="Back"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout17">
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#000000" />
 
-        <ImageView
-            android:id="@+id/imageView2"
+    <TextView
+        android:id="@+id/tv_page_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Event Details"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/backButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/backButton"
+        app:layout_constraintTop_toTopOf="@id/backButton"
+        android:layout_marginEnd="16dp" />
+
+    <ScrollView
+        android:id="@+id/scroll_main"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/backButton"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/blankphoto" />
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/event_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="event_name"
-            tools:layout_editor_absoluteX="49dp"
-            tools:layout_editor_absoluteY="42dp" />
-
-        <TextView
-            android:id="@+id/location_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Location Name" />
-
-        <TextView
-            android:id="@+id/date_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Date" />
-
-        <TextView
-            android:id="@+id/event_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Time" />
-
-        <TextView
-            android:id="@+id/event_capacity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="event_capacity" />
-
-        <TextView
-            android:id="@+id/registration_ends_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Registration Day ends in" />
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="4dp">
-
-            <LinearLayout
+            <HorizontalScrollView
+                android:id="@+id/scroll_tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/event_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Event description" />
+                android:scrollbars="none"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/join_button"
-                        android:layout_width="0dp"
+                        android:id="@+id/event_details_banner"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="Event Details"
+                        android:backgroundTint="#333333"
+                        android:textColor="#FFFFFF"
                         android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:backgroundTint="#4CAF50"
-                        android:text="Join_Button" />
-
-                    <Button
-                        android:id="@+id/view_waitlist"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:backgroundTint="#9E9E9E"
-                        android:text="View waitlist" />
+                        android:minHeight="36dp" />
                 </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            </HorizontalScrollView>
 
-        <TextView
-            android:id="@+id/lottery_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="This event uses a lottery system to ensure fair access. Anyone can join the waitlist during the registration period, and once it closes, participants are randomly selected to fill the available spots. If someone declines or cancels, another person will be randomly chosen from the waitlist." />
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="16dp"
+                android:background="#E0E0E0"
+                android:scaleType="centerCrop"
+                app:layout_constraintTop_toBottomOf="@id/scroll_tabs"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@drawable/blankphoto" />
 
-    <LinearLayout
+            <TextView
+                android:id="@+id/location_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Location Name"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/imageView2"
+                app:layout_constraintStart_toStartOf="parent" />
 
-        android:id="@+id/linearLayout17"
-        android:layout_width="match_parent"
-        android:layout_height="67dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+            <TextView
+                android:id="@+id/date_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Date"
+                android:textColor="#555555"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/location_name"
+                app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="10dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/left_arrow_small"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/event_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Time"
+                android:textColor="#777777"
+                android:textSize="13sp"
+                app:layout_constraintTop_toBottomOf="@id/date_text"
+                app:layout_constraintStart_toStartOf="parent" />
 
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Event Details"
-            android:textSize="25sp"
-            android:padding="15dp"
-            android:textColor="@color/black"
-            tools:layout_editor_absoluteX="49dp"
-            tools:layout_editor_absoluteY="42dp" />
+            <TextView
+                android:id="@+id/registration_ends_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Registration Day ends in"
+                android:textColor="#888888"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/event_time"
+                app:layout_constraintStart_toStartOf="parent" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/event_capacity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="event_capacity"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/registration_ends_text"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/event_info_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#F3F0F5"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:layout_constraintTop_toBottomOf="@id/event_capacity"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/event_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="event_name"
+                        android:textColor="#000000"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/event_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Event description"
+                        android:textColor="#555555"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <Button
+                            android:id="@+id/join_button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:backgroundTint="#4CAF50"
+                            android:text="Join Waitlist"
+                            android:textColor="@android:color/white" />
+
+                        <Button
+                            android:id="@+id/view_waitlist"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:backgroundTint="#9E9E9E"
+                            android:text="View Waitlist"
+                            android:textColor="@android:color/white" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/lottery_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="24dp"
+                android:text="This event uses a lottery system to ensure fair access. Anyone can join the waitlist during the registration period, and once it closes, participants are randomly selected to fill the available spots. If someone declines or cancels, another person will be randomly chosen from the waitlist."
+                android:textColor="#666666"
+                android:textSize="13sp"
+                app:layout_constraintTop_toBottomOf="@id/event_info_card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
