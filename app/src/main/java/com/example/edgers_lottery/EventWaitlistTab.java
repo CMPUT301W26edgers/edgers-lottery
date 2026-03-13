@@ -38,13 +38,16 @@ public class EventWaitlistTab extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waitlist_organizer);
         eventId = getIntent().getStringExtra("event_id");
+
+        db = FirebaseFirestore.getInstance();
         initViews();
         setupListeners();
-    }
+        setupRecyclerView();
 
-    /**
-     * Binds views and attaches click listeners to the back, run lottery, and notify buttons.
-     */
+        if (eventId != null) {
+            loadWaitlist();
+        }
+    }
     private void initViews() {
         rvWaitlist = findViewById(R.id.rvWaitlist);
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
@@ -95,22 +98,29 @@ public class EventWaitlistTab extends AppCompatActivity {
     private void loadWaitlist() {
         db.collection("events")
                 .document(eventId)
-                .collection("waitlist")
-                .get()
-                .addOnSuccessListener(querySnapshots -> {
-                    waitlistUsers.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String userId = doc.getId();
-                        String name = doc.getString("name");
-                        String imageUrl = doc.getString("profileImage");
-                        waitlistUsers.add(new WaitlistUser(userId, name, imageUrl));
+                .addSnapshotListener((documentSnapshot, e) -> {
+                    if (e != null) {
+                        Toast.makeText(this, "Failed to load waitlist: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                    adapter.notifyDataSetChanged();
-                    tvWaitlistCount.setText("Waitlisters for Event: " + waitlistUsers.size());
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to load waitlist: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        List<Object> waitingListRaw = (List<Object>) documentSnapshot.get("waitingList");
+                        waitlistUsers.clear();
+                        if (waitingListRaw != null) {
+                            for (Object item : waitingListRaw) {
+                                if (item instanceof java.util.Map) {
+                                    java.util.Map<String, Object> userMap = (java.util.Map<String, Object>) item;
+                                    String userId = (String) userMap.get("id");
+                                    String name = (String) userMap.get("name");
+                                    String imageUrl = (String) userMap.get("profileImage");
+                                    waitlistUsers.add(new WaitlistUser(userId, name, imageUrl));
+                                }
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                        tvWaitlistCount.setText("Waitlisters for Event: " + waitlistUsers.size());
+                    }
+                });
     }
 
     /**
@@ -122,18 +132,34 @@ public class EventWaitlistTab extends AppCompatActivity {
     private void removeFromWaitlist(WaitlistUser user, int position) {
         db.collection("events")
                 .document(eventId)
-                .collection("waitlist")
-                .document(user.getUserId())
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    waitlistUsers.remove(position);
-                    adapter.notifyItemRemoved(position);
-                    tvWaitlistCount.setText("Waitlisters for Event: " + waitlistUsers.size());
-                    Toast.makeText(this, "User removed from waitlist", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to remove user: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    List<Object> waitingListRaw = new ArrayList<>((List<Object>) documentSnapshot.get("waitingList"));
+                    if (waitingListRaw != null) {
+                        for (int i = 0; i < waitingListRaw.size(); i++) {
+                            Object item = waitingListRaw.get(i);
+                            if (item instanceof java.util.Map) {
+                                if (user.getUserId().equals(((java.util.Map<?, ?>) item).get("id"))) {
+                                    waitingListRaw.remove(i);
+                                    break;
+                                }
+                            }
+                        }
+
+                        db.collection("events")
+                                .document(eventId)
+                                .update("waitingList", waitingListRaw)
+                                .addOnSuccessListener(aVoid -> {
+                                    waitlistUsers.remove(position);
+                                    adapter.notifyItemRemoved(position);
+                                    tvWaitlistCount.setText("Waitlisters for Event: " + waitlistUsers.size());
+                                    Toast.makeText(this, "User removed from waitlist", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Failed to remove user: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                });
     }
 
     /**

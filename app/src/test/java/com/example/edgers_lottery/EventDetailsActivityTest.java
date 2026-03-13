@@ -91,4 +91,40 @@ public class EventDetailsActivityTest {
 
         assertEquals(2, waitingList.size());
     }
+
+    @Test
+    public void isWaitlistFull_whenBelowCapacity_returnsFalse() {
+        waitingList.add(user1);
+
+        boolean result = EventDetailsActivity.isWaitlistFull(3, waitingList);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void isWaitlistFull_whenEqualCapacity_returnsTrue() {
+        waitingList.add(user1);
+        waitingList.add(user2);
+
+        boolean result = EventDetailsActivity.isWaitlistFull(2, waitingList);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void isWaitlistFull_whenAboveCapacity_returnsTrue() {
+        waitingList.add(user1);
+        waitingList.add(user2);
+
+        boolean result = EventDetailsActivity.isWaitlistFull(1, waitingList);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void isWaitlistFull_whenListEmpty_returnsFalse() {
+        boolean result = EventDetailsActivity.isWaitlistFull(3, waitingList);
+
+        assertFalse(result);
+    }
 }
