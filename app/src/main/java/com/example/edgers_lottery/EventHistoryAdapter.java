@@ -78,14 +78,13 @@ public class EventHistoryAdapter extends RecyclerView.Adapter<EventHistoryAdapte
                 // Pass the event ID so the next screen knows which event they are accepting
                 intent.putExtra("eventId", currentEvent.getId());
                 context.startActivity(intent);
-            } else {
-                // Redirect to the Event Details Screen (Placeholder for now!)
-                Toast.makeText(context, "Redirecting to Event Details...", Toast.LENGTH_SHORT).show();
+            } else if (status.equals("In waitlist")){
+                // 🟢 Redirect to your teammate's Event Details Screen
+                Intent intent = new Intent(context, EventDetailsActivity.class);
 
-                // TODO: Uncomment and update this once your team finishes the EventDetailsActivity
-                // Intent intent = new Intent(context, EventDetailsActivity.class);
-                // intent.putExtra("eventId", currentEvent.getEventId());
-                // context.startActivity(intent);
+                // Pass that Firebase ID that you successfully saved earlier!
+                intent.putExtra("eventId", currentEvent.getId());
+                context.startActivity(intent);
             }
         });
     }

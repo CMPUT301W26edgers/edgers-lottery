@@ -25,6 +25,14 @@ public class OrganizerHomeActivity extends AppCompatActivity {
         btnCreateEvent.setOnClickListener(v -> {
             Intent intent = new Intent(this, CreateEditEventActivity.class);
             startActivity(intent);
+            finish();
+        });
+
+        TextView backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+            finish();
         });
 
         TextView btnEventsList = findViewById(R.id.btnEventsList);

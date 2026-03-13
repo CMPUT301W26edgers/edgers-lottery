@@ -1,5 +1,6 @@
 package com.example.edgers_lottery;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.app.DatePickerDialog;
@@ -11,6 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.firestore.DocumentReference;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.slider.Slider;
@@ -51,6 +53,20 @@ public class CreateEditEventActivity extends AppCompatActivity {
         initViews();
         setupListeners();
         setupEdgeToEdge();
+
+        Button btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(this, OrganizerHomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        Button btnTabDetails = findViewById(R.id.btnTabDetails);
+        btnTabDetails.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EventDetailsOrganizer.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void initViews() {
@@ -109,6 +125,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         String price = priceInput.getText().toString().replace("$", "").trim();
         String eventName = eventNameInput.getText().toString().trim();
         String descriptionText = descriptionInput.getText().toString().trim();
+
         int entrant = (int) sliderEntrants.getValue();
 
         if (deadline.isEmpty() || price.isEmpty() || eventName.isEmpty()) {
@@ -154,6 +171,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+
+
     }
 
     private void pickImage() {

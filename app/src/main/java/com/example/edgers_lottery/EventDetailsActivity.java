@@ -4,6 +4,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,8 +32,11 @@ public class EventDetailsActivity extends AppCompatActivity {
     private int entrantCount;
     private ArrayList<User> waitingList;
     private static final String TAG = "EventDetailsActivity";
+
     protected User user;
-    protected User user2;
+
+    private String eventId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,27 +50,36 @@ public class EventDetailsActivity extends AppCompatActivity {
         eventCapacityText = findViewById(R.id.event_capacity);
         joinButton = findViewById(R.id.join_button);
         waitlistButton = findViewById(R.id.view_waitlist);
-        user = new User();
-        user.setName("Tamu");
-        waitingList = new ArrayList<>();
-        db.collection("events").document("Basketball").get()
-                .addOnSuccessListener(document -> {
-                    if (document.exists()) {
-                        Event event = document.toObject(Event.class);
-                        if (event != null) {
-                            waitingList = event.getWaitingList() != null
-                                    ? event.getWaitingList()
-                                    : new ArrayList<>();
-                            showEvent(event);
+        user = CurrentUser.get();
+
+        eventId = getIntent().getStringExtra("eventId");
+
+        if (eventId != null) {
+            db.collection("events").document(eventId).get()
+                    .addOnSuccessListener(document -> {
+                        if (document.exists()) {
+                            Event event = document.toObject(Event.class);
+                            // Set the ID here too, just in case!
+                            if (event != null) {
+                                event.setId(document.getId());
+                                waitingList = event.getWaitingList() != null
+                                        ? event.getWaitingList()
+                                        : new ArrayList<>();
+                                showEvent(event);
+                            }
+                        } else {
+                            Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to load event", Toast.LENGTH_SHORT).show()
-                );
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Failed to load event", Toast.LENGTH_SHORT).show()
+                    );
+        } else {
+            Toast.makeText(this, "Error: No Event ID provided.", Toast.LENGTH_SHORT).show();
+            finish(); // Go back if there's no ID
+        }
     }
+
     private void showEvent(Event event) {
         eventNameText.setText(event.getName());
         eventDescriptionText.setText(event.getDescription());
@@ -76,27 +89,46 @@ public class EventDetailsActivity extends AppCompatActivity {
         capacity = event.getCapacity();
         entrantCount = (event.getEntrants() == null) ? 0 : event.getEntrants().size();
         eventCapacityText.setText(String.format("Capacity: %d", capacity));
-        if (waitingList.contains(user)) {
+
+        // Bulletproof check for initial button state
+        if (isUserInList(user.getId(), waitingList)) {
             joinButton.setText("Leave Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         } else {
             joinButton.setText("Join Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
+
         joinButton.setOnClickListener(v -> {
-            if (waitingList.contains(user)) {
-                waitingList.remove(user);
+            // Disable button temporarily to prevent spam clicking while Firebase updates
+            joinButton.setEnabled(false);
+
+            if (isUserInList(user.getId(), waitingList)) {
+                // Safely remove them
+                removeUserFromListSafely(user.getId(), waitingList);
                 joinButton.setText("Join Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                Toast.makeText(this, "Removed from Waitlist", Toast.LENGTH_SHORT).show();
             } else {
+                // Add them
                 waitingList.add(user);
                 joinButton.setText("Leave Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-                Toast.makeText(this, "Added to Waitlist", Toast.LENGTH_SHORT).show();
             }
+
+            // ☁️ FIREBASE UPDATE: Actually save this new list to the cloud!
+            db.collection("events").document(eventId)
+                    .update("waitingList", waitingList)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Waitlist updated successfully!", Toast.LENGTH_SHORT).show();
+                        joinButton.setEnabled(true); // Re-enable button
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to update waitlist.", Toast.LENGTH_SHORT).show();
+                        joinButton.setEnabled(true); // Re-enable button even if it fails
+                    });
         });
-        waitlistButton.setOnClickListener(v->{
+
+        waitlistButton.setOnClickListener(v -> {
             StringBuilder list = new StringBuilder();
 
             for (User u : waitingList) {
@@ -108,11 +140,31 @@ public class EventDetailsActivity extends AppCompatActivity {
                     .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
                     .show();
         });
-
-
-
-
     }
 
+    /**
+     * Helper method to safely check if our user's ID is already in the list.
+     */
+    private boolean isUserInList(String targetUserId, ArrayList<User> userList) {
+        if (userList == null || targetUserId == null) return false;
+        for (User user : userList) {
+            if (user.getId() != null && user.getId().equals(targetUserId)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    /**
+     * Helper method to safely remove a user from a list using their ID.
+     */
+    private void removeUserFromListSafely(String targetUserId, ArrayList<User> userList) {
+        if (userList == null || targetUserId == null) return;
+        for (int i = userList.size() - 1; i >= 0; i--) {
+            if (userList.get(i).getId() != null && userList.get(i).getId().equals(targetUserId)) {
+                userList.remove(i);
+                break;
+            }
+        }
+    }
 }
