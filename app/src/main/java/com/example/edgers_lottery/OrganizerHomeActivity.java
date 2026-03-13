@@ -28,13 +28,6 @@ public class OrganizerHomeActivity extends AppCompatActivity {
             finish();
         });
 
-        TextView backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, HomeActivity.class);
-            startActivity(intent);
-            finish();
-        });
-
         TextView btnEventsList = findViewById(R.id.btnEventsList);
         btnEventsList.setOnClickListener(v -> {
             // navigate to your events list activity

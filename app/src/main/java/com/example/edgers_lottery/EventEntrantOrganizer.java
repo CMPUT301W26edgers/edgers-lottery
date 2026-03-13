@@ -14,12 +14,13 @@ import java.util.List;
 
 public class EventEntrantOrganizer extends AppCompatActivity {
 
+    private String eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entrants_organizer);
-
+        eventId = getIntent().getStringExtra("event_id");
         initViews();
         setupListeners();
     }
@@ -35,19 +36,19 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         findViewById(R.id.editEventBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, CreateEditEventActivity.class);
-            //intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
             startActivity(intent);
         });
         findViewById(R.id.detailBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, EventDetailsOrganizer.class);
-            //intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
             startActivity(intent);
         });
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, EventWaitlistTab.class);
-            //intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
             startActivity(intent);
         });
     }
