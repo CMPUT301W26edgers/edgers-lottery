@@ -91,7 +91,9 @@ public class EventHistoryActivity extends AppCompatActivity {
      * @return true if the user is in the waiting list or invited users list
      */
     private boolean isUserInEvent(Event event) {
-        return checkListForUser(event.getWaitingList()) || checkListForUser(event.getInvitedUsers());
+        return checkListForUser(event.getWaitingList()) ||
+                checkListForUser(event.getInvitedUsers()) ||
+                checkListForUser(event.getEntrants());
     }
 
     /**
