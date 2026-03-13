@@ -21,6 +21,7 @@ import java.util.ArrayList;
  * Implements {@link EditProfileFragment.EditProfileDialogListener} and
  * {@link FilterEventsFragment.EditFilterDialogListener}.
  */
+
 public class HomeActivity extends AppCompatActivity implements EditProfileFragment.EditProfileDialogListener, FilterEventsFragment.EditFilterDialogListener {
     private static final String TAG = "HomeActivity";
     protected static User user;
@@ -85,9 +86,9 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                                 || (event.getName() != null && event.getName().toLowerCase().contains(interests.toLowerCase()))
                                 || (event.getDescription() != null && event.getDescription().toLowerCase().contains(interests.toLowerCase()));
                         boolean matchesStart = availabilityStart == null || availabilityStart.isEmpty()
-                                || event.getDate().compareTo(availabilityStart) >= 0;
+                                || (event.getDate() != null && event.getDate().compareTo(availabilityStart) >= 0);
                         boolean matchesEnd = availabilityEnd == null || availabilityEnd.isEmpty()
-                                || event.getDate().compareTo(availabilityEnd) <= 0;
+                                || (event.getDate() != null && event.getDate().compareTo(availabilityEnd) <= 0);
 
                         if (matchesInterest && matchesStart && matchesEnd) {
                             eventsArray.add(event);
@@ -123,6 +124,9 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
 
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         Button historyButton = findViewById(R.id.btnHistory);
+        ImageButton qrButton = findViewById(R.id.qrButton);
+//        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
+//        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
         Button organizerButton = findViewById(R.id.btnOrganizerMode);
 
@@ -132,6 +136,12 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
             finish();
         });
 
+        qrButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
+        });
+
+        // view events here!
         eventsList = findViewById(R.id.eventsList);
         adapter = new EventArrayAdapter(this, eventsArray);
         eventsList.setAdapter(adapter);

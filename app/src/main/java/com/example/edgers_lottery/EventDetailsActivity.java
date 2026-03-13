@@ -67,8 +67,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         user = CurrentUser.get();
 
         eventId = getIntent().getStringExtra("eventId");
-        ImageButton backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> finish());
+        //ImageButton backButton = findViewById(R.id.backButton);
+        //backButton.setOnClickListener(v -> finish());
 
         if (eventId != null) {
             db.collection("events").document(eventId).get()

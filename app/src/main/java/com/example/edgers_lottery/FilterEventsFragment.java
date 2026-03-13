@@ -1,5 +1,6 @@
 package com.example.edgers_lottery;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -15,27 +16,20 @@ import androidx.fragment.app.DialogFragment;
  * Dialog fragment that allows a user to filter events by interests and availability dates.
  * Requires the host activity to implement {@link EditFilterDialogListener}.
  */
+import java.util.Calendar;
+
 public class FilterEventsFragment extends DialogFragment {
 
     private static final String TAG = "FilterEventsFragment";
-    private EditText interestsEditText;
-    private EditText registrationStartEditText;
-    private EditText registrationEndEditText;
-
-    /**
+    EditText editInterests;
+    EditText editAvailabilityStart;
+    EditText editAvailabilityEnd;
+     /**
      * Listener interface that must be implemented by the host activity.
      * Called when the user confirms or applies a filter.
      */
     interface EditFilterDialogListener {
-
-        /**
-         * Called when filter values are edited.
-         *
-         * @param interests         the interests keyword to filter by
-         * @param registrationStart the start of the availability window
-         * @param registrationEnd   the end of the availability window
-         */
-        void editFilter(String interests, String registrationStart, String registrationEnd);
+//        void editFilter(String interests, String registrationStart, String registrationEnd);
 
         /**
          * Called when the user confirms the filter by tapping the Filter button.
@@ -75,9 +69,16 @@ public class FilterEventsFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_filter_events, null);
-        EditText editInterests = view.findViewById(R.id.edit_interests_text);
-        EditText editRegistrationStart = view.findViewById(R.id.edit_registration_start_text);
-        EditText editRegistrationEnd = view.findViewById(R.id.edit_registration_end_text);
+        editInterests = view.findViewById(R.id.edit_interests_text);
+        editAvailabilityStart = view.findViewById(R.id.edit_availability_start_text);
+        editAvailabilityEnd = view.findViewById(R.id.edit_availability_end_text);
+
+        // Prevent keyboard from popping up on the date fields
+        editAvailabilityStart.setFocusable(false);
+        editAvailabilityEnd.setFocusable(false);
+
+        editAvailabilityStart.setOnClickListener(v -> showDatePicker(editAvailabilityStart));
+        editAvailabilityEnd.setOnClickListener(v -> showDatePicker(editAvailabilityEnd));
 
         return new AlertDialog.Builder(getContext())
                 .setView(view)
@@ -85,10 +86,22 @@ public class FilterEventsFragment extends DialogFragment {
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Filter", (dialog, which) -> {
                     String interests = editInterests.getText().toString().trim();
-                    String availabilityStart = editRegistrationStart.getText().toString().trim();
-                    String availabilityEnd = editRegistrationEnd.getText().toString().trim();
+                    String availabilityStart = editAvailabilityStart.getText().toString().trim();
+                    String availabilityEnd = editAvailabilityEnd.getText().toString().trim();
+
                     listener.onFilterApplied(interests, availabilityStart, availabilityEnd);
                 })
                 .create();
+    }
+    private void showDatePicker(EditText targetField) {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        new DatePickerDialog(getContext(), (datePicker, y, m, d) -> { // date format is yyyy-mm-dd
+            String date = y + "-" + String.format("%02d", m + 1) + "-" + String.format("%02d", d);
+            targetField.setText(date);
+        }, year, month, day).show();
     }
 }
