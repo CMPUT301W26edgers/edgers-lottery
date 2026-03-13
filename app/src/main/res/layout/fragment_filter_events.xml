@@ -12,18 +12,18 @@
         android:hint="Interests"
         android:inputType="text" />
     <EditText
-        android:id="@+id/edit_registration_start_text"
+        android:id="@+id/edit_availability_start_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
-        android:hint="Enter an Registration Start" />
+        android:hint="Enter an Availabilty Start" />
     <EditText
-        android:id="@+id/edit_registration_end_text"
+        android:id="@+id/edit_availability_end_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
-        android:hint="Enter an Registration End" />
+        android:hint="Enter an Availability End" />
 
 </LinearLayout>
