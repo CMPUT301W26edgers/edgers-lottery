@@ -175,5 +175,17 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
             filterEventsFragment.show(getSupportFragmentManager(), "filter_events");
             android.util.Log.d(TAG, "Interest:" + interests + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
         });
+        organizerButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Switch to Organizer")
+                    .setMessage("Are you sure you want to switch to the organizer view?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        user.setRole("ORGANIZER");
+                        Intent intent = new Intent(this, OrganizerHomeActivity.class);
+                        startActivity(intent);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
     }
 }

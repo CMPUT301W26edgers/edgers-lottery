@@ -2,8 +2,10 @@ package com.example.edgers_lottery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -23,9 +25,12 @@ public class OrganizerHomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organizer_home);
+        User currentUser = CurrentUser.get();
 
         TextView tvUsername = findViewById(R.id.tvUsername);
         TextView tvUserID = findViewById(R.id.tvUserID);
+        ImageButton backButton = findViewById(R.id.backButton);
+
 
         tvUsername.setText("@username");
         tvUserID.setText("@userID");
@@ -40,6 +45,19 @@ public class OrganizerHomeActivity extends AppCompatActivity {
         TextView btnEventsList = findViewById(R.id.btnEventsList);
         btnEventsList.setOnClickListener(v -> {
             // navigate to your events list activity
+        });
+        backButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Go Back")
+                    .setMessage("Are you sure you want to go back to User Home?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        currentUser.setRole("ENTRANT");
+                        Intent intent = new Intent(this, HomeActivity.class);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
     }
 }
