@@ -15,22 +15,32 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-public class StartActivity extends AppCompatActivity{
+/**
+ * Entry point activity that determines where to route the user on app launch.
+ * Checks Firebase Authentication state and Firestore role to navigate to
+ * {@link AdminHomeActivity}, {@link HomeActivity}, {@link LoginActivity},
+ * or {@link NewUserActivity} as appropriate.
+ */
+public class StartActivity extends AppCompatActivity {
     private static final String TAG = "StartActivity";
     protected User user;
 
+    /**
+     * Checks the current Firebase Authentication state and user role,
+     * then navigates to the appropriate activity based on login history and account type.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Check if the user is already logged in
+
         FirebaseUser deviceUser = FirebaseAuth.getInstance().getCurrentUser();
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
         boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
 
         if (deviceUser != null) {
-            // User is logged in, navigate to the appropriate activity
             String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            // Firebase remembers the user
             FirebaseFirestore.getInstance()
                     .collection("users")
                     .document(uid)
@@ -38,8 +48,6 @@ public class StartActivity extends AppCompatActivity{
                     .addOnSuccessListener(document -> {
                         if (document.exists()) {
                             String role = document.getString("role");
-                            // based on the user's role, navigate to the appropriate activity
-                            // this is done here with a switch case statemment
                             if (role == null) {
                                 navigateTo(NewUserActivity.class);
                                 return;
@@ -51,41 +59,39 @@ public class StartActivity extends AppCompatActivity{
                                     prefs.edit().putBoolean("has_signed_in_before", true).apply();
                                     navigateTo(AdminHomeActivity.class);
                                     break;
-                                default: // "entrant"
+                                default:
                                     user = document.toObject(User.class);
                                     CurrentUser.set(user);
                                     prefs.edit().putBoolean("has_signed_in_before", true).apply();
                                     navigateTo(HomeActivity.class);
                                     break;
                             }
-                        } else { // safety call
-//                            navigateTo(NewUserActivity.class); // did not find the user in the database
-
+                        } else {
                             if (hasSignedInBefore) {
                                 String email = document.getString("email");
-                                if (email == null) { // has signed in before but could not find user in database
-//                                    navigateTo(NewUserActivity.class);
-                                    navigateTo(LoginActivity.class); // returning user who signed out
+                                if (email == null) {
+                                    navigateTo(LoginActivity.class);
                                 }
                             } else {
-                                navigateTo(NewUserActivity.class); // brand new user
+                                navigateTo(NewUserActivity.class);
                             }
                         }
                     })
-                    .addOnFailureListener(e -> {
-                        // Handle failure
-                        navigateTo(NewUserActivity.class);
-                    });
+                    .addOnFailureListener(e -> navigateTo(NewUserActivity.class));
         } else {
-//            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
-//            boolean hasSignedInBefore = prefs.getBoolean("has_signed_in_before", false);
             if (hasSignedInBefore) {
-                navigateTo(LoginActivity.class); // returning user who signed out
+                navigateTo(LoginActivity.class);
             } else {
-                navigateTo(NewUserActivity.class); // brand new user
+                navigateTo(NewUserActivity.class);
             }
         }
     }
+
+    /**
+     * Navigates to the specified activity and clears the back stack.
+     *
+     * @param destination the activity class to navigate to
+     */
     private void navigateTo(Class<?> destination) {
         Intent intent = new Intent(this, destination);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -93,4 +99,3 @@ public class StartActivity extends AppCompatActivity{
         finish();
     }
 }
-

@@ -12,6 +12,12 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity that displays the waitlist management screen for an organizer.
+ * Shows the list of users on the waitlist for a specific event and provides
+ * options to run the lottery, notify waitlisters, and navigate to other event management screens.
+ * Requires an {@code event_id} intent extra to identify the current event.
+ */
 public class EventWaitlistTab extends AppCompatActivity {
 
     private RecyclerView rvWaitlist;
@@ -21,6 +27,12 @@ public class EventWaitlistTab extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventId;
 
+    /**
+     * Initializes the activity, reads the event ID from the intent,
+     * and sets up views and navigation listeners.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,35 +51,39 @@ public class EventWaitlistTab extends AppCompatActivity {
     private void initViews() {
         rvWaitlist = findViewById(R.id.rvWaitlist);
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
-
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnRunLottery).setOnClickListener(v -> runLottery());
         findViewById(R.id.btnNotifyWaitlisters).setOnClickListener(v -> notifyWaitlisters());
     }
 
+    /**
+     * Attaches navigation click listeners to the edit event, event details, and entrants buttons.
+     * Passes the current {@code eventId} to each destination activity via intent extra.
+     */
     private void setupListeners() {
         findViewById(R.id.editEventBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, CreateEditEventActivity.class);
-            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
-
         findViewById(R.id.detailBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, EventDetailsOrganizer.class);
-            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
-
         findViewById(R.id.entrantBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, EventEntrantOrganizer.class);
-            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
     }
 
+    /**
+     * Initializes the RecyclerView with a {@link WaitlistAdapter} and a linear layout manager.
+     */
     private void setupRecyclerView() {
         waitlistUsers = new ArrayList<>();
         adapter = new WaitlistAdapter(waitlistUsers, this::removeFromWaitlist);
@@ -75,6 +91,10 @@ public class EventWaitlistTab extends AppCompatActivity {
         rvWaitlist.setAdapter(adapter);
     }
 
+    /**
+     * Fetches the waitlist subcollection for the current event from Firestore
+     * and populates the RecyclerView adapter.
+     */
     private void loadWaitlist() {
         db.collection("events")
                 .document(eventId)
@@ -103,6 +123,12 @@ public class EventWaitlistTab extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Removes a user from the waitlist subcollection in Firestore and updates the RecyclerView.
+     *
+     * @param user     the {@link WaitlistUser} to remove
+     * @param position the position of the user in the adapter list
+     */
     private void removeFromWaitlist(WaitlistUser user, int position) {
         db.collection("events")
                 .document(eventId)
@@ -136,10 +162,16 @@ public class EventWaitlistTab extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Placeholder method for running the lottery to select entrants from the waitlist.
+     */
     private void runLottery() {
         Toast.makeText(this, "Running lottery...", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Placeholder method for sending notifications to all users on the waitlist.
+     */
     private void notifyWaitlisters() {
         Toast.makeText(this, "Notifying waitlisters...", Toast.LENGTH_SHORT).show();
     }

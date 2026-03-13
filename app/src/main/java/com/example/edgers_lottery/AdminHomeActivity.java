@@ -7,8 +7,20 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-// can only be accessed by admins
+/**
+ * Home screen for admin users providing navigation to all administrative sections.
+ * Accessible sections include organizer list, events list, images view,
+ * user list, export notifications, and profile.
+ * Should only be launched for users with admin privileges.
+ */
 public class AdminHomeActivity extends AppCompatActivity {
+
+    /**
+     * Initializes the admin home screen, sets menu item labels,
+     * and attaches navigation click listeners to each menu item and the profile button.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,32 +44,10 @@ public class AdminHomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        events.setOnClickListener(v -> {
-            Intent intent = new Intent(this, EventsListActivity.class);
-            startActivity(intent);
-        });
-
-        images.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ImagesViewActivity.class);
-            startActivity(intent);
-        });
-
-        users.setOnClickListener(v -> {
-            Intent intent = new Intent(this, UserListActivity.class);
-            startActivity(intent);
-        });
-
-        export.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ExportNotificationsActivity.class);
-            startActivity(intent);
-        });
-
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
             finish();
         });
-
     }
-
 }

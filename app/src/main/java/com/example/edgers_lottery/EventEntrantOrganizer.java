@@ -11,6 +11,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity that displays the entrant management screen for an organizer.
+ * Provides navigation to the event details, waitlist, and edit event screens.
+ * Requires an {@code event_id} intent extra to identify the current event.
+ */
 public class EventEntrantOrganizer extends AppCompatActivity {
 
     private RecyclerView rvEntrants;
@@ -20,6 +25,12 @@ public class EventEntrantOrganizer extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventId;
 
+    /**
+     * Initializes the activity, reads the event ID from the intent,
+     * and sets up views and navigation listeners.
+     *
+     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +47,9 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         }
     }
 
+    /**
+     * Binds views and attaches a click listener to the back button.
+     */
     private void initViews() {
         rvEntrants = findViewById(R.id.listEntrants);
         tvEntrantCount = findViewById(R.id.entrantCount);
@@ -43,6 +57,10 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
     }
 
+    /**
+     * Attaches navigation click listeners to the edit event, event details, and waitlist buttons.
+     * Passes the current {@code eventId} to each destination activity via intent extra.
+     */
     private void setupListeners() {
         findViewById(R.id.editEventBtn).setOnClickListener(v -> {
             finish();
