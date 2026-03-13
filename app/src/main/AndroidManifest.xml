@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,10 +15,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Edgerslottery" >
+        android:theme="@style/Theme.Edgerslottery">
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
         <activity android:name=".StartActivity"
             android:exported="true">
             <intent-filter>
@@ -21,6 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".QrScannerActivity"/>
         <activity android:name=".OrganizerHomeActivity"/>
         <activity android:name=".NewUserActivity"/>
         <activity android:name=".HomeActivity"/>
@@ -30,12 +37,12 @@
         <activity android:name=".OrganizerListActivity"/>
         <activity android:name=".CreateEditEventActivity"/>
         <activity android:name=".EventDetailsActivity"/>
-        <activity android:name=".EventDetailsOrganizer"/>
-        <activity android:name=".EventUserChoice" />
+        <activity android:name="EventDetailsOrganizer"/>
+        <activity android:name=".EventUserChoice"/>
         <activity android:name=".EventWaitlistTab"/>
-        <activity android:name=".EventEntrantOrganizer" />
-
+        <activity android:name=".EventEntrantOrganizer"/>
         <activity android:name=".EventHistoryActivity" android:exported="false"/>
+
     </application>
 
 </manifest>
