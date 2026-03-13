@@ -94,7 +94,14 @@ public class EventDetailsActivity extends AppCompatActivity {
         if (isUserInList(user.getId(), waitingList)) {
             joinButton.setText("Leave Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-        } else {
+        }
+        // check waitlist capacity
+        else if (capacity > 0 && waitingList.size() >= capacity) {
+            joinButton.setEnabled(false);
+            joinButton.setText("Waitlist Full");
+            joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.YELLOW));
+        }
+        else {
             joinButton.setText("Join Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
