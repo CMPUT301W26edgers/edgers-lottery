@@ -3,6 +3,7 @@ package com.example.edgers_lottery;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -60,6 +61,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         user = CurrentUser.get();
 
         eventId = getIntent().getStringExtra("eventId");
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
 
         if (eventId != null) {
             db.collection("events").document(eventId).get()
@@ -102,7 +105,14 @@ public class EventDetailsActivity extends AppCompatActivity {
         if (isUserInList(user.getId(), waitingList)) {
             joinButton.setText("Leave Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-        } else {
+        }
+        // check waitlist capacity
+        else if (capacity > 0 && waitingList.size() >= capacity) {
+            joinButton.setEnabled(false);
+            joinButton.setText("Waitlist Full");
+            joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.YELLOW));
+        }
+        else {
             joinButton.setText("Join Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
