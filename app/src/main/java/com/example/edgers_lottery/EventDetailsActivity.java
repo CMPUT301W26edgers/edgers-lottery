@@ -207,4 +207,18 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         }
     }
+
+    /**
+     * Determines whether the waitlist has reached or exceeded the event capacity.
+     *
+     * @param capacity     the maximum number of users allowed on the waitlist
+     * @param waitingList  the list of users currently on the waitlist
+     * @return true if the waitlist size is greater than or equal to the capacity,
+     *         false if the list is null, capacity is non-positive, or the waitlist
+     *         has not yet reached capacity
+     */
+    public static boolean isWaitlistFull(int capacity, ArrayList<User> waitingList) {
+        if (waitingList == null) return false;
+        return capacity > 0 && waitingList.size() >= capacity;
+    }
 }
