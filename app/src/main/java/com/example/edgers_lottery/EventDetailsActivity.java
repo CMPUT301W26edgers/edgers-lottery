@@ -142,8 +142,9 @@ public class EventDetailsActivity extends AppCompatActivity {
             for (User u : waitingList) {
                 list.append(u.getName()).append("\n");
             }
+            int totalUsers = waitingList.size();
             new AlertDialog.Builder(this)
-                    .setTitle("Waitlist")
+                    .setTitle("Waitlist (" + totalUsers + " users)")
                     .setMessage(list.toString())
                     .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
                     .show();
