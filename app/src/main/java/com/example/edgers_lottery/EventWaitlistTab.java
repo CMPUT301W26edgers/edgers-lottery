@@ -25,7 +25,7 @@ public class EventWaitlistTab extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waitlist_organizer);
-
+        eventId = getIntent().getStringExtra("event_id");
         //db = FirebaseFirestore.getInstance();
         //eventId = getIntent().getStringExtra("event_id"); // <-- gets the event_id passed from the previous screen
 
@@ -48,21 +48,21 @@ public class EventWaitlistTab extends AppCompatActivity {
         findViewById(R.id.editEventBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, CreateEditEventActivity.class);
-            //intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
             startActivity(intent);
         });
 
         findViewById(R.id.detailBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, EventDetailsOrganizer.class);
-            //intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
             startActivity(intent);
         });
 
         findViewById(R.id.entrantBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, EventEntrantOrganizer.class);
-            //intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
+            intent.putExtra("event_id", eventId); // <-- passes event_id to the next screen
             startActivity(intent);
         });
     }
