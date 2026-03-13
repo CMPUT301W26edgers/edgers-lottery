@@ -60,6 +60,7 @@ dependencies {
 //    implementation("com.google.firebase:firebase-firestore:24.10.0")
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")
     androidTestImplementation ("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 
     // CameraX
     implementation("androidx.camera:camera-core:1.3.1")
