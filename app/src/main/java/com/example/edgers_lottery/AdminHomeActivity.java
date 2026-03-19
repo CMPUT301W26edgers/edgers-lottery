@@ -26,26 +26,54 @@ public class AdminHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adminhome);
 
-        TextView organizer = findViewById(R.id.organizerListMenu).findViewById(R.id.menuTitle);
+        TextView organizerList = findViewById(R.id.organizerListMenu).findViewById(R.id.menuTitle);
         TextView events = findViewById(R.id.eventListMenu).findViewById(R.id.menuTitle);
         TextView images = findViewById(R.id.imagesViewMenu).findViewById(R.id.menuTitle);
         TextView users = findViewById(R.id.userListMenu).findViewById(R.id.menuTitle);
         TextView export = findViewById(R.id.exportNotificationsMenu).findViewById(R.id.menuTitle);
+        ImageButton homeButton = findViewById(R.id.HomeButton);
+        ImageButton qrButton = findViewById(R.id.qrButton);
+        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
         ImageButton profileButton = findViewById(R.id.ProfileButton);
+        ImageButton backButton = findViewById(R.id.backButton);
 
-        organizer.setText("Organizer List");
+        organizerList.setText("Organizer List");
         events.setText("Events List");
         images.setText("Images View");
         users.setText("User List");
         export.setText("Export Notifications");
 
-        organizer.setOnClickListener(v -> {
+        organizerList.setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerListActivity.class);
             startActivity(intent);
         });
 
+        homeButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CheckoutActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        qrButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        checkoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CheckoutActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        backButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
             finish();
         });

@@ -107,21 +107,28 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
         locationTextView.setText("Location: " + user.getLocation());
 
         ImageButton homeButton = findViewById(R.id.HomeButton);
+        ImageButton qrButton = findViewById(R.id.qrButton);
+        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
         Button editProfileButton = findViewById(R.id.ProfileEditButton);
         Button deleteProfileButton = findViewById(R.id.deleteProfileButton);
         Button signoutButton = findViewById(R.id.signoutButton);
 
         homeButton.setOnClickListener(v -> {
-            String role = user.getRole();
-            if (role.equals("ADMIN")) {
-                Intent intent = new Intent(this, AdminHomeActivity.class);
-                startActivity(intent);
-                finish();
-            } else {
-                Intent intent = new Intent(this, HomeActivity.class);
-                startActivity(intent);
-                finish();
-            }
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        qrButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        checkoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CheckoutActivity.class);
+            startActivity(intent);
+            finish();
         });
 
         editProfileButton.setOnClickListener(v -> {

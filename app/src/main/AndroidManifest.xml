@@ -42,6 +42,7 @@
         <activity android:name=".EventWaitlistTab"/>
         <activity android:name=".EventEntrantOrganizer"/>
         <activity android:name=".EventHistoryActivity" android:exported="false"/>
+        <activity android:name=".CheckoutActivity"/>
 
     </application>
 

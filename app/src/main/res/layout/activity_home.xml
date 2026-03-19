@@ -80,7 +80,7 @@
                 android:text="♡ Favorites"
                 android:textAllCaps="false"
                 android:textColor="@color/black"
-                android:backgroundTint="@color/white"
+                android:backgroundTint="@color/headerGray"
                 android:layout_marginEnd="8dp"
                 android:stateListAnimator="@null"
                 app:cornerRadius="20dp" />
@@ -92,7 +92,7 @@
                 android:text="⏱ History"
                 android:textAllCaps="false"
                 android:textColor="@color/black"
-                android:backgroundTint="@color/white"
+                android:backgroundTint="@color/headerGray"
                 android:layout_marginEnd="8dp"
                 android:stateListAnimator="@null"
                 app:cornerRadius="20dp" />
@@ -104,7 +104,7 @@
                 android:text="📄 Filter Events"
                 android:textAllCaps="false"
                 android:textColor="@color/black"
-                android:backgroundTint="@color/white"
+                android:backgroundTint="@color/headerGray"
                 android:stateListAnimator="@null"
                 app:cornerRadius="20dp" />
 
@@ -115,7 +115,18 @@
                 android:text="📄 Organizer Mode"
                 android:textAllCaps="false"
                 android:textColor="@color/black"
-                android:backgroundTint="@color/white"
+                android:backgroundTint="@color/headerGray"
+                android:stateListAnimator="@null"
+                app:cornerRadius="20dp" />
+
+            <Button
+                android:id="@+id/btnAdminMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📄 Admin Mode"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/headerGray"
                 android:stateListAnimator="@null"
                 app:cornerRadius="20dp" />
         </LinearLayout>
@@ -180,7 +191,7 @@
 
     <ListView
         android:id="@+id/eventsList"
-        android:layout_width="409dp"
+        android:layout_width="match_parent"
         android:layout_height="525dp"
         android:layout_marginStart="1dp"
         android:layout_marginEnd="1dp"
