@@ -322,6 +322,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
      * @param isChecked true if the waitlist is now enabled, false otherwise
      */
     private void onWaitlistToggled(boolean isChecked) {
+        sliderEntrants.setEnabled(isChecked);
     }
 
     /**
