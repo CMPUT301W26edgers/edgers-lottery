@@ -153,6 +153,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             joinButton.setEnabled(false);
             joinButton.setText("Waitlist Full");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.YELLOW));
+            joinButton.setTextColor(Color.BLACK);
         } else {
             joinButton.setText("Join Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
