@@ -49,7 +49,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         });
 
         homeButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CheckoutActivity.class);
+            Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
             finish();
         });
