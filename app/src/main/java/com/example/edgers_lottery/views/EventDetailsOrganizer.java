@@ -3,9 +3,7 @@ package com.example.edgers_lottery.views;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.app.Dialog;
-import android.view.ViewGroup;
-import android.view.Window;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +34,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
     private String eventId;
     private TextView locationName, entrantLimit, description, countdown;
+    private ImageView ivQrCode;
 
     /**
      * Initializes the activity, reads the event ID from the intent,
@@ -78,8 +77,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private void initViews() {
         locationName = findViewById(R.id.tvEventTitle);
         entrantLimit = findViewById(R.id.tvEntrantLimit);
-        description = findViewById(R.id.tvDescription);
-        countdown = findViewById(R.id.tvRegistrationCountdown);
+        description  = findViewById(R.id.tvDescription);
+        countdown    = findViewById(R.id.tvRegistrationCountdown);
+        ivQrCode     = findViewById(R.id.ivQrCode);
     }
 
     /**
@@ -101,6 +101,20 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         locationName.setText(eventName != null ? eventName : "Unnamed Event");
                         entrantLimit.setText("Entrants: " + (capacity != null ? capacity : 0));
                         description.setText("Description: " + (desc != null ? desc : ""));
+
+                        // Generate and show QR inline if public; hide it if private
+                        Boolean isPublic = doc.getBoolean("ispublic");
+                        if (Boolean.TRUE.equals(isPublic)) {
+                            try {
+                                Bitmap qr = generateQrCode(eventId);
+                                ivQrCode.setImageBitmap(qr);
+                                ivQrCode.setVisibility(View.VISIBLE);
+                            } catch (WriterException e) {
+                                ivQrCode.setVisibility(View.GONE);
+                            }
+                        } else {
+                            ivQrCode.setVisibility(View.GONE);
+                        }
 
                         if (dateString != null) {
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -132,15 +146,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private void setupListeners() {
         findViewById(R.id.btnBackEventDetails).setOnClickListener(v -> finish());
 
-        findViewById(R.id.btnQrCode).setOnClickListener(v -> {
-            try {
-                Bitmap qr = generateQrCode(eventId != null ? eventId : "no-id");
-                showQrCodeDialog(qr);
-            } catch (WriterException e) {
-                e.printStackTrace();
-            }
-        });
-
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
             Intent intent = new Intent(this, EventWaitlistTab.class);
             intent.putExtra("event_id", eventId);
@@ -160,28 +165,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
-    }
-
-    /**
-     * Displays a full-screen dialog showing the generated QR code bitmap.
-     *
-     * @param qrBitmap the QR code bitmap to display
-     */
-    private void showQrCodeDialog(Bitmap qrBitmap) {
-        Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.activity_qr_card_view);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.getWindow().setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-
-        ImageView ivQrCode = dialog.findViewById(R.id.ivQrCode);
-        ivQrCode.setImageBitmap(qrBitmap);
-
-        dialog.findViewById(R.id.btnCloseWindow).setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
     }
 
     /**

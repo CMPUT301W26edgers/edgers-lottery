@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:scrollbars="none"
+            android:scrollbars="horizontal"
             app:layout_constraintTop_toBottomOf="@id/btnBackEventDetails"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -228,17 +228,19 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <Button
-            android:id="@+id/btnQrCode"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="16dp"
+        <!--
+            QR code is shown inline when ispublic == true, hidden when private.
+            Visibility is controlled programmatically in EventDetailsOrganizer.java.
+            GONE by default so it takes no space until the Firestore load completes.
+        -->
+        <ImageView
+            android:id="@+id/ivQrCode"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="16dp"
-            android:text="Generate / See QR Code"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#000000"
-            android:elevation="6dp"
-            app:cornerRadius="25dp"
+            android:visibility="gone"
+            android:contentDescription="Event QR Code"
             app:layout_constraintTop_toBottomOf="@id/cvEventInfo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
