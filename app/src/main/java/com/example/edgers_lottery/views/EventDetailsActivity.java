@@ -3,6 +3,7 @@ package com.example.edgers_lottery.views;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     /** Button that opens a dialog showing all current waitlist members. */
     private Button waitlistButton;
 
+    private Button deleteButton;
+
     /** The maximum number of entrants allowed for this event. */
     private int capacity;
 
@@ -99,7 +102,17 @@ public class EventDetailsActivity extends AppCompatActivity {
         eventCapacityText = findViewById(R.id.event_capacity);
         joinButton = findViewById(R.id.join_button);
         waitlistButton = findViewById(R.id.view_waitlist);
+        deleteButton = findViewById(R.id.delete_event_button);
         user = CurrentUser.get();
+
+        // Check if the current user is an Admin
+        if (user != null && User.Role.ADMIN.name().equals(user.getRole())) {
+            // Make the delete button visible
+            deleteButton.setVisibility(View.VISIBLE);
+
+            // Trigger the confirmation popup when clicked
+            deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog());
+        }
 
         eventId = getIntent().getStringExtra("eventId");
         //ImageButton backButton = findViewById(R.id.backButton);
@@ -154,6 +167,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             joinButton.setEnabled(false);
             joinButton.setText("Waitlist Full");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.YELLOW));
+            joinButton.setTextColor(Color.BLACK);
         } else {
             joinButton.setText("Join Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
@@ -255,5 +269,35 @@ public class EventDetailsActivity extends AppCompatActivity {
     public static boolean isWaitlistFull(int capacity, ArrayList<User> waitingList) {
         if (waitingList == null) return false;
         return capacity > 0 && waitingList.size() >= capacity;
+    }
+
+    /**
+     * Displays an alert dialog confirming the admin wants to delete the event.
+     * If confirmed, deletes the document from Firestore and closes the activity.
+     */
+    private void showDeleteConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Event")
+                .setMessage("Are you sure you want to delete this event? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+
+                    // 1. Delete the event from the Firestore "events" collection
+                    db.collection("events").document(eventId).delete()
+                            .addOnSuccessListener(aVoid -> {
+                                // 2. Show success message
+                                Toast.makeText(EventDetailsActivity.this, "Event deleted successfully.", Toast.LENGTH_SHORT).show();
+
+                                // 3. Close the details screen and return to the event list
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(EventDetailsActivity.this, "Failed to delete event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    // User canceled, just dismiss the dialog
+                    dialog.dismiss();
+                })
+                .show();
     }
 }

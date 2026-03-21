@@ -3,9 +3,7 @@ package com.example.edgers_lottery.views;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.app.Dialog;
-import android.view.ViewGroup;
-import android.view.Window;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,15 +27,19 @@ import java.util.concurrent.TimeUnit;
  * Shows event name, description, entrant capacity, and a countdown to the registration deadline.
  * Allows the organizer to view the QR code, manage the waitlist and entrants, or edit the event.
  * Requires an {@code event_id} intent extra to load the correct Firestore document.
+ * Reloads event data from Firestore each time the activity resumes, so edits made in
+ * {@link CreateEditEventActivity} are always reflected when returning here.
  */
 public class EventDetailsOrganizer extends AppCompatActivity {
 
     private String eventId;
     private TextView locationName, entrantLimit, description, countdown;
+    private ImageView ivQrCode;
 
     /**
      * Initializes the activity, reads the event ID from the intent,
-     * and loads event data from Firestore if the ID is present.
+     * and sets up views and listeners. Data loading is deferred to {@link #onResume()}
+     * so the display always reflects the latest Firestore state.
      *
      * @param savedInstanceState saved state from a previous instance, or null if first creation
      */
@@ -51,10 +53,21 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         initViews();
         setupListeners();
 
+        if (eventId == null) {
+            Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Reloads event data from Firestore every time this activity becomes visible.
+     * This ensures that any changes saved in {@link CreateEditEventActivity} are
+     * immediately reflected when the user navigates back here.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
         if (eventId != null) {
             loadEventFromFirestore();
-        } else {
-            Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -64,8 +77,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private void initViews() {
         locationName = findViewById(R.id.tvEventTitle);
         entrantLimit = findViewById(R.id.tvEntrantLimit);
-        description = findViewById(R.id.tvDescription);
-        countdown = findViewById(R.id.tvRegistrationCountdown);
+        description  = findViewById(R.id.tvDescription);
+        countdown    = findViewById(R.id.tvRegistrationCountdown);
+        ivQrCode     = findViewById(R.id.ivQrCode);
     }
 
     /**
@@ -87,6 +101,20 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         locationName.setText(eventName != null ? eventName : "Unnamed Event");
                         entrantLimit.setText("Entrants: " + (capacity != null ? capacity : 0));
                         description.setText("Description: " + (desc != null ? desc : ""));
+
+                        // Generate and show QR inline if public; hide it if private
+                        Boolean isPublic = doc.getBoolean("ispublic");
+                        if (Boolean.TRUE.equals(isPublic)) {
+                            try {
+                                Bitmap qr = generateQrCode(eventId);
+                                ivQrCode.setImageBitmap(qr);
+                                ivQrCode.setVisibility(View.VISIBLE);
+                            } catch (WriterException e) {
+                                ivQrCode.setVisibility(View.GONE);
+                            }
+                        } else {
+                            ivQrCode.setVisibility(View.GONE);
+                        }
 
                         if (dateString != null) {
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -112,61 +140,31 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
     /**
      * Attaches click listeners to the back, QR code, waitlist, entrant, and edit event buttons.
+     * Note: the edit button does NOT call finish() so this activity remains on the back stack
+     * and automatically reloads data via onResume() when the user returns from editing.
      */
     private void setupListeners() {
         findViewById(R.id.btnBackEventDetails).setOnClickListener(v -> finish());
 
-        findViewById(R.id.btnQrCode).setOnClickListener(v -> {
-            try {
-                Bitmap qr = generateQrCode(eventId != null ? eventId : "no-id");
-                showQrCodeDialog(qr);
-            } catch (WriterException e) {
-                e.printStackTrace();
-            }
-        });
-
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
-            finish();
             Intent intent = new Intent(this, EventWaitlistTab.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
 
         findViewById(R.id.entrantBtn).setOnClickListener(v -> {
-            finish();
             Intent intent = new Intent(this, EventEntrantOrganizer.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
 
+        // Do NOT call finish() here — keep this activity alive on the back stack
+        // so onResume() can reload the updated data when returning from the edit screen
         findViewById(R.id.editEventBtn).setOnClickListener(v -> {
-            finish();
             Intent intent = new Intent(this, CreateEditEventActivity.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
-    }
-
-    /**
-     * Displays a full-screen dialog showing the generated QR code bitmap.
-     *
-     * @param qrBitmap the QR code bitmap to display
-     */
-    private void showQrCodeDialog(Bitmap qrBitmap) {
-        Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.activity_qr_card_view);
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.getWindow().setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-
-        ImageView ivQrCode = dialog.findViewById(R.id.ivQrCode);
-        ivQrCode.setImageBitmap(qrBitmap);
-
-        dialog.findViewById(R.id.btnCloseWindow).setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
     }
 
     /**
