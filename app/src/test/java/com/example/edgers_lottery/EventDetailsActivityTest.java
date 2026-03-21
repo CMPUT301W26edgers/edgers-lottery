@@ -2,14 +2,14 @@ package com.example.edgers_lottery;
 
 //import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import static com.example.edgers_lottery.EventDetailsActivity.addUserToList;
-
 import org.junit.Before;
 import org.junit.Test;
 //import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import static org.junit.Assert.*;
 
+import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.views.EventDetailsActivity;
 
 
 public class EventDetailsActivityTest {

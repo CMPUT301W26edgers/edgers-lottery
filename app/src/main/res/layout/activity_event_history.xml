@@ -7,7 +7,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:background="#F4F4F9"
-    tools:context=".EventHistoryActivity">
+    tools:context=".views.EventHistoryActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

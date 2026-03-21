@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
+import com.example.edgers_lottery.models.Event;
+
 @RunWith(AndroidJUnit4.class)
 public class FilterTest {
 
