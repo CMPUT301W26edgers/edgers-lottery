@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
  * Shows event name, description, entrant capacity, and a countdown to the registration deadline.
  * Allows the organizer to view the QR code, manage the waitlist and entrants, or edit the event.
  * Requires an {@code event_id} intent extra to load the correct Firestore document.
+ * Reloads event data from Firestore each time the activity resumes, so edits made in
+ * {@link CreateEditEventActivity} are always reflected when returning here.
  */
 public class EventDetailsOrganizer extends AppCompatActivity {
 
@@ -37,7 +39,8 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
     /**
      * Initializes the activity, reads the event ID from the intent,
-     * and loads event data from Firestore if the ID is present.
+     * and sets up views and listeners. Data loading is deferred to {@link #onResume()}
+     * so the display always reflects the latest Firestore state.
      *
      * @param savedInstanceState saved state from a previous instance, or null if first creation
      */
@@ -51,10 +54,21 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         initViews();
         setupListeners();
 
+        if (eventId == null) {
+            Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Reloads event data from Firestore every time this activity becomes visible.
+     * This ensures that any changes saved in {@link CreateEditEventActivity} are
+     * immediately reflected when the user navigates back here.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
         if (eventId != null) {
             loadEventFromFirestore();
-        } else {
-            Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -112,6 +126,8 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
     /**
      * Attaches click listeners to the back, QR code, waitlist, entrant, and edit event buttons.
+     * Note: the edit button does NOT call finish() so this activity remains on the back stack
+     * and automatically reloads data via onResume() when the user returns from editing.
      */
     private void setupListeners() {
         findViewById(R.id.btnBackEventDetails).setOnClickListener(v -> finish());
@@ -126,21 +142,20 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         });
 
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
-            finish();
             Intent intent = new Intent(this, EventWaitlistTab.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
 
         findViewById(R.id.entrantBtn).setOnClickListener(v -> {
-            finish();
             Intent intent = new Intent(this, EventEntrantOrganizer.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
 
+        // Do NOT call finish() here — keep this activity alive on the back stack
+        // so onResume() can reload the updated data when returning from the edit screen
         findViewById(R.id.editEventBtn).setOnClickListener(v -> {
-            finish();
             Intent intent = new Intent(this, CreateEditEventActivity.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);

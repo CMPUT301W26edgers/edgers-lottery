@@ -21,6 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
@@ -31,29 +32,27 @@ import com.google.firebase.firestore.DocumentReference;
 
 /**
  * Activity for creating a new event or editing an existing one.
- * Handles event name, registration deadline, price, description,
- * entrant capacity, geolocation toggle, waitlist toggle, and an optional image.
- * If launched with an {@code event_id} intent extra, the activity operates in edit mode.
- * Otherwise it creates a new Firestore document for the event.
+ *
+ * Uses a single {@code currentEventId} field throughout:
+ * - null = create mode: btnCreateEvent writes a new document and sets currentEventId.
+ * - non-null = edit mode: fields pre-populated from Firestore; btnSave updates the
+ *   document then calls finish() so EventDetailsOrganizer reloads via onResume().
  */
 public class CreateEditEventActivity extends AppCompatActivity {
 
     private ImageView ivImage;
     private EditText registrationDeadlineInput, eventDateInput, priceInput, descriptionInput;
     private TextInputLayout priceLayout;
-    private SwitchMaterial swGeo, swWaitlist;
+    private SwitchMaterial swGeo, swWaitlist, swPublic;
     private Slider sliderEntrants;
     private EditText eventNameInput;
-    private String currentEventId;
-    private String eventId;
 
     /**
-     * Initializes the activity, enables edge-to-edge display, inflates the layout,
-     * and delegates to {@link #initViews()}, {@link #setupListeners()},
-     * and {@link #setupEdgeToEdge()}.
-     *
-     * @param savedInstanceState saved state from a previous instance, or null if first creation
+     * Single source of truth for the event ID.
+     * Null when creating; set from intent extra (or after first save) when editing.
      */
+    private String currentEventId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,52 +64,118 @@ public class CreateEditEventActivity extends AppCompatActivity {
         setupEdgeToEdge();
     }
 
-    /**
-     * Binds all UI views and reads the optional {@code event_id} intent extra
-     * to determine whether the activity is in create or edit mode.
-     */
     private void initViews() {
         registrationDeadlineInput = findViewById(R.id.registration_deadline);
-        eventDateInput = findViewById(R.id.event_date);
-        priceLayout = findViewById(R.id.priceLayout);
-        priceInput = findViewById(R.id.price);
-        descriptionInput = findViewById(R.id.editTilDescription);
-        swGeo = findViewById(R.id.swGeo);
-        swWaitlist = findViewById(R.id.swWaitlist);
-        sliderEntrants = findViewById(R.id.sliderEntrants);
-        ivImage = findViewById(R.id.ivImage);
-        eventNameInput = findViewById(R.id.event_name);
+        eventDateInput            = findViewById(R.id.event_date);
+        priceLayout               = findViewById(R.id.priceLayout);
+        priceInput                = findViewById(R.id.price);
+        descriptionInput          = findViewById(R.id.editTilDescription);
+        swGeo                     = findViewById(R.id.swGeo);
+        swWaitlist                = findViewById(R.id.swWaitlist);
+        swPublic                  = findViewById(R.id.swPublic);
+        sliderEntrants            = findViewById(R.id.sliderEntrants);
+        ivImage                   = findViewById(R.id.ivImage);
+        eventNameInput            = findViewById(R.id.event_name);
 
         sliderEntrants.setValueFrom(1);
         sliderEntrants.setValueTo(100);
         sliderEntrants.setStepSize(1);
-        currentEventId = getIntent().getStringExtra("event_id"); // null if creating new
+
+        currentEventId = getIntent().getStringExtra("event_id");
+
+        if (currentEventId != null) {
+            loadEventData();
+        }
     }
 
     /**
-     * Attaches click and toggle listeners to all interactive UI elements including
-     * navigation buttons, save, remove, image picker, date picker, and switches.
+     * Fetches the existing Firestore document and populates every UI field.
      */
+    private void loadEventData() {
+        FirebaseFirestore.getInstance()
+                .collection("events")
+                .document(currentEventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String name        = doc.getString("name");
+                    String deadline    = doc.getString("date");
+                    String eventDate   = doc.getString("eventDate");
+                    String price       = doc.getString("price");
+                    String description = doc.getString("description");
+
+                    if (name        != null) eventNameInput.setText(name);
+                    if (deadline    != null) registrationDeadlineInput.setText(deadline);
+                    if (eventDate   != null) eventDateInput.setText(eventDate);
+                    if (price       != null) priceInput.setText(price);
+                    if (description != null) descriptionInput.setText(description);
+
+                    Long capacity = doc.getLong("capacity");
+                    if (capacity != null) {
+                        sliderEntrants.setValue(Math.min(Math.max(capacity.floatValue(), 1f), 100f));
+                    }
+
+                    Boolean geoRequired     = doc.getBoolean("geoRequired");
+                    Boolean waitlistEnabled = doc.getBoolean("waitlistEnabled");
+                    Boolean isPublic        = doc.getBoolean("ispublic");
+                    if (geoRequired     != null) swGeo.setChecked(geoRequired);
+                    if (waitlistEnabled != null) swWaitlist.setChecked(waitlistEnabled);
+                    if (isPublic        != null) swPublic.setChecked(isPublic);
+
+                    String encodedImage = doc.getString("image");
+                    if (encodedImage != null && !encodedImage.isEmpty()) {
+                        try {
+                            byte[] bytes  = Base64.decode(encodedImage, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            if (bitmap != null) ivImage.setImageBitmap(bitmap);
+                        } catch (IllegalArgumentException ignored) { }
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to load event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
     private void setupListeners() {
-        findViewById(R.id.btnBack).setOnClickListener(v -> navigateBack());
+        // Back always just pops this screen
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
         findViewById(R.id.btnAddImage).setOnClickListener(v -> pickImage());
         findViewById(R.id.btnSave).setOnClickListener(v -> onSaveClicked());
         findViewById(R.id.btnRemove).setOnClickListener(v -> onRemoveClicked());
-        findViewById(R.id.btnCreateEvent).setOnClickListener(v -> navigateToEventDetails());
+        findViewById(R.id.btnCreateEvent).setOnClickListener(v -> createEventAndNavigate());
 
+        // Tab-bar buttons all use currentEventId — guard against null (create mode, pre-save)
         findViewById(R.id.detailBtn).setOnClickListener(v -> {
+            if (currentEventId == null) {
+                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(this, EventDetailsOrganizer.class);
-            intent.putExtra("event_id", eventId);
+            intent.putExtra("event_id", currentEventId);
             startActivity(intent);
         });
+
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
+            if (currentEventId == null) {
+                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(this, EventWaitlistTab.class);
-            intent.putExtra("event_id", eventId);
+            intent.putExtra("event_id", currentEventId);
             startActivity(intent);
         });
+
         findViewById(R.id.entrantBtn).setOnClickListener(v -> {
+            if (currentEventId == null) {
+                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(this, EventEntrantOrganizer.class);
-            intent.putExtra("event_id", eventId);
+            intent.putExtra("event_id", currentEventId);
             startActivity(intent);
         });
 
@@ -122,84 +187,66 @@ public class CreateEditEventActivity extends AppCompatActivity {
     }
 
     /**
-     * Navigates back to {@link OrganizerHomeActivity}.
+     * Validates fields, writes a new Firestore document, stores the returned ID in
+     * currentEventId, then navigates to EventDetailsOrganizer.
      */
-    private void navigateBack() {
-        startActivity(new Intent(this, OrganizerHomeActivity.class));
-    }
-
-    /**
-     * Validates all input fields, creates a new Firestore event document with a
-     * generated ID, optionally encodes and stores an event image as Base64,
-     * and navigates to {@link EventDetailsOrganizer} on success.
-     */
-    private void navigateToEventDetails() {
-        String deadline = registrationDeadlineInput.getText().toString().trim();
-        String eventDate = eventDateInput.getText().toString().trim();
-        String price = priceInput.getText().toString().replace("$", "").trim();
-        String eventName = eventNameInput.getText().toString().trim();
+    private void createEventAndNavigate() {
+        String deadline        = registrationDeadlineInput.getText().toString().trim();
+        String eventDate       = eventDateInput.getText().toString().trim();
+        String price           = priceInput.getText().toString().replace("$", "").trim();
+        String eventName       = eventNameInput.getText().toString().trim();
         String descriptionText = descriptionInput.getText().toString().trim();
-        int entrant = (int) sliderEntrants.getValue();
+        int    entrant         = (int) sliderEntrants.getValue();
 
         if (deadline.isEmpty() || eventDate.isEmpty() || price.isEmpty() || eventName.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields before continuing", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("events").document();
-        String eventId = docRef.getId();
+        DocumentReference docRef = FirebaseFirestore.getInstance().collection("events").document();
+        String newId = docRef.getId();
 
         Map<String, Object> eventData = new HashMap<>();
-        eventData.put("eventId", eventId);
-        eventData.put("id", eventId);
-        eventData.put("name", eventName);
-        //eventData.put("eventDate", eventDate);
-        eventData.put("date", deadline);
-        eventData.put("price", price);
-        eventData.put("description", descriptionText);
-        eventData.put("capacity", entrant);
+        eventData.put("eventId",         newId);
+        eventData.put("id",              newId);
+        eventData.put("name",            eventName);
+        eventData.put("eventDate",       eventDate);
+        eventData.put("date",            deadline);
+        eventData.put("price",           price);
+        eventData.put("description",     descriptionText);
+        eventData.put("capacity",        entrant);
+        eventData.put("geoRequired",      swGeo.isChecked());
+        eventData.put("enforceLocation",  swGeo.isChecked());
+        eventData.put("waitlistEnabled",  swWaitlist.isChecked());
+        eventData.put("ispublic",         swPublic.isChecked());
 
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-            byte[] imageBytes = baos.toByteArray();
-            String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-            eventData.put("image", encodedImage);
+            eventData.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
         } else {
             eventData.put("image", null);
         }
 
         docRef.set(eventData)
                 .addOnSuccessListener(unused -> {
+                    currentEventId = newId; // now the activity knows its own ID
                     Intent intent = new Intent(this, EventDetailsOrganizer.class);
-                    intent.putExtra("eventName", eventName);
-                    intent.putExtra("event_date", eventDate);
-                    intent.putExtra("registration_date", deadline);
-                    intent.putExtra("event_id", eventId);
-                    intent.putExtra("description", descriptionText);
-                    intent.putExtra("entrants", entrant);
+                    intent.putExtra("event_id", currentEventId);
                     startActivity(intent);
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    /**
-     * Launches the system image picker to allow the user to select an event image.
-     */
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, 100);
     }
 
-    /**
-     * Parses a "yyyy-MM-dd" string into a Calendar with time zeroed out.
-     * Returns null if the string is empty or unparseable.
-     */
     private Calendar parseDate(String dateStr) {
         if (dateStr == null || dateStr.isEmpty()) return null;
         try {
@@ -216,12 +263,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Shows a DatePickerDialog and writes the selected date into targetInput.
-     * Rejects past dates. If the other date field is already set, also enforces:
-     *   - event date must be on or after registration deadline
-     *   - registration deadline must be on or before event date
-     */
     private void showDatePicker(EditText targetInput) {
         Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(this,
@@ -245,14 +286,12 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     }
 
                     if (targetInput == eventDateInput) {
-                        // Event date must be on or after registration deadline
                         Calendar deadline = parseDate(registrationDeadlineInput.getText().toString().trim());
                         if (deadline != null && selected.before(deadline)) {
                             Toast.makeText(this, "Event date cannot be before the registration deadline", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     } else if (targetInput == registrationDeadlineInput) {
-                        // Registration deadline must be on or before event date
                         Calendar eventDate = parseDate(eventDateInput.getText().toString().trim());
                         if (eventDate != null && selected.after(eventDate)) {
                             Toast.makeText(this, "Registration deadline cannot be after the event date", Toast.LENGTH_SHORT).show();
@@ -260,8 +299,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
                         }
                     }
 
-                    String date = String.format("%04d-%02d-%02d", year, month + 1, day);
-                    targetInput.setText(date);
+                    targetInput.setText(String.format("%04d-%02d-%02d", year, month + 1, day));
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -269,13 +307,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
         ).show();
     }
 
-    /**
-     * Validates the price field and shows a confirmation dialog before saving changes.
-     * Displays an error on the price input if the value is missing or not a valid number.
-     */
     private void onSaveClicked() {
         String priceText = priceInput.getText().toString().replace("$", "").trim();
-
         if (priceText.isEmpty()) {
             priceLayout.setError("Enter a valid price");
             return;
@@ -293,9 +326,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Shows a confirmation dialog before permanently deleting the current event.
-     */
     private void onRemoveClicked() {
         new AlertDialog.Builder(this)
                 .setTitle("Delete event?")
@@ -305,27 +335,10 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .show();
     }
 
-    /**
-     * Called when the geolocation toggle switch is changed.
-     *
-     * @param isChecked true if geolocation is now enabled, false otherwise
-     */
-    private void onGeoToggled(boolean isChecked) {
-        // handle geolocation toggle
-    }
+    private void onGeoToggled(boolean isChecked) { }
 
-    /**
-     * Called when the waitlist toggle switch is changed.
-     *
-     * @param isChecked true if the waitlist is now enabled, false otherwise
-     */
-    private void onWaitlistToggled(boolean isChecked) {
-    }
+    private void onWaitlistToggled(boolean isChecked) { }
 
-    /**
-     * Applies system window insets as padding to the root view to support
-     * edge-to-edge display on modern Android versions.
-     */
     private void setupEdgeToEdge() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -335,32 +348,33 @@ public class CreateEditEventActivity extends AppCompatActivity {
     }
 
     /**
-     * Reads all current field values and updates the existing Firestore event document
-     * identified by {@code currentEventId}. Also encodes and updates the event image
-     * if one has been selected. Shows a toast on success or failure.
+     * Updates the Firestore document then calls finish() so EventDetailsOrganizer
+     * resurfaces and reloads the fresh data via its onResume().
      */
     private void saveChanges() {
-        String eventName = eventNameInput.getText().toString().trim();
-        String eventDate = eventDateInput.getText().toString().trim();
-        String deadline = registrationDeadlineInput.getText().toString().trim();
-        String price = priceInput.getText().toString().replace("$", "").trim();
-        String description = descriptionInput.getText().toString().trim();
-        int entrants = (int) sliderEntrants.getValue();
-
         if (currentEventId == null) {
             Toast.makeText(this, "No event to update", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        String eventName   = eventNameInput.getText().toString().trim();
+        String eventDate   = eventDateInput.getText().toString().trim();
+        String deadline    = registrationDeadlineInput.getText().toString().trim();
+        String price       = priceInput.getText().toString().replace("$", "").trim();
+        String description = descriptionInput.getText().toString().trim();
+        int    entrants    = (int) sliderEntrants.getValue();
+
         Map<String, Object> updates = new HashMap<>();
-        updates.put("name", eventName);
-        updates.put("eventDate", eventDate);
-        updates.put("date", deadline);
-        updates.put("price", price);
-        updates.put("description", description);
-        updates.put("capacity", entrants);
-        updates.put("geoRequired", swGeo.isChecked());
-        updates.put("waitlistEnabled", swWaitlist.isChecked());
+        updates.put("name",            eventName);
+        updates.put("eventDate",       eventDate);
+        updates.put("date",            deadline);
+        updates.put("price",           price);
+        updates.put("description",     description);
+        updates.put("capacity",        entrants);
+        updates.put("geoRequired",      swGeo.isChecked());
+        updates.put("enforceLocation",  swGeo.isChecked());
+        updates.put("waitlistEnabled",  swWaitlist.isChecked());
+        updates.put("ispublic",         swPublic.isChecked());
 
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
@@ -374,19 +388,19 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .collection("events")
                 .document(currentEventId)
                 .update(updates)
-                .addOnSuccessListener(unused ->
-                        Toast.makeText(this, "Event updated!", Toast.LENGTH_SHORT).show())
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Event updated!", Toast.LENGTH_SHORT).show();
+                    finish(); // pops back to EventDetailsOrganizer → onResume() reloads data
+                })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    /**
-     * Deletes the current event document from Firestore and navigates back
-     * to {@link OrganizerHomeActivity} on success.
-     */
     private void deleteEvent() {
-        if (currentEventId == null) return;
-
+        if (currentEventId == null) {
+            Toast.makeText(this, "No event to delete", Toast.LENGTH_SHORT).show();
+            return;
+        }
         FirebaseFirestore.getInstance()
                 .collection("events")
                 .document(currentEventId)
@@ -400,14 +414,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
                         Toast.makeText(this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    /**
-     * Receives the result from the image picker and sets the selected image
-     * on the event image view.
-     *
-     * @param requestCode the request code passed to {@code startActivityForResult}
-     * @param resultCode  the result code returned by the image picker activity
-     * @param data        the intent containing the selected image URI
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

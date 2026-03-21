@@ -164,7 +164,7 @@
                 android:id="@+id/event_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="mm/dd/yyyy"
+                android:text="mm/dd/yyyy"
                 android:focusable="false"
                 android:clickable="true"/>
 
@@ -259,6 +259,21 @@
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp"
                     android:text="Waitlist Entrants Limit"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#E0E0E0"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/swPublic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:text="Public Event"/>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

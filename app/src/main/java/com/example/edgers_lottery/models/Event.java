@@ -55,6 +55,7 @@ public class Event {
 
     /** Whether entrants are required to be at the event location to participate. */
     private boolean enforceLocation;
+    private boolean ispublic;
 
     /**
      * Default no-argument constructor required by Firestore for deserialization.
