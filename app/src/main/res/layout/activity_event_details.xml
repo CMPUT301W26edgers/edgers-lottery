@@ -68,7 +68,16 @@
                         android:textColor="#FFFFFF"
                         android:layout_marginEnd="8dp"
                         android:minHeight="36dp" />
-                </LinearLayout>
+
+                    <Button
+                        android:id="@+id/delete_event_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delete Event"
+                        android:backgroundTint="#F44336"
+                        android:textColor="#FFFFFF"
+                        android:minHeight="36dp"
+                        android:visibility="gone" /> </LinearLayout>
             </HorizontalScrollView>
 
             <ImageView
