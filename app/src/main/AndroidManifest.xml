@@ -33,6 +33,7 @@
         <activity android:name=".views.HomeActivity"/>
         <activity android:name=".views.AdminHomeActivity"/>
         <activity android:name=".views.LoginActivity"/>
+        <activity android:name=".views.CheckoutActivity"/>
         <activity android:name=".views.ProfileActivity"/>
         <activity android:name=".views.OrganizerListActivity"/>
         <activity android:name=".views.CreateEditEventActivity"/>

@@ -2,6 +2,7 @@ package com.example.edgers_lottery.views;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -130,10 +131,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         Button historyButton = findViewById(R.id.btnHistory);
         ImageButton qrButton = findViewById(R.id.qrButton);
-//        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
+        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
 //        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
         Button organizerButton = findViewById(R.id.btnOrganizerMode);
+        Button adminButton = findViewById(R.id.btnAdminMode);
 
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
@@ -143,6 +145,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
 
         qrButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
+        });
+
+        checkoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CheckoutActivity.class);
             startActivity(intent);
         });
 
@@ -180,6 +187,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
             filterEventsFragment.show(getSupportFragmentManager(), "filter_events");
             android.util.Log.d(TAG, "Interest:" + interests + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
         });
+
         organizerButton.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Switch to Organizer")
@@ -188,6 +196,25 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                         user.setRole("ORGANIZER");
                         Intent intent = new Intent(this, OrganizerHomeActivity.class);
                         startActivity(intent);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+
+        if ("ADMIN".equals(user.getRole())) {
+            adminButton.setVisibility(View.VISIBLE);
+        } else {
+            adminButton.setVisibility(View.INVISIBLE);
+        }
+
+        adminButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Switch to Admin")
+                    .setMessage("Are you sure you want to switch to Admin view?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        Intent intent = new Intent(this, AdminHomeActivity.class);
+                        startActivity(intent);
+                        finish();
                     })
                     .setNegativeButton("Cancel", null)
                     .show();

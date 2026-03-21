@@ -80,6 +80,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         sliderEntrants.setValueFrom(1);
         sliderEntrants.setValueTo(100);
         sliderEntrants.setStepSize(1);
+        sliderEntrants.setEnabled(false);
 
         currentEventId = getIntent().getStringExtra("event_id");
 
@@ -337,7 +338,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
     private void onGeoToggled(boolean isChecked) { }
 
-    private void onWaitlistToggled(boolean isChecked) { }
+    private void onWaitlistToggled(boolean isChecked) {
+        sliderEntrants.setEnabled(isChecked);
+    }
 
     private void setupEdgeToEdge() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
