@@ -12,6 +12,8 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+import com.example.edgers_lottery.models.WaitlistUser;
+
 /**
  * Unit tests for the pure logic used in EventWaitlistTab.
  * Mirrors loadWaitlist() and removeFromWaitlist() without Android or Firestore dependencies.

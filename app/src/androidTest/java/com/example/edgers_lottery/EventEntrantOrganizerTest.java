@@ -12,6 +12,8 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+import com.example.edgers_lottery.models.WaitlistUser;
+
 /**
  * Unit tests for the pure logic used in EventEntrantOrganizer.
  * These tests exercise list operations and data-mapping directly,

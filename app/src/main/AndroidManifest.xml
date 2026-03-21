@@ -20,28 +20,28 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <activity android:name=".StartActivity"
+        <activity android:name=".views.StartActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".QrScannerActivity"/>
-        <activity android:name=".OrganizerHomeActivity"/>
-        <activity android:name=".NewUserActivity"/>
-        <activity android:name=".HomeActivity"/>
-        <activity android:name=".AdminHomeActivity"/>
-        <activity android:name=".LoginActivity"/>
-        <activity android:name=".ProfileActivity"/>
-        <activity android:name=".OrganizerListActivity"/>
-        <activity android:name=".CreateEditEventActivity"/>
-        <activity android:name=".EventDetailsActivity"/>
-        <activity android:name="EventDetailsOrganizer"/>
-        <activity android:name=".EventUserChoice"/>
-        <activity android:name=".EventWaitlistTab"/>
-        <activity android:name=".EventEntrantOrganizer"/>
-        <activity android:name=".EventHistoryActivity" android:exported="false"/>
+        <activity android:name=".views.QrScannerActivity"/>
+        <activity android:name=".views.OrganizerHomeActivity"/>
+        <activity android:name=".views.NewUserActivity"/>
+        <activity android:name=".views.HomeActivity"/>
+        <activity android:name=".views.AdminHomeActivity"/>
+        <activity android:name=".views.LoginActivity"/>
+        <activity android:name=".views.ProfileActivity"/>
+        <activity android:name=".views.OrganizerListActivity"/>
+        <activity android:name=".views.CreateEditEventActivity"/>
+        <activity android:name=".views.EventDetailsActivity"/>
+        <activity android:name=".views.EventDetailsOrganizer"/>
+        <activity android:name=".views.EventUserChoice"/>
+        <activity android:name=".views.EventWaitlistTab"/>
+        <activity android:name=".views.EventEntrantOrganizer"/>
+        <activity android:name=".views.EventHistoryActivity" android:exported="false"/>
 
     </application>
 
