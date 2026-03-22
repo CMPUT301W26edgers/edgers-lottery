@@ -158,17 +158,19 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         adapter = new EventArrayAdapter(this, eventsArray);
         eventsList.setAdapter(adapter);
         db = FirebaseFirestore.getInstance();
-        db.collection("events").get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        Event event = document.toObject(Event.class);
-                        adapter.add(event);
-                    }
-                    adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> {
-                    android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
-                });
+
+        // REMOVE if onResume() works and loads list changes instantly
+//        db.collection("events").get()
+//                .addOnSuccessListener(queryDocumentSnapshots -> {
+//                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+//                        Event event = document.toObject(Event.class);
+//                        adapter.add(event);
+//                    }
+//                    adapter.notifyDataSetChanged();
+//                })
+//                .addOnFailureListener(e -> {
+//                    android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
+//                });
 
         eventsList.setOnItemClickListener((parent, view, position, id) -> {
             Event selectedEvent = eventsArray.get(position);
@@ -219,5 +221,33 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                     .setNegativeButton("Cancel", null)
                     .show();
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // If the database is initialized, fetch the freshest data
+        if (db != null && adapter != null) {
+            loadEvents();
+        }
+    }
+
+    private void loadEvents() {
+        adapter.clear(); // Clear the old list before grabbing the new one
+        db.collection("events").get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        Event event = document.toObject(Event.class);
+                        // Make sure to attach the ID so it works when clicked!
+                        if (event != null) {
+                            event.setId(document.getId());
+                            adapter.add(event);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
+                });
     }
 }
