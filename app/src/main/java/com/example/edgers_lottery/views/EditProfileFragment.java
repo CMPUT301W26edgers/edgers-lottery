@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -140,12 +141,18 @@ public class EditProfileFragment extends DialogFragment {
                     assert getArguments() != null;
                     editingProfile = (User) getArguments().getSerializable("profile");
                     assert editingProfile != null;
+                    String phone = editPhone.getText().toString().trim();
+                    // check that phone number is 10 digits
+                    if (phone.length() != 10) { // if we want to make it not empty, we add in a condition here
+                        Toast.makeText(getContext(), "Phone number must be 10 digits", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     listener.editUser(editingProfile,
-                            editDescription.getText().toString(),
-                            editEmail.getText().toString(),
-                            editLocation.getText().toString(),
-                            editPhone.getText().toString(),
-                            editUsername.getText().toString());
+                            editDescription.getText().toString().trim(),
+                            editEmail.getText().toString().trim(),
+                            editLocation.getText().toString().trim(),
+                            editPhone.getText().toString().trim(),
+                            editUsername.getText().toString().trim());
                 })
                 .create();
     }
