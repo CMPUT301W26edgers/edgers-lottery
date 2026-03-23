@@ -5,11 +5,11 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/edit_interests_text"
+        android:id="@+id/edit_keywords_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Interests"
+        android:hint="Enter a keyword"
         android:inputType="text" />
     <EditText
         android:id="@+id/edit_availability_start_text"
