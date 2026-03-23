@@ -154,7 +154,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         });
 
         // view events here!
-        eventsList = findViewById(R.id.eventsList);
+        eventsList = findViewById(R.id.eventListView);
         adapter = new EventArrayAdapter(this, eventsArray);
         eventsList.setAdapter(adapter);
         db = FirebaseFirestore.getInstance();
