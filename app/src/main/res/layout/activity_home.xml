@@ -24,7 +24,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
-        app:layout_constraintBottom_toBottomOf="+id/searchView">
+        >
 
         <TextView
             android:id="@+id/ProfileTab"
@@ -74,11 +74,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/cardview_light_background"
+            android:backgroundTint="#F5F5F5"
             android:iconifiedByDefault="false"
             android:queryHint="Search events..."
-            android:backgroundTint="@color/headerGray"
-            app:cornerRadius="20dp"
-            />
+            app:cornerRadius="@dimen/cardview_default_radius" />
 
     </LinearLayout>
 

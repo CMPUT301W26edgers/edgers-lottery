@@ -23,7 +23,7 @@ import java.util.Calendar;
 public class FilterEventsFragment extends DialogFragment {
 
     private static final String TAG = "FilterEventsFragment";
-    EditText editInterests;
+    EditText editKeyword;
     EditText editAvailabilityStart;
     EditText editAvailabilityEnd;
      /**
@@ -71,7 +71,7 @@ public class FilterEventsFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_filter_events, null);
-        editInterests = view.findViewById(R.id.edit_interests_text);
+        editKeyword = view.findViewById(R.id.edit_keywords_text);
         editAvailabilityStart = view.findViewById(R.id.edit_availability_start_text);
         editAvailabilityEnd = view.findViewById(R.id.edit_availability_end_text);
 
@@ -87,7 +87,7 @@ public class FilterEventsFragment extends DialogFragment {
                 .setTitle("Filter Events")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Filter", (dialog, which) -> {
-                    String interests = editInterests.getText().toString().trim();
+                    String interests = editKeyword.getText().toString().trim();
                     String availabilityStart = editAvailabilityStart.getText().toString().trim();
                     String availabilityEnd = editAvailabilityEnd.getText().toString().trim();
 
