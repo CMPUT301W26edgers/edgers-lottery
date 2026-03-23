@@ -43,7 +43,7 @@
         android:id="@+id/linearLayout12"
         android:layout_width="57dp"
         android:layout_height="50dp"
-        android:layout_marginTop="1dp"
+        android:layout_marginTop="0dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
@@ -57,37 +57,44 @@
             app:srcCompat="@drawable/notification_icon" />
     </LinearLayout>
 
-    <SearchView
-        android:id="@+id/searchView"
+    <LinearLayout
+        android:id="@+id/linearLayout13"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginHorizontal="16dp"
-
-        android:background="@color/headerGray"
-        android:iconifiedByDefault="false"
-        android:queryHint="Search events..."
-        android:queryTextFocusable="true"
-        android:queryTextSelectable="true"
-
-        app:layout_constraintBottom_toTopOf="@id/filter_buttons_scroll"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginHorizontal="25dp"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
 
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+        <SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/cardview_light_background"
+            android:iconifiedByDefault="false"
+            android:queryHint="Search events..."
+            android:backgroundTint="@color/headerGray"
+            app:cornerRadius="20dp"
+            />
+
+    </LinearLayout>
 
     <HorizontalScrollView
         android:id="@+id/filter_buttons_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
+        android:paddingVertical="0dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@+id/eventListView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout13"
+        >
 
         <LinearLayout
             android:layout_width="wrap_content"
