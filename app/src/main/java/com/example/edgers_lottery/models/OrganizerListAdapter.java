@@ -58,7 +58,7 @@ public class OrganizerListAdapter extends ArrayAdapter<User> {
         delete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Delete Organizer")
-                    .setMessage("Delete this organizer and all their events?")
+                    .setMessage("Delete this organizer for violating app policies?")
                     .setPositiveButton("Delete", (dialog, which) -> {
                         if (context instanceof OrganizerListActivity) {
                             ((OrganizerListActivity) context)

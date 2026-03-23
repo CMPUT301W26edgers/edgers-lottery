@@ -45,24 +45,16 @@ public class OrganizerListActivity extends AppCompatActivity {
     }
 
     /**
-     * Deletes the organizer with the given ID and all their associated events from Firestore,
+     * Deletes the organizer with the given ID from Firestore,
      * then reloads the organizer list.
      *
      * @param organizerId the Firestore document ID of the organizer to remove
      */
     public void removeOrganizer(String organizerId) {
-        db.collection("events")
-                .whereEqualTo("organizerId", organizerId)
-                .get()
-                .addOnSuccessListener(query -> {
-                    for (DocumentSnapshot doc : query.getDocuments()) {
-                        doc.getReference().delete();
-                    }
-                    db.collection("users")
-                            .document(organizerId)
-                            .delete()
-                            .addOnSuccessListener(aVoid -> loadOrganizers());
-                });
+        db.collection("users")
+                .document(organizerId)
+                .delete()
+                .addOnSuccessListener(aVoid -> loadOrganizers());
     }
 
     /**
