@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#000000">
 
     <!-- Camera takes up full screen -->
@@ -10,6 +10,20 @@
         android:id="@+id/barcodeScanner"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <LinearLayout
+        android:layout_width="57dp"
+        android:layout_height="50dp"
+        android:padding="16dp"
+        android:orientation="vertical">
+        <ImageButton
+            android:id="@+id/backButton"
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="@color/white"
+            android:contentDescription="@string/backButton"
+            app:srcCompat="@drawable/left_arrow_small" />
+    </LinearLayout>
 
     <!-- Bottom action panel, hidden until scan succeeds -->
     <LinearLayout
