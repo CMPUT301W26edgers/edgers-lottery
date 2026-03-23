@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -48,6 +49,9 @@ public class QrScannerActivity extends AppCompatActivity {
 
     /** Button that dismisses the action panel and resumes scanning. */
     private Button btnScanAgain;
+    /** Button the send us back to the main actvity */
+    private ImageButton btnBack;
+
 
     /**
      * Flag indicating whether a QR code has already been scanned in the
@@ -82,6 +86,7 @@ public class QrScannerActivity extends AppCompatActivity {
         tvScannedLabel  = findViewById(R.id.tvScannedLabel);
         btnGoToEvent    = findViewById(R.id.btnGoToEvent);
         btnScanAgain    = findViewById(R.id.btnScanAgain);
+        btnBack         = findViewById(R.id.backButton);
 
         btnGoToEvent.setOnClickListener(v -> {
             if (scannedEventId != null) {
@@ -98,6 +103,10 @@ public class QrScannerActivity extends AppCompatActivity {
             actionPanel.setVisibility(View.GONE);
             barcodeScanner.resume();
         });
+        btnBack.setOnClickListener(v -> {
+            finish();
+        });
+
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
