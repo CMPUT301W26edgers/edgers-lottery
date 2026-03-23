@@ -70,7 +70,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
 
     private void filterEvents(String query) {
         eventsArray.clear();
-
         if (query.isEmpty()) {
             eventsArray.addAll(allEventsArray); // restore full list
         } else {
@@ -181,9 +180,8 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         adapter = new EventArrayAdapter(this, eventsArray);
         eventsList.setAdapter(adapter);
         db = FirebaseFirestore.getInstance();
-
+        loadEvents();
         // REMOVE if onResume() works and loads list changes instantly
-        //
 //        db.collection("events").get()
 //                .addOnSuccessListener(queryDocumentSnapshots -> {
 //                    for (DocumentSnapshot document : queryDocumentSnapshots) {
@@ -259,13 +257,14 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                     .show();
         });
     }
-
+// this causes a bug where it reloads all events after a user clicks back to the home screen after searching
+    // we want the search not to end because it makes the app more usable
     @Override
     protected void onResume() {
         super.onResume();
         // If the database is initialized, fetch the freshest data
         if (db != null && adapter != null) {
-            loadEvents();
+//            loadEvents();
         }
     }
 
@@ -279,6 +278,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                         if (event != null) {
                             event.setId(document.getId());
                             adapter.add(event);
+                            allEventsArray.add(event);
                         }
                     }
                     adapter.notifyDataSetChanged();
@@ -286,6 +286,5 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                 .addOnFailureListener(e -> {
                     android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
                 });
-        allEventsArray.addAll(eventsArray);
     }
 }
