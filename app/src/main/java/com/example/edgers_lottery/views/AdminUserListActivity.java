@@ -7,7 +7,6 @@ import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
-import com.example.edgers_lottery.models.OrganizerListAdapter;
 import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.models.UserListAdapter;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -35,7 +34,15 @@ public class AdminUserListActivity extends AppCompatActivity {
         userList = findViewById(R.id.adminUserList);
         adapter = new UserListAdapter(this, users);
         userList.setAdapter(adapter);
-        loadUsers();
+        users.add(new User("1", "Test User", "test@email.com", "ENTRANT"));
+        adapter.notifyDataSetChanged();
+        // loadUsers();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUsers(); // Refresh the list every time the screen appears
     }
 
     public void removeUser(String userId) {
@@ -47,6 +54,7 @@ public class AdminUserListActivity extends AppCompatActivity {
 
     private void loadUsers() {
         db.collection("users")
+                .whereNotEqualTo("role", "ADMIN")
                 .get()
                 .addOnSuccessListener(query -> {
                     users.clear();

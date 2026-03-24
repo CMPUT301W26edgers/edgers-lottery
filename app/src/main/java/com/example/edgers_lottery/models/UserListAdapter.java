@@ -67,7 +67,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
         delete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Delete User")
-                    .setMessage("Delete this user?")
+                    .setMessage("Are you sure you want to delete this user?")
                     .setPositiveButton("Delete", (dialog, which) -> {
                         if (context instanceof AdminUserListActivity) {
                             ((AdminUserListActivity) context)
