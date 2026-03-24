@@ -50,6 +50,26 @@ public class AdminHomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        events.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminEventListActivity.class);
+            startActivity(intent);
+        });
+
+        images.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminEventListActivity.class);
+            startActivity(intent);
+        });
+
+        users.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminUserListActivity.class);
+            startActivity(intent);
+        });
+
+        export.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminEventListActivity.class);
+            startActivity(intent);
+        });
+
         homeButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
