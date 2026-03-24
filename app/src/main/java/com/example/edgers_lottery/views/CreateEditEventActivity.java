@@ -242,9 +242,11 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
         docRef.set(eventData)
                 .addOnSuccessListener(unused -> {
-                    currentEventId = newId; // now the activity knows its own ID
-                    Intent intent = new Intent(this, EventDetailsOrganizer.class);
-                    intent.putExtra("event_id", currentEventId);
+                    //currentEventId = newId; // now the activity knows its own ID
+                    //Intent intent = new Intent(this, EventDetailsOrganizer.class);
+                    //intent.putExtra("event_id", currentEventId);
+                    //startActivity(intent);
+                    Intent intent = new Intent(this, OrganizerEventsListActivity.class);
                     startActivity(intent);
                 })
                 .addOnFailureListener(e ->
