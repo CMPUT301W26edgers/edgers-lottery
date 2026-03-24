@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.views.AdminUserListActivity;
+import com.example.edgers_lottery.views.AdminUserProfileActivity;
 
 import java.util.List;
 
@@ -51,18 +52,16 @@ public class UserListAdapter extends ArrayAdapter<User> {
                     .inflate(R.layout.item_admin_user_list, parent, false);
         }
 
-        /*
+        User user = getItem(position);
+        TextView name = convertView.findViewById(R.id.userName);
+        ImageButton delete = convertView.findViewById(R.id.deleteButton);
+        name.setText(user.getName());
+
         convertView.setOnClickListener(v -> {
             Intent intent = new Intent(context, AdminUserProfileActivity.class);
             intent.putExtra("userId", user.getId());
             context.startActivity(intent);
         });
-        */
-
-        User user = getItem(position);
-        TextView name = convertView.findViewById(R.id.userName);
-        ImageButton delete = convertView.findViewById(R.id.deleteButton);
-        name.setText(user.getName());
 
         delete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
