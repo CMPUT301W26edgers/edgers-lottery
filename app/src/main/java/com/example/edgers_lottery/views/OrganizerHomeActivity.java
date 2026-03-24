@@ -48,7 +48,8 @@ public class OrganizerHomeActivity extends AppCompatActivity {
 
         TextView btnEventsList = findViewById(R.id.btnEventsList);
         btnEventsList.setOnClickListener(v -> {
-            // navigate to your events list activity
+            Intent intent = new Intent(this, OrganizerEventsListActivity.class);
+            startActivity(intent);
         });
         backButton.setOnClickListener(v -> {
             new AlertDialog.Builder(this)

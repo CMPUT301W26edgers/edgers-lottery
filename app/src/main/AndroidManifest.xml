@@ -43,6 +43,7 @@
         <activity android:name=".views.EventWaitlistTab"/>
         <activity android:name=".views.EventEntrantOrganizer"/>
         <activity android:name=".views.AdminEventListActivity" />
+        <activity android:name=".views.OrganizerEventsListActivity" />
         <activity android:name=".views.EventHistoryActivity" android:exported="false"/>
 
     </application>
