@@ -19,6 +19,8 @@ import com.google.android.material.slider.Slider;
 import java.util.Calendar;
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -197,13 +199,19 @@ public class CreateEditEventActivity extends AppCompatActivity {
         String price           = priceInput.getText().toString().replace("$", "").trim();
         String eventName       = eventNameInput.getText().toString().trim();
         String descriptionText = descriptionInput.getText().toString().trim();
+
         int    entrant         = (int) sliderEntrants.getValue();
 
         if (deadline.isEmpty() || eventDate.isEmpty() || price.isEmpty() || eventName.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields before continuing", Toast.LENGTH_SHORT).show();
             return;
         }
-
+        FirebaseUser deviceUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (deviceUser == null){
+            Toast.makeText(this, "No logged in user found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String organizerId = deviceUser.getUid();
         DocumentReference docRef = FirebaseFirestore.getInstance().collection("events").document();
         String newId = docRef.getId();
 
@@ -220,6 +228,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("enforceLocation",  swGeo.isChecked());
         eventData.put("waitlistEnabled",  swWaitlist.isChecked());
         eventData.put("ispublic",         swPublic.isChecked());
+        eventData.put("organizerId",     organizerId);
 
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
