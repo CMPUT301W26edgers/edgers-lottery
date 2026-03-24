@@ -61,7 +61,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         });
 
         users.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AdminEventListActivity.class);
+            Intent intent = new Intent(this, AdminUserListActivity.class);
             startActivity(intent);
         });
 
