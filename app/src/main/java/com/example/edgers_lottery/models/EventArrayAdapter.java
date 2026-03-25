@@ -13,7 +13,11 @@ import androidx.annotation.Nullable;
 import com.example.edgers_lottery.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Array adapter for displaying {@link Event} objects in a ListView.
@@ -27,6 +31,33 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
      */
     public EventArrayAdapter(Context context, ArrayList<Event> events) {
         super(context, 0, events);
+    }
+    public static String formatDate(String date) {
+        try {
+            SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            SimpleDateFormat output = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
+            return output.format(input.parse(date));
+        } catch (Exception e) {
+            return date; // return original if parsing fails
+        }
+    }
+    public static String timeUntilRegistration(String registrationEnd) {
+        try {
+            LocalDate today = LocalDate.now();
+            LocalDate eventDate = LocalDate.parse(registrationEnd);
+            long daysDifference = ChronoUnit.DAYS.between(today, eventDate);
+            if (daysDifference <= 0) {
+                return "⏱ Registration Closed";
+            }
+            else if (daysDifference == 1) {
+                return "⏱ Last day to register!";
+            }
+
+            return "⏱ Registration ends: " + daysDifference + " days";
+        }
+        catch (Exception e) {
+            return "Unknown Registration End Date";
+        }
     }
 
     /**
@@ -52,8 +83,8 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
             TextView registrationEndTextView = view.findViewById(R.id.registration_end_text);
 
             titleTextView.setText(event.getName() != null ? event.getName() : "Unknown Event");
-            dateTextView.setText(event.getDate() != null ? event.getDate() : "Unknown Date");
-            registrationEndTextView.setText(event.getRegistrationEnd() != null ? event.getRegistrationEnd() : "Unknown Registration End");
+            dateTextView.setText(event.getDate() != null ? ("📅 " + formatDate(event.getDate())) : "Unknown Date");
+            registrationEndTextView.setText(event.getRegistrationEnd() != null ? timeUntilRegistration(event.getRegistrationEnd()) : "Unknown Registration End");
 
             if (event.getOrganizerId() != null) {
                 FirebaseFirestore.getInstance()
@@ -63,7 +94,7 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
                         .addOnSuccessListener(doc -> {
                             User organizer = doc.toObject(User.class);
                             assert organizer != null;
-                            organizerTextView.setText(organizer.getName());
+                            organizerTextView.setText("☆ " + organizer.getName());
                         });
             } else {
                 organizerTextView.setText("Unknown Organizer");
