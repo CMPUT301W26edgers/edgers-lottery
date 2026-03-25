@@ -141,7 +141,8 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         user = CurrentUser.get();
 
         if (user != null) {
-            showUserInfoDialog(user);
+//            showUserInfoDialog(user);
+            Toast.makeText(this, "Welcome back, " + user.getName(), Toast.LENGTH_SHORT).show();
         } else {
             Intent intent = new Intent(this, StartActivity.class);
             startActivity(intent);
