@@ -1,17 +1,21 @@
 package com.example.edgers_lottery.views;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.ImageService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -29,7 +33,11 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
     private TextView locationTextView;
     private TextView usernameTextView;
     private TextView phoneTextView;
+    private ImageView profileImageView;
 
+    private  ImageButton uploadProfileImageButton;
+
+    private static final int PICK_IMAGE_REQUEST = 1;
     /**
      * Displays an alert dialog showing the given user's name and email.
      *
@@ -109,6 +117,14 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
         locationTextView = findViewById(R.id.ProfileLocation);
         locationTextView.setText("Location: " + user.getLocation());
 
+        profileImageView = findViewById(R.id.profileImageView);
+        if (user.getProfileImage() == null) {
+            profileImageView.setImageResource(R.drawable.default_avatar);// set as default avatar for now as user has not profile picture
+        }
+        else Glide.with(this).load(user.getProfileImage()).circleCrop().into(profileImageView);
+
+        uploadProfileImageButton = findViewById(R.id.uploadImageButton);
+
         ImageButton homeButton = findViewById(R.id.HomeButton);
         ImageButton qrButton = findViewById(R.id.qrButton);
         ImageButton checkoutButton = findViewById(R.id.checkoutButton);
@@ -138,6 +154,15 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
             EditProfileFragment editProfileFragment = EditProfileFragment.newInstance(user);
             editProfileFragment.show(getSupportFragmentManager(), "edit_profile");
         });
+
+        // click profile image to upload new image
+        uploadProfileImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        });
+
+
 
         deleteProfileButton.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
@@ -179,5 +204,15 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
             startActivity(intent);
             finish();
         });
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            Uri imageUri = data.getData(); // the image the user picked
+            Glide.with(this).load(imageUri).circleCrop().into(profileImageView); // load the image into the ImageView
+            ImageService.uploadProfileImage(imageUri, this);
+        }
     }
 }

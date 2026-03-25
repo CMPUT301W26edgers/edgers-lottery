@@ -1,56 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout13"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    android:background="@android:color/white"
+    android:elevation="4dp">
 
+    <!-- Event Poster (full width image at top) -->
+    <ImageView
+        android:id="@+id/event_poster"
+        android:layout_width="0dp"
+        android:layout_height="160dp"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/default_avatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Event Title -->
     <TextView
         android:id="@+id/event_text"
-        android:layout_width="267dp"
-        android:layout_height="63dp"
-        android:padding="10dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="12dp"
         android:text="Title"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@+id/organizer_text"
-        app:layout_constraintEnd_toStartOf="@+id/date_text"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/event_poster" />
 
+    <!-- Organizer -->
     <TextView
         android:id="@+id/organizer_text"
-        android:layout_width="170dp"
-        android:layout_height="44dp"
-        android:padding="10dp"
-        android:text="Organizer"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/registration_end_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="12dp"
+        android:text="☆ Organizer"
+        android:textSize="16sp"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/event_text" />
 
+    <!-- Date -->
     <TextView
         android:id="@+id/date_text"
-        android:layout_width="144dp"
-        android:layout_height="62dp"
-        android:padding="10dp"
-        android:text="Date"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/registration_end_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="12dp"
+        android:text="📅 Date"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/event_text"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/organizer_text" />
 
+    <!-- Registration End -->
     <TextView
         android:id="@+id/registration_end_text"
-        android:layout_width="244dp"
-        android:layout_height="45dp"
-        android:padding="10dp"
-        android:text="Registration End"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        android:text="⏱ Registration ends: X"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/organizer_text"
-        app:layout_constraintTop_toBottomOf="@+id/date_text" />
+        app:layout_constraintTop_toBottomOf="@+id/date_text"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

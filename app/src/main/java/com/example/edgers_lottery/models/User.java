@@ -1,6 +1,7 @@
 package com.example.edgers_lottery.models;
 
 import java.io.Serializable;
+import java.net.URI;
 
 /**
  * Model class representing a user account in the Edgers Lottery system.
@@ -32,7 +33,8 @@ public class User implements Serializable {
 
     /** Role assigned to this user, corresponding to {@link Role}. */
     private String role;
-
+    /** This is a URI that holds a reference to the users profile image. */
+    private String profileImage;
     /**
      * Enum representing the possible roles a user can hold.
      */
@@ -173,5 +175,17 @@ public class User implements Serializable {
      */
     public void setRole(String role) {
         this.role = role;
+    }
+    /**
+     * @return string url to user's profile image
+     */
+    public String getProfileImage() {
+        return profileImage;
+    }
+    /**
+     * @param profileImage the image url to set
+     */
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

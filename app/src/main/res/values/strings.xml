@@ -22,7 +22,7 @@
     <string name="userID">\@userID</string>
     <string name="notification">Notifications</string>
     <string name="home">Home</string>
-    <string name="editProfile">Edit Profile</string>
+    <string name="editProfile">Edit Details</string>
     <string name="signOut">Sign Out</string>
     <string name="deleteProfile">Delete Profile</string>
     <string name="checkout">Checkout</string>

@@ -42,7 +42,7 @@ public class Event {
     private String registrationEnd;
 
     /** URI pointing to the event poster image. */
-    private Uri poster;
+    private String poster;
 
     /** List of users currently on the waiting list for this event. */
     private ArrayList<User> waitingList;
@@ -181,12 +181,12 @@ public class Event {
     /**
      * @return the URI of the event poster image
      */
-    public Uri getPoster() { return poster; }
+    public String getPoster() { return poster; }
 
     /**
      * @param poster the URI of the event poster image to set
      */
-    public void setPoster(Uri poster) { this.poster = poster; }
+    public void setPoster(String poster) { this.poster = poster; }
 
     /**
      * @return the list of users on the waiting list
