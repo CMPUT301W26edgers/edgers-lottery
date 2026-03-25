@@ -176,4 +176,16 @@ public class User implements Serializable {
     public void setRole(String role) {
         this.role = role;
     }
+    /**
+     * @return string url to user's profile image
+     */
+    public String getProfileImage() {
+        return profileImage;
+    }
+    /**
+     * @param profileImage the image url to set
+     */
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }

@@ -118,7 +118,10 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
         locationTextView.setText("Location: " + user.getLocation());
 
         profileImageView = findViewById(R.id.profileImageView);
-        profileImageView.setImageResource(R.drawable.default_avatar); // set as default avatar for now
+        if (user.getProfileImage() == null) {
+            profileImageView.setImageResource(R.drawable.default_avatar);// set as default avatar for now as user has not profile picture
+        }
+        else Glide.with(this).load(user.getProfileImage()).circleCrop().into(profileImageView);
 
         uploadProfileImageButton = findViewById(R.id.uploadImageButton);
 
