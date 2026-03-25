@@ -11,9 +11,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.ImageService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -206,7 +208,8 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             Uri imageUri = data.getData(); // the image the user picked
-            profileImageView.setImageURI(imageUri);
+            Glide.with(this).load(imageUri).circleCrop().into(profileImageView); // load the image into the ImageView
+            ImageService.uploadProfileImage(imageUri, this);
         }
     }
 }
