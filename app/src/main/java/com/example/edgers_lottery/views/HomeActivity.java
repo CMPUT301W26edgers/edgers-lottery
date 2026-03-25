@@ -153,6 +153,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         Button historyButton = findViewById(R.id.btnHistory);
         ImageButton qrButton = findViewById(R.id.qrButton);
         ImageButton checkoutButton = findViewById(R.id.checkoutButton);
+        ImageButton notificationsButton = findViewById(R.id.ProfileNotification);
 //        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
         Button organizerButton = findViewById(R.id.btnOrganizerMode);
@@ -173,6 +174,17 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         checkoutButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, CheckoutActivity.class);
             startActivity(intent);
+        });
+
+        notificationsButton.setOnClickListener(v -> {
+            db.collection("notifications").get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        int count = queryDocumentSnapshots.size();
+                        android.util.Log.d(TAG, "Number of documents in notifications: " + count);
+                    })
+                    .addOnFailureListener(e -> {
+                        android.util.Log.e(TAG, "Failed to fetch notifications: " + e.getMessage());
+                    });
         });
 
         // view events here!
