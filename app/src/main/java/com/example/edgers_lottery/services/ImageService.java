@@ -12,10 +12,8 @@ import com.google.firebase.storage.StorageReference;
 public class ImageService {
 
     // things we'll need to handle
-    // 1. getting the user's profile image from the database
-    // 2. setting the user's profile image in the profile activity and putting it in the firebase storage
-    // 3. getting the event's image from the database
-    // 4. setting the event's image in the event creation activity and putting it in the firebase storage
+    // 1. setting the user's profile image in the profile activity and putting it in the firebase storage
+    // 2. setting the event's image in the event creation activity and putting it in the firebase storage
 
     // upload a profile image to firebase storage
     public static void uploadProfileImage(Uri imageUri, Context context) {
