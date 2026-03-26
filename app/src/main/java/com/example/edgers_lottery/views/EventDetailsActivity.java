@@ -12,6 +12,7 @@ import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.appcompat.app.AlertDialog;
@@ -182,6 +183,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
             } else {
                 addUserToList(user, waitingList);
+                NotificationService.sendWaitlistJoinedNotification(user.getId(), eventId, event.getName()); // ← one line
                 joinButton.setText("Leave Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
             }
