@@ -20,6 +20,7 @@ public class NotificationService {
     private static final String TYPE_SELECTED = "SELECTED";
     private static final String TYPE_NOT_SELECTED = "NOT_SELECTED";
     private static final String TYPE_JOINED_WAITLIST = "JOINED_WAITLIST";
+    private static final String TYPE_PRIVATE_INVITE = "PRIVATE_EVENT_INVITE";
 
     /**
      * Appends a notification to each selected and rejected user's document.
@@ -70,5 +71,15 @@ public class NotificationService {
                         android.util.Log.d("NotificationService", type + " notif written for " + userId))
                 .addOnFailureListener(e ->
                         android.util.Log.e("NotificationService", "Failed " + type + " notif for " + userId, e));
+    }
+
+    public static void sendPrivateEventInvite(String userId, String eventId, String eventName) {
+        appendNotification(
+                FirebaseFirestore.getInstance(),
+                userId,
+                eventId,
+                eventName,
+                TYPE_PRIVATE_INVITE
+        );
     }
 }

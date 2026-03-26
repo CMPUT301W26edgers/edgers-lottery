@@ -195,6 +195,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.*;
 
 import com.google.zxing.BarcodeFormat;
@@ -409,9 +410,17 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                                 db.collection("events")
                                         .document(eventId)
                                         .update("waitingList", waitlist)
-                                        .addOnSuccessListener(unused ->
-                                                Toast.makeText(this, "User invited!", Toast.LENGTH_SHORT).show()
-                                        );
+                                        .addOnSuccessListener(unused -> {
+                                            String invitedUserId = (String) userData.get("id");
+
+                                            NotificationService.sendPrivateEventInvite(
+                                                    invitedUserId,
+                                                    eventId,
+                                                    locationName.getText().toString()
+                                            );
+
+                                            Toast.makeText(this, "User invited!", Toast.LENGTH_SHORT).show();
+                                        });
                             });
 
                 })

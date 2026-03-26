@@ -36,18 +36,27 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         // build message from type
         String message;
         switch (n.getType() != null ? n.getType() : "") {
+
+            case "PRIVATE_EVENT_INVITE":
+                message = "You have been selected for a private event: " + n.getEventName();
+                break;
+
             case "SELECTED":
                 message = "You have been selected for " + n.getEventName();
                 break;
+
             case "NOT_SELECTED":
                 message = "You have unfortunately not been selected for " + n.getEventName();
                 break;
+
             case "JOINED_WAITLIST":
                 message = "You joined the waitlist for " + n.getEventName();
                 break;
+
             default:
                 message = n.getEventName();
         }
+
         holder.tvMessage.setText(message);
 
         // time ago
