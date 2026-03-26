@@ -37,7 +37,8 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     ArrayList<Event> allEventsArray = new ArrayList<>();
     ListView eventsList;
     EventArrayAdapter adapter;
-    String keyword = "";
+//    String keyword = "";
+    boolean capacity_bool = false;
     String availabilityStart = "";
     String availabilityEnd = "";
 
@@ -69,39 +70,45 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
 //    }
 
     private void filterEvents(String query) {
-        eventsArray.clear();
+//        eventsArray.clear();
         if (query.isEmpty()) {
-            eventsArray.addAll(allEventsArray); // restore full list
+//            eventsArray.addAll(allEventsArray); // restore full list
+            adapter.notifyDataSetChanged();
+            return;
         } else {
             String lowerQuery = query.toLowerCase();
-            for (Event event : allEventsArray) {
+            ArrayList<Event> searchArray = new ArrayList<>();
+            for (Event event : eventsArray) {
                 boolean matchesName = event.getName() != null
                         && event.getName().toLowerCase().contains(lowerQuery);
                 boolean matchesDescription = event.getDescription() != null
                         && event.getDescription().toLowerCase().contains(lowerQuery);
-
+                boolean isInFilter = eventsArray.contains(event);
                 if (matchesName || matchesDescription) {
-                    eventsArray.add(event);
+                    searchArray.add(event);
                 }
             }
+//        }
+            adapter.clear();
+            adapter.addAll(searchArray);
+            adapter.notifyDataSetChanged();
         }
-        adapter.notifyDataSetChanged();
     }
     /**
      * Applies the given filter criteria and reloads the events list from Firestore.
      * Only events matching the interest keyword and date range are added to the list.
      *
-     * @param filterKeyword         keyword to match against event name or description
+     * @param isCapacity         keyword to match against event name or description
      * @param availabilityStart earliest event date to include, in {@code yyyy-MM-dd} format
      * @param availabilityEnd   latest event date to include, in {@code yyyy-MM-dd} format
      */
     @Override
-    public void onFilterApplied(String filterKeyword, String availabilityStart, String availabilityEnd) {
-        this.keyword = filterKeyword;
+    public void onFilterApplied(boolean isCapacity, String availabilityStart, String availabilityEnd) {
+        this.capacity_bool = isCapacity;
         this.availabilityStart = availabilityStart;
         this.availabilityEnd = availabilityEnd;
 
-        android.util.Log.d(TAG, "Interest:" + filterKeyword + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
+        android.util.Log.d(TAG, "At Capacity:" + isCapacity + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
 
         eventsArray.clear();
         db.collection("events").get()
@@ -109,15 +116,16 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                         Event event = document.toObject(Event.class);
                         event.setId(document.getId());
-                        boolean matchesKeyword = keyword == null || keyword.isEmpty()
-                                || (event.getName() != null && event.getName().toLowerCase().contains(keyword.toLowerCase()))
-                                || (event.getDescription() != null && event.getDescription().toLowerCase().contains(keyword.toLowerCase()));
+
                         boolean matchesStart = availabilityStart == null || availabilityStart.isEmpty()
                                 || (event.getDate() != null && event.getDate().compareTo(availabilityStart) >= 0);
+
                         boolean matchesEnd = availabilityEnd == null || availabilityEnd.isEmpty()
                                 || (event.getDate() != null && event.getDate().compareTo(availabilityEnd) <= 0);
 
-                        if (matchesKeyword && matchesStart && matchesEnd) {
+                        boolean matchesCapacity = !isCapacity
+                                || (event.getEntrants() == null || event.getEntrants().size() < event.getCapacity());
+                        if (matchesStart && matchesEnd && matchesCapacity) {
                             eventsArray.add(event);
                         }
                     }
@@ -210,7 +218,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         filterButton.setOnClickListener(v -> {
             FilterEventsFragment filterEventsFragment = new FilterEventsFragment();
             filterEventsFragment.show(getSupportFragmentManager(), "filter_events");
-            android.util.Log.d(TAG, "Keyword:" + keyword + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
+            android.util.Log.d(TAG, "At Capacity:" + capacity_bool + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
         });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

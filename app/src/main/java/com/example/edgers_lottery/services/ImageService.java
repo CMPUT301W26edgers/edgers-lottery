@@ -54,7 +54,7 @@ public class ImageService {
                 String url = uri.toString();
                 // Save the URL to the user's profile in the database
                 FirebaseFirestore.getInstance()
-                        .collection("users")
+                        .collection("events")
                         .document(eventId)
                         .update("poster", url)
                         .addOnSuccessListener(aVoid -> {
