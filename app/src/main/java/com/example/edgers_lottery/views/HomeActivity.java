@@ -285,10 +285,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     protected void onResume() {
         super.onResume();
         user = CurrentUser.get(); // update current user
-        // If the database is initialized, fetch the freshest data
-        if (db != null && adapter != null) {
-//            loadEvents();
-        }
     }
 
     private void loadEvents() {
