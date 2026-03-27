@@ -58,6 +58,7 @@ public class EventWaitlistTab extends AppCompatActivity {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnRunLottery).setOnClickListener(v -> runLottery());
         findViewById(R.id.btnNotifyWaitlisters).setOnClickListener(v -> notifyWaitlisters());
+        //findViewById(R.id.commentsBtn).setOnClickListener();
     }
 
     /**

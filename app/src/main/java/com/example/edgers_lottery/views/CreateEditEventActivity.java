@@ -150,33 +150,18 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
         // Tab-bar buttons all use currentEventId — guard against null (create mode, pre-save)
         findViewById(R.id.detailBtn).setOnClickListener(v -> {
-            if (currentEventId == null) {
-                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            Intent intent = new Intent(this, EventDetailsOrganizer.class);
-            intent.putExtra("event_id", currentEventId);
-            startActivity(intent);
+            if (NavigationHelper.guardEventId(this, currentEventId))
+                NavigationHelper.goToEventDetails(this, currentEventId);
         });
 
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
-            if (currentEventId == null) {
-                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            Intent intent = new Intent(this, EventWaitlistTab.class);
-            intent.putExtra("event_id", currentEventId);
-            startActivity(intent);
+            if (NavigationHelper.guardEventId(this, currentEventId))
+                NavigationHelper.goToWaitlist(this, currentEventId);
         });
 
         findViewById(R.id.entrantBtn).setOnClickListener(v -> {
-            if (currentEventId == null) {
-                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            Intent intent = new Intent(this, EventEntrantOrganizer.class);
-            intent.putExtra("event_id", currentEventId);
-            startActivity(intent);
+            if (NavigationHelper.guardEventId(this, currentEventId))
+                NavigationHelper.goToEntrants(this, currentEventId);
         });
 
         registrationDeadlineInput.setOnClickListener(v -> showDatePicker(registrationDeadlineInput));
