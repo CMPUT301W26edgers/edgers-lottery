@@ -162,6 +162,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         Button historyButton = findViewById(R.id.btnHistory);
         ImageButton qrButton = findViewById(R.id.qrButton);
         ImageButton checkoutButton = findViewById(R.id.checkoutButton);
+        ImageButton notificationsButton = findViewById(R.id.ProfileNotification);
 //        Button favoritesButton = findViewById(R.id.btnFavorites);
         Button filterButton = findViewById(R.id.btnFilter);
         Button organizerButton = findViewById(R.id.btnOrganizerMode);
@@ -181,6 +182,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
 
         checkoutButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, CheckoutActivity.class);
+            startActivity(intent);
+        });
+
+        notificationsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ExportNotificationsActivity.class);
             startActivity(intent);
         });
 

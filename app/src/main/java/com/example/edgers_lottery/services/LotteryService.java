@@ -79,20 +79,18 @@ public class LotteryService {
                                 // update the event object with the new lists
                                 event.setInvitedUsers(chosenList);
                                 event.setWaitingList(notInvitedList);
-                                // update the document in the database
+                                // update the document in the database and hand off final data to notification service
+                                final ArrayList<User> finalChosenList = chosenList;
+                                final ArrayList<User> finalNotInvitedList = notInvitedList;
+
                                 db.collection("events").document(eventId)
                                         .update("invitedUsers", chosenList,
                                                 "waitingList", notInvitedList)
                                         .addOnSuccessListener(aVoid -> {
-                                            // log success in logcat
-                                            // notifications to the user
                                             android.util.Log.d("LotteryService", "Lottery complete");
+                                            // hand off results to NotificationService once DB is confirmed updated
+                                            NotificationService.sendLotteryResults(eventId, event.getName(), finalChosenList, finalNotInvitedList);
                                             result.onComplete("Lottery complete");
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            // log failure in logcat
-                                            android.util.Log.d("LotteryService", "Lottery failed");
-                                            result.onComplete("Lottery failed");
                                         });
 
 
