@@ -167,6 +167,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         Button organizerButton = findViewById(R.id.btnOrganizerMode);
         Button adminButton = findViewById(R.id.btnAdminMode);
         SearchView searchView = findViewById(R.id.searchView);
+        if (user.isOrganizer()) {
+            organizerButton.setText("\uD83D\uDCC4 Organizer Mode");
+        } else {
+            organizerButton.setText("\uD83D\uDCC4 Create Event");
+        }
 
         profileButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, ProfileActivity.class);
@@ -235,16 +240,24 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         });
 
         organizerButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Switch to Organizer")
-                    .setMessage("Are you sure you want to switch to the organizer view?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        user.setRole("ORGANIZER");
-                        Intent intent = new Intent(this, OrganizerHomeActivity.class);
-                        startActivity(intent);
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+            if (user.isOrganizer()){
+                new AlertDialog.Builder(this)
+                        .setTitle("Switch to Organizer")
+                        .setMessage("Are you sure you want to switch to the organizer view?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            user.setRole("ORGANIZER");
+                            Intent intent = new Intent(this, OrganizerHomeActivity.class);
+                            startActivity(intent);
+                            finish();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else{ // create first event, if they dont create one then they shouldnt be an organizer
+                Intent intent = new Intent(this, CreateEditEventActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
         });
 
         if ("ADMIN".equals(user.getRole())) {
@@ -271,6 +284,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     @Override
     protected void onResume() {
         super.onResume();
+        user = CurrentUser.get(); // update current user
         // If the database is initialized, fetch the freshest data
         if (db != null && adapter != null) {
 //            loadEvents();
