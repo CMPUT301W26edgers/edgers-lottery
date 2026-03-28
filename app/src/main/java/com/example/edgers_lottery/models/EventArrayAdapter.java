@@ -5,11 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -81,6 +83,17 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
             TextView organizerTextView = view.findViewById(R.id.organizer_text);
             TextView dateTextView = view.findViewById(R.id.date_text);
             TextView registrationEndTextView = view.findViewById(R.id.registration_end_text);
+            ImageView imageView = view.findViewById(R.id.event_poster);
+            imageView.setImageResource(R.drawable.default_avatar);
+            if (event.getPoster() == null) {
+                imageView.setImageResource(R.drawable.default_avatar);// set as default avatar for now as user has not profile picture
+            }
+            else Glide.with(getContext())
+                    .load(event.getPoster())
+                    .placeholder(R.drawable.default_avatar)
+                    .centerCrop()
+                    .into(imageView);
+
 
             titleTextView.setText(event.getName() != null ? event.getName() : "Unknown Event");
             dateTextView.setText(event.getDate() != null ? ("📅 " + formatDate(event.getDate())) : "Unknown Date");

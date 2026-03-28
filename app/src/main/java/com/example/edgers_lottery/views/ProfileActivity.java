@@ -190,6 +190,7 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
             Glide.with(this).load(imageUri).circleCrop().into(profileImageView); // load the image into the ImageView
             ImageService.uploadProfileImage(imageUri, this);
             assert imageUri != null;
+            // update current user
             user.setProfileImage(imageUri.toString());
             CurrentUser.set(user);
         }

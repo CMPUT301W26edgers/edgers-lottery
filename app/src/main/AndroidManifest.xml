@@ -46,7 +46,9 @@
         <activity android:name=".views.AdminUserListActivity" />
         <activity android:name=".views.AdminUserProfileActivity" />
         <activity android:name=".views.OrganizerEventsListActivity" />
+        <activity android:name=".views.ExportNotificationsActivity" />
         <activity android:name=".views.EventHistoryActivity" android:exported="false"/>
+
 
     </application>
 
