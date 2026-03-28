@@ -97,31 +97,7 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        user = CurrentUser.get();
-
-        TextView profileNames = findViewById(R.id.ProfileNames);
-        profileNames.setText(user.getName());
-
-        usernameTextView = findViewById(R.id.Username);
-        usernameTextView.setText(user.getUsername());
-
-        descriptionTextView = findViewById(R.id.descriptionText);
-        descriptionTextView.setText(user.getDescription());
-
-        emailTextView = findViewById(R.id.ProfileEmail);
-        emailTextView.setText("Email: " + user.getEmail());
-
-        phoneTextView = findViewById(R.id.ProfilePhone);
-        phoneTextView.setText("Phone: " + user.getPhone());
-
-        locationTextView = findViewById(R.id.ProfileLocation);
-        locationTextView.setText("Location: " + user.getLocation());
-
-        profileImageView = findViewById(R.id.profileImageView);
-        if (user.getProfileImage() == null) {
-            profileImageView.setImageResource(R.drawable.default_avatar);// set as default avatar for now as user has not profile picture
-        }
-        else Glide.with(this).load(user.getProfileImage()).circleCrop().into(profileImageView);
+        loadUser();
 
         uploadProfileImageButton = findViewById(R.id.uploadImageButton);
 
@@ -213,9 +189,44 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
             Uri imageUri = data.getData(); // the image the user picked
             Glide.with(this).load(imageUri).circleCrop().into(profileImageView); // load the image into the ImageView
             ImageService.uploadProfileImage(imageUri, this);
+            assert imageUri != null;
             // update current user
             user.setProfileImage(imageUri.toString());
             CurrentUser.set(user);
         }
+    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        // reload profile image from firebase storage
+//        Glide.with(this).load(user.getProfileImage()).circleCrop().into(profileImageView);
+//    }
+    private void loadUser(){
+        user = CurrentUser.get();
+
+        TextView profileNames = findViewById(R.id.ProfileNames);
+        profileNames.setText(user.getName());
+
+        usernameTextView = findViewById(R.id.Username);
+        usernameTextView.setText(user.getUsername());
+
+        descriptionTextView = findViewById(R.id.descriptionText);
+        descriptionTextView.setText(user.getDescription());
+
+        emailTextView = findViewById(R.id.ProfileEmail);
+        emailTextView.setText("Email: " + user.getEmail());
+
+        phoneTextView = findViewById(R.id.ProfilePhone);
+        phoneTextView.setText("Phone: " + user.getPhone());
+
+        locationTextView = findViewById(R.id.ProfileLocation);
+        locationTextView.setText("Location: " + user.getLocation());
+
+        profileImageView = findViewById(R.id.profileImageView);
+        if (user.getProfileImage() == null) {
+            profileImageView.setImageResource(R.drawable.default_avatar);// set as default avatar for now as user has not profile picture
+        }
+        else Glide.with(this).load(user.getProfileImage()).circleCrop().into(profileImageView);
     }
 }

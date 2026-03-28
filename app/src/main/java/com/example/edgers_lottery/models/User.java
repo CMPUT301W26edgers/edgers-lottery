@@ -39,10 +39,14 @@ public class User implements Serializable {
      * Enum representing the possible roles a user can hold.
      */
     public static enum Role {
-        ENTRANT,
-        ORGANIZER,
+        USER,
         ADMIN
     }
+
+    /**
+     * Indicates whether the current user is an organizer.
+     */
+    private boolean isOrganizer;
 
     /**
      * Required no-argument constructor for Firestore deserialization.
@@ -187,5 +191,13 @@ public class User implements Serializable {
      */
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public boolean isOrganizer() {
+        return isOrganizer;
+    }
+
+    public void setOrganizer(boolean organizer) {
+        isOrganizer = organizer;
     }
 }

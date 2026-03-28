@@ -13,6 +13,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.CurrentUser;
+import com.example.edgers_lottery.models.User;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.slider.Slider;
@@ -48,6 +50,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private SwitchMaterial swGeo, swWaitlist, swPublic;
     private Slider sliderEntrants;
     private EditText eventNameInput;
+    private User user;
 
     /**
      * Single source of truth for the event ID.
@@ -60,7 +63,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_end_event);
-
+        // get the current user
+        user = CurrentUser.get();
+        if (user == null) {
+            Toast.makeText(this, "No user found", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         initViews();
         setupListeners();
         setupEdgeToEdge();
@@ -246,8 +255,14 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     //Intent intent = new Intent(this, EventDetailsOrganizer.class);
                     //intent.putExtra("event_id", currentEventId);
                     //startActivity(intent);
-                    Intent intent = new Intent(this, OrganizerEventsListActivity.class);
-                    startActivity(intent);
+                    if (user.isOrganizer()){
+                        Intent intent = new Intent(this, OrganizerEventsListActivity.class);
+                        startActivity(intent);
+
+                    }else{
+                        Toast.makeText(this, "Event created! You are now an organizer!", Toast.LENGTH_SHORT).show();
+                        updateUserOrganizerPermission(); // make sure user is organizer now and send them to home screen for organizers now
+                    }
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
@@ -404,6 +419,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .update(updates)
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Event updated!", Toast.LENGTH_SHORT).show();
+                    // confirm user roles as an organizer
+                    updateUserOrganizerPermission();
+
                     finish(); // pops back to EventDetailsOrganizer → onResume() reloads data
                 })
                 .addOnFailureListener(e ->
@@ -426,6 +444,19 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+    private void updateUserOrganizerPermission(){
+        if (!user.isOrganizer()) {
+            user.setOrganizer(true);
+            CurrentUser.set(user);// update current user
+            FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.getId())
+                    .set(user);
+            startActivity(new Intent(this, OrganizerHomeActivity.class));
+            finish();
+        }
+
     }
 
     @Override
