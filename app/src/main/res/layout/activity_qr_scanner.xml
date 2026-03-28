@@ -10,22 +10,20 @@
         android:id="@+id/barcodeScanner"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    <LinearLayout
-        android:layout_width="57dp"
-        android:layout_height="50dp"
-        android:padding="16dp"
-        android:orientation="vertical">
-        <ImageButton
-            android:id="@+id/backButton"
 
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:backgroundTint="@color/white"
-            android:contentDescription="@string/backButton"
-            app:srcCompat="@drawable/left_arrow_small" />
-    </LinearLayout>
+    <!-- Back button overlaid on top left -->
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="44dp"
+        android:layout_height="39dp"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="48dp"
+        android:layout_marginStart="16dp"
+        android:backgroundTint="@color/white"
+        android:contentDescription="@string/backButton"
+        app:srcCompat="@drawable/left_arrow_small" />
 
-    <!-- Bottom action panel, hidden until scan succeeds -->
+    <!-- Bottom action panel -->
     <LinearLayout
         android:id="@+id/actionPanel"
         android:layout_width="match_parent"
