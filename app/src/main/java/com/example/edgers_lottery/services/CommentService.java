@@ -39,39 +39,48 @@ public class CommentService {
                     android.util.Log.e("CommentService", "Failed to add comment: " + e.getMessage());
                 });
     }
-    public static ArrayList<Comment> getCommentsForEvent(String eventId) {
-        ArrayList<Comment> comments = new ArrayList<>();
+    // used on both the user and organizer sides
+    public static void getCommentsForEvent(String eventId, CommentCallback callback) {
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("comments")
                 .whereEqualTo("eventID", eventId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    ArrayList<Comment> comments = new ArrayList<>();
                     for (com.google.firebase.firestore.DocumentSnapshot document : queryDocumentSnapshots) {
                         Comment comment = document.toObject(Comment.class);
-                        comments.add(comment);
+                        if (comment != null) {
+                            comment.setId(document.getId());
+                            comments.add(comment);
+                        }
+
                     }
+                    callback.onComplete(comments);
                     android.util.Log.d("CommentService", "Comments retrieved for event: " + eventId);
                 })
                 .addOnFailureListener(e -> {
                     android.util.Log.e("CommentService", "Failed to retrieve comments for event: " + eventId, e);
+                    callback.onComplete(new ArrayList<>());
                 });
-        return comments;
     }
-    public static ArrayList<Comment> getCommentsForAdmin(){
-        ArrayList<Comment> comments = new ArrayList<>();
+    public static void getCommentsForAdmin(CommentCallback callback){
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("comments").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    ArrayList<Comment> comments = new ArrayList<>();
                     for (com.google.firebase.firestore.DocumentSnapshot document : queryDocumentSnapshots) {
                         Comment comment = document.toObject(Comment.class);
                         comments.add(comment);
                     }
+                    callback.onComplete(comments);
                     android.util.Log.d("CommentService", "Comments retrieved for admin");
                 })
                 .addOnFailureListener(e -> {
                     android.util.Log.e("CommentService", "Failed to retrieve comments for admin", e);
+                    callback.onComplete(new ArrayList<>());
                 });
-        return comments;
     }
 
     // this might not be implemented in the app, its here though
