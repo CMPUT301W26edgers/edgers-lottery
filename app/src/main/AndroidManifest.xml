@@ -15,6 +15,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+
         android:theme="@style/Theme.Edgerslottery">
         <meta-data
             android:name="preloaded_fonts"
@@ -36,7 +37,8 @@
         <activity android:name=".views.CheckoutActivity"/>
         <activity android:name=".views.ProfileActivity"/>
         <activity android:name=".views.OrganizerListActivity"/>
-        <activity android:name=".views.CreateEditEventActivity"/>
+        <activity android:name=".views.CreateEditEventActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".views.EventDetailsActivity"/>
         <activity android:name=".views.EventDetailsOrganizer"/>
         <activity android:name=".views.EventUserChoice"/>
@@ -48,6 +50,9 @@
         <activity android:name=".views.OrganizerEventsListActivity" />
         <activity android:name=".views.ExportNotificationsActivity" />
         <activity android:name=".views.EventHistoryActivity" android:exported="false"/>
+        <activity android:name=".views.EventCommentsOrganizer"
+            android:windowSoftInputMode="adjustPan"/>
+
 
 
     </application>
