@@ -17,9 +17,9 @@ import com.example.edgers_lottery.R;
 
 import java.util.ArrayList;
 
-public class CommentArrayAdapter extends ArrayAdapter<Comment> {
+public class OrganizerCommentArrayAdapter extends ArrayAdapter<Comment> {
 
-    public CommentArrayAdapter(Context context, ArrayList<Comment> comments) {
+    public OrganizerCommentArrayAdapter(Context context, ArrayList<Comment> comments) {
         super(context, 0, comments);
     }
 
@@ -42,13 +42,9 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment> {
             TextView timestampText = view.findViewById(R.id.comment_timestamp);
             ImageButton deleteButton = view.findViewById(R.id.comment_delete_button);
 
-            // set comment text
             commentText.setText(comment.getCommentText() != null ? comment.getCommentText() : "");
-
-            // set timestamp
             timestampText.setText(comment.getTimestamp() != null ? comment.getTimestamp() : "");
 
-            // load username and profile image from Firestore via userId
             if (comment.getUserID() != null) {
                 com.google.firebase.firestore.FirebaseFirestore.getInstance()
                         .collection("users")
@@ -76,29 +72,22 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment> {
                 usernameText.setText("Unknown User");
                 profileImage.setImageResource(R.drawable.default_avatar);
             }
-
-            // show delete button only if current user owns the comment
-            if (CurrentUser.get() != null && comment.getUserID() != null
-                    && comment.getUserID().equals(CurrentUser.get().getId())) {
-                deleteButton.setVisibility(View.VISIBLE);
-                deleteButton.setOnClickListener(v -> {
-                    new androidx.appcompat.app.AlertDialog.Builder(getContext())
-                            .setTitle("Delete Comment")
-                            .setMessage("Are you sure you want to delete this comment?")
-                            .setPositiveButton("Delete", (dialog, which) -> {
-                                com.example.edgers_lottery.services.CommentService
-                                        .orgranizerDeleteComment(comment.getId(), getContext());
-                                remove(comment);
-                                notifyDataSetChanged();
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .show();
-                }
-            } else {
-                deleteButton.setVisibility(View.GONE);
-            }
+            // always show delete for organizer
+            deleteButton.setVisibility(View.VISIBLE);
+            deleteButton.setOnClickListener(v -> {
+                new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                        .setTitle("Delete Comment")
+                        .setMessage("Are you sure you want to delete this comment?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            com.example.edgers_lottery.services.CommentService
+                                    .orgranizerDeleteComment(comment.getId(), getContext());
+                            remove(comment);
+                            notifyDataSetChanged();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            });
         }
-
         return view;
     }
 }

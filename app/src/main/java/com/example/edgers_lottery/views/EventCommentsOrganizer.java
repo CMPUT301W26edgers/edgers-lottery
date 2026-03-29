@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.Comment;
-import com.example.edgers_lottery.models.CommentArrayAdapter;
+import com.example.edgers_lottery.models.OrganizerCommentArrayAdapter;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.services.CommentService;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,7 +27,7 @@ public class EventCommentsOrganizer extends AppCompatActivity {
     private ListView commentsList;
     private EditText etCommentInput;
     private ArrayList<Comment> commentsArray = new ArrayList<>();
-    private CommentArrayAdapter adapter;
+    private OrganizerCommentArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class EventCommentsOrganizer extends AppCompatActivity {
     private void initViews() {
         commentsList = findViewById(R.id.commentsList);
         etCommentInput = findViewById(R.id.etCommentInput);
-        adapter = new CommentArrayAdapter(this, commentsArray);
+        adapter = new OrganizerCommentArrayAdapter(this, commentsArray);
         commentsList.setAdapter(adapter);
     }
 
