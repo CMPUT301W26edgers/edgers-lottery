@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.services.CommentService;
 
 import java.util.ArrayList;
 
@@ -79,8 +80,7 @@ public class OrganizerCommentArrayAdapter extends ArrayAdapter<Comment> {
                         .setTitle("Delete Comment")
                         .setMessage("Are you sure you want to delete this comment?")
                         .setPositiveButton("Delete", (dialog, which) -> {
-                            com.example.edgers_lottery.services.CommentService
-                                    .orgranizerDeleteComment(comment.getId(), getContext());
+                            CommentService.orgranizerDeleteComment(comment.getId(), getContext());
                             remove(comment);
                             notifyDataSetChanged();
                         })

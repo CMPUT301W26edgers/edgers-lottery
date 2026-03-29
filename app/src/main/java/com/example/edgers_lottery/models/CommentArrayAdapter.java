@@ -93,7 +93,7 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment> {
                             })
                             .setNegativeButton("Cancel", null)
                             .show();
-                }
+                });
             } else {
                 deleteButton.setVisibility(View.GONE);
             }
