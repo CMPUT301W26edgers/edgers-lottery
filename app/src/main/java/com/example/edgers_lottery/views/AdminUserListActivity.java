@@ -34,15 +34,7 @@ public class AdminUserListActivity extends AppCompatActivity {
         userList = findViewById(R.id.adminUserList);
         adapter = new UserListAdapter(this, users);
         userList.setAdapter(adapter);
-        users.add(new User("1", "Test User", "test@email.com", "ENTRANT"));
-        adapter.notifyDataSetChanged();
-        // loadUsers();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadUsers(); // Refresh the list every time the screen appears
+        loadUsers();
     }
 
     public void removeUser(String userId) {

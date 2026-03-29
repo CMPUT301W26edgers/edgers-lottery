@@ -45,6 +45,8 @@
         <activity android:name=".views.AdminEventListActivity" />
         <activity android:name=".views.AdminUserListActivity" />
         <activity android:name=".views.AdminUserProfileActivity" />
+        <activity android:name=".views.AdminImagesViewActivity" />
+        <activity android:name=".views.AdminImageFullscreenActivity" />
         <activity android:name=".views.OrganizerEventsListActivity" />
         <activity android:name=".views.ExportNotificationsActivity" />
         <activity android:name=".views.EventHistoryActivity" android:exported="false"/>

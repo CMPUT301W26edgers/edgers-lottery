@@ -56,7 +56,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         });
 
         images.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AdminEventListActivity.class);
+            Intent intent = new Intent(this, AdminImagesViewActivity.class);
             startActivity(intent);
         });
 
@@ -66,6 +66,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         });
 
         export.setOnClickListener(v -> {
+            // placeholder
             Intent intent = new Intent(this, AdminEventListActivity.class);
             startActivity(intent);
         });

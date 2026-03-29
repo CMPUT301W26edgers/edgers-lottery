@@ -62,7 +62,7 @@ public class OrganizerListActivity extends AppCompatActivity {
      */
     private void loadOrganizers() {
         db.collection("users")
-                .whereEqualTo("role", "ORGANIZER")
+                .whereEqualTo("organizer", true)
                 .get()
                 .addOnSuccessListener(query -> {
                     organizers.clear();
