@@ -1,6 +1,7 @@
 package com.example.edgers_lottery.views;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
@@ -81,6 +82,12 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         findViewById(R.id.waitListBtn).setOnClickListener(v -> {
             finish();
             Intent intent = new Intent(this, EventWaitlistTab.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
+        Button commentsBtn = findViewById(R.id.commentsBtn);
+        commentsBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EventCommentsOrganizer.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
