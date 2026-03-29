@@ -34,6 +34,7 @@ public class CommentService {
         db.collection("comments").add(comment)
                 .addOnSuccessListener(documentReference -> {
                     android.util.Log.d("CommentService", "Comment added with ID: " + documentReference.getId());
+                    db.collection("comments").document(documentReference.getId()).update("id", documentReference.getId());
                 })
                 .addOnFailureListener(e -> {
                     android.util.Log.e("CommentService", "Failed to add comment: " + e.getMessage());
@@ -124,7 +125,7 @@ public class CommentService {
                             db.collection("events").document(commentEventId).get()
                                     .addOnSuccessListener(eventDocument -> {
                                         if (eventDocument.exists()) {
-                                            String eventOwnerId = eventDocument.getString("organizerID");
+                                            String eventOwnerId = eventDocument.getString("organizerId");
                                             String currentUserId = CurrentUser.get().getId();
                                             if (currentUserId.equals(eventOwnerId)) {
                                                 db.collection("comments").document(commentId).delete()
