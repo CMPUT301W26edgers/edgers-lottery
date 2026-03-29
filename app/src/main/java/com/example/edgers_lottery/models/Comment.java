@@ -2,10 +2,20 @@ package com.example.edgers_lottery.models;
 
 public class Comment {
     // Fields for the comment
+
+    private String id;
     private String userID;
     private String eventID;
     private String commentText;
     private String timestamp;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getUserID() {
         return userID;
