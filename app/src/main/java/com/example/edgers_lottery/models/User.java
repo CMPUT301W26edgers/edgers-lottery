@@ -48,6 +48,12 @@ public class User implements Serializable {
      */
     private boolean isOrganizer;
 
+    /** Latitude coordinate for waitlist mapping. */
+    private Double latitude;
+
+    /** Longitude coordinate for waitlist mapping. */
+    private Double longitude;
+
     /**
      * Required no-argument constructor for Firestore deserialization.
      */
@@ -199,5 +205,33 @@ public class User implements Serializable {
 
     public void setOrganizer(boolean organizer) {
         isOrganizer = organizer;
+    }
+
+    /**
+     * @return the user's latitude coordinate
+     */
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    /**
+     * @param latitude the latitude coordinate to set
+     */
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    /**
+     * @return the user's longitude coordinate
+     */
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    /**
+     * @param longitude the longitude coordinate to set
+     */
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

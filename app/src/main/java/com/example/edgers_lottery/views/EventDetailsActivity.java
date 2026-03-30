@@ -22,6 +22,14 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
 /**
  * Activity that displays the details of a single event to an entrant.
  * Allows the current user to join or leave the event waitlist.
@@ -80,6 +88,28 @@ public class EventDetailsActivity extends AppCompatActivity {
     /** The Firestore document ID of the event being displayed. */
     private String eventId;
 
+    /** Client used to grab device location */
+    private FusedLocationProviderClient fusedLocationClient;
+
+    /** Handles the system permission pop-up for location */
+    private final ActivityResultLauncher<String[]> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+
+                // Using standard .get() instead of .getOrDefault() to support API 23
+                Boolean fineLocationGranted = result.get(Manifest.permission.ACCESS_FINE_LOCATION);
+                Boolean coarseLocationGranted = result.get(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+                if ((fineLocationGranted != null && fineLocationGranted) ||
+                        (coarseLocationGranted != null && coarseLocationGranted)) {
+                    // Permission granted! Go get the location.
+                    getLocationAndExecuteJoin();
+                } else {
+                    // Permission denied.
+                    Toast.makeText(this, "Location permission is required to join.", Toast.LENGTH_SHORT).show();
+                    joinButton.setEnabled(true);
+                }
+            });
+
     /**
      * Initializes the activity, binds UI components, retrieves the event ID
      * from the launching Intent, and loads the event data from Firestore.
@@ -117,6 +147,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         // Initialize the user
         user = CurrentUser.get();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // Check if the current user is an Admin
         if (user != null && User.Role.ADMIN.name().equals(user.getRole())) {
@@ -190,14 +221,15 @@ public class EventDetailsActivity extends AppCompatActivity {
             joinButton.setEnabled(false);
 
             if (isUserInList(user.getId(), waitingList)) {
+                // LEAVING — no location needed, just remove and push
                 removeUserFromListSafely(user.getId(), waitingList);
                 joinButton.setText("Join Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+                updateWaitlistInFirestore(null); // null = no notification
             } else {
-                addUserToList(user, waitingList);
-                NotificationService.sendWaitlistJoinedNotification(user.getId(), eventId, event.getName()); // ← one line
-                joinButton.setText("Leave Waitlist");
-                joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                // JOINING — go through location check first
+                checkLocationPermissionAndJoin();
+                // Button stays disabled until location flow completes inside getLocationAndExecuteJoin()
             }
 
             db.collection("events").document(eventId)
@@ -313,5 +345,103 @@ public class EventDetailsActivity extends AppCompatActivity {
                     dialog.dismiss();
                 })
                 .show();
+    }
+
+    /**
+     * Checks if we already have permission. If yes, grabs location. If no, asks user.
+     */
+    private void checkLocationPermissionAndJoin() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            getLocationAndExecuteJoin();
+        } else {
+            requestPermissionLauncher.launch(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            });
+        }
+    }
+
+    /**
+     * Grabs the GPS coordinates, updates the User object, and adds them to the list.
+     */
+    @SuppressWarnings("MissingPermission")
+    private void getLocationAndExecuteJoin() {
+        // First try the fast path: last known location
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        // GPS cache was warm — use it directly
+                        user.setLatitude(location.getLatitude());
+                        user.setLongitude(location.getLongitude());
+                        finalizeJoin();
+                    } else {
+                        // GPS cache is cold — request a fresh single update
+                        requestFreshLocation();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Location unavailable. Joining without coordinates.", Toast.LENGTH_SHORT).show();
+                    user.setLatitude(null);
+                    user.setLongitude(null);
+                    finalizeJoin();
+                });
+    }
+
+    /**
+     * Centralized method to push the waitingList array to Firestore.
+     */
+    private void updateWaitlistInFirestore(String newlyJoinedUserId) {
+        db.collection("events").document(eventId)
+                .update("waitingList", waitingList)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Waitlist updated successfully!", Toast.LENGTH_SHORT).show();
+                    joinButton.setEnabled(true);
+
+                    // If a userId was passed in, it means they just joined, so send the notification
+                    if (newlyJoinedUserId != null) {
+                        NotificationService.sendWaitlistJoinedNotification(newlyJoinedUserId, eventId, eventNameText.getText().toString());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to update waitlist.", Toast.LENGTH_SHORT).show();
+                    joinButton.setEnabled(true);
+                });
+    }
+
+    @SuppressWarnings("MissingPermission")
+    private void requestFreshLocation() {
+        com.google.android.gms.location.LocationRequest locationRequest =
+                com.google.android.gms.location.LocationRequest.create()
+                        .setPriority(com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY)
+                        .setNumUpdates(1)           // only need one fix
+                        .setInterval(0)
+                        .setFastestInterval(0);
+
+        fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                new com.google.android.gms.location.LocationCallback() {
+                    @Override
+                    public void onLocationResult(com.google.android.gms.location.LocationResult result) {
+                        fusedLocationClient.removeLocationUpdates(this); // stop after one fix
+                        android.location.Location loc = result.getLastLocation();
+                        if (loc != null) {
+                            user.setLatitude(loc.getLatitude());
+                            user.setLongitude(loc.getLongitude());
+                        } else {
+                            user.setLatitude(null);
+                            user.setLongitude(null);
+                        }
+                        finalizeJoin();
+                    }
+                },
+                getMainLooper()
+        );
+    }
+
+    private void finalizeJoin() {
+        addUserToList(user, waitingList);
+        joinButton.setText("Leave Waitlist");
+        joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+        updateWaitlistInFirestore(user.getId()); // your existing method handles notification + Firestore push
     }
 }

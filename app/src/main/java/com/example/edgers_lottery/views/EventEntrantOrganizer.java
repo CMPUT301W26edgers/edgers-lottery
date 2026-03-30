@@ -85,6 +85,17 @@ public class EventEntrantOrganizer extends AppCompatActivity {
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
+
+        // Add this to EventDetailsOrganizer, EventWaitlistTab, and EventEntrantOrganizer
+        Button mapBtn = findViewById(R.id.mapBtn);
+        if (mapBtn != null) {
+            mapBtn.setOnClickListener(v -> {
+                finish();
+                Intent intent = new Intent(this, OrganizerWaitlistMapActivity.class);
+                intent.putExtra("event_id", eventId); // Make sure the variable name matches their intent key
+                startActivity(intent);
+            });
+        }
         Button commentsBtn = findViewById(R.id.commentsBtn);
         commentsBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, EventCommentsOrganizer.class);

@@ -221,6 +221,16 @@ public class CreateEditEventActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        findViewById(R.id.mapBtn).setOnClickListener(v -> {
+            if (currentEventId == null) {
+                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, OrganizerWaitlistMapActivity.class);
+            intent.putExtra("event_id", currentEventId); // Using "event_id" to match your teammate's intent keys
+            startActivity(intent);
+        });
+
         registrationDeadlineInput.setOnClickListener(v -> showDatePicker(registrationDeadlineInput));
         eventDateInput.setOnClickListener(v -> showDatePicker(eventDateInput));
 

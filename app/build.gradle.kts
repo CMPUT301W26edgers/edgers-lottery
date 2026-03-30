@@ -73,4 +73,8 @@ dependencies {
 
     // ML Kit Barcode / QR scanning
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+    // Organizer's Events Map Of Waitlist Entrants
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 }
