@@ -130,6 +130,7 @@
                 android:id="@+id/btnFilter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:backgroundTint="@color/headerGray"
                 android:stateListAnimator="@null"
                 android:text="📄 Filter Events"

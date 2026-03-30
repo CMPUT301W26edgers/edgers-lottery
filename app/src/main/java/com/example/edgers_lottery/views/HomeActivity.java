@@ -248,16 +248,17 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filterEvents(newText);
+                if (newText.isEmpty()) {
+                    // reset to filtered array (or all events if no filter applied)
+                    adapter.clear();
+                    adapter.addAll(filteredEventsArray.isEmpty() ? eventsArray : filteredEventsArray);
+                    adapter.notifyDataSetChanged();
+                } else {
+                    filterEvents(newText);
+                }
                 return true;
             }
         });
-
-        ImageView closeButton = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
-        if (closeButton != null) {
-            closeButton.setVisibility(GONE);
-        }
-
         organizerButton.setOnClickListener(v -> {
             if (user.isOrganizer()){
                 new AlertDialog.Builder(this)
