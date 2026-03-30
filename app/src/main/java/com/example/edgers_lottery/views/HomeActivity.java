@@ -1,10 +1,13 @@
 package com.example.edgers_lottery.views;
 
+import static android.view.View.GONE;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -35,6 +38,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     FirebaseFirestore db;
     ArrayList<Event> eventsArray = new ArrayList<>();
     ArrayList<Event> allEventsArray = new ArrayList<>();
+    ArrayList<Event> filteredEventsArray = new ArrayList<>();
     ListView eventsList;
     EventArrayAdapter adapter;
 //    String keyword = "";
@@ -71,20 +75,22 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
 
     private void filterEvents(String query) {
 //        eventsArray.clear();
+        if (filteredEventsArray.isEmpty())
+            filteredEventsArray.addAll(eventsArray);
         if (query.isEmpty()) {
-//            eventsArray.addAll(allEventsArray); // restore full list
+            adapter.addAll(eventsArray); // restore full list
             adapter.notifyDataSetChanged();
             return;
         } else {
             String lowerQuery = query.toLowerCase();
             ArrayList<Event> searchArray = new ArrayList<>();
-            for (Event event : eventsArray) {
+            for (Event event : filteredEventsArray) { // loop through all events (in filter)
                 boolean matchesName = event.getName() != null
                         && event.getName().toLowerCase().contains(lowerQuery);
                 boolean matchesDescription = event.getDescription() != null
                         && event.getDescription().toLowerCase().contains(lowerQuery);
-                boolean isInFilter = eventsArray.contains(event);
-                if (matchesName || matchesDescription) {
+                boolean isInFilter = filteredEventsArray.contains(event);
+                if ((matchesName || matchesDescription) && isInFilter) {
                     searchArray.add(event);
                 }
             }
@@ -109,7 +115,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         this.availabilityEnd = availabilityEnd;
 
         android.util.Log.d(TAG, "At Capacity:" + isCapacity + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
-
+        filteredEventsArray.clear();
         eventsArray.clear();
         db.collection("events").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -127,6 +133,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                                 || (event.getEntrants() == null || event.getEntrants().size() < event.getCapacity());
                         if (matchesStart && matchesEnd && matchesCapacity) {
                             eventsArray.add(event);
+                            filteredEventsArray.add(event);
                         }
                     }
                     adapter.notifyDataSetChanged();
@@ -168,6 +175,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         Button organizerButton = findViewById(R.id.btnOrganizerMode);
         Button adminButton = findViewById(R.id.btnAdminMode);
         SearchView searchView = findViewById(R.id.searchView);
+
         if (user.isOrganizer()) {
             organizerButton.setText("\uD83D\uDCC4 Organizer Mode");
         } else {
@@ -244,6 +252,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                 return true;
             }
         });
+
+        ImageView closeButton = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
+        if (closeButton != null) {
+            closeButton.setVisibility(GONE);
+        }
 
         organizerButton.setOnClickListener(v -> {
             if (user.isOrganizer()){
