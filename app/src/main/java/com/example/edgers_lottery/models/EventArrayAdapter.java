@@ -84,13 +84,13 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
             TextView dateTextView = view.findViewById(R.id.date_text);
             TextView registrationEndTextView = view.findViewById(R.id.registration_end_text);
             ImageView imageView = view.findViewById(R.id.event_poster);
-            imageView.setImageResource(R.drawable.default_avatar);
+//            imageView.setImageResource(R.drawable.blank_event);
             if (event.getPoster() == null) {
-                imageView.setImageResource(R.drawable.default_avatar);// set as default avatar for now as user has not profile picture
+                imageView.setImageResource(R.drawable.blank_event);// set as default avatar for now as user has not profile picture
             }
             else Glide.with(getContext())
                     .load(event.getPoster())
-                    .placeholder(R.drawable.default_avatar)
+                    .placeholder(R.drawable.blank_event)
                     .centerCrop()
                     .into(imageView);
 

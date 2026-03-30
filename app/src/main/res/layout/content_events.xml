@@ -11,13 +11,13 @@
     <!-- Event Poster (full width image at top) -->
     <ImageView
         android:id="@+id/event_poster"
-        android:layout_width="0dp"
+        android:layout_width="400dp"
         android:layout_height="160dp"
         android:scaleType="centerCrop"
-        app:srcCompat="@drawable/default_avatar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/default_avatar" />
 
     <!-- Event Title -->
     <TextView
