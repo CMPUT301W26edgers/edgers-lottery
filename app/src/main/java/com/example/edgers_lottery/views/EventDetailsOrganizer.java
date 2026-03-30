@@ -339,6 +339,17 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Add this to EventDetailsOrganizer, EventWaitlistTab, and EventEntrantOrganizer
+        Button mapBtn = findViewById(R.id.mapBtn);
+        if (mapBtn != null) {
+            mapBtn.setOnClickListener(v -> {
+                finish();
+                Intent intent = new Intent(this, OrganizerWaitlistMapActivity.class);
+                intent.putExtra("event_id", eventId); // Make sure the variable name matches their intent key
+                startActivity(intent);
+            });
+        }
+
         // ✅ INVITE BUTTON
         btnInviteUser.setOnClickListener(v -> showInviteDialog());
     }

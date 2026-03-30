@@ -1,6 +1,7 @@
 package com.example.edgers_lottery.views;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
@@ -83,6 +84,17 @@ public class EventWaitlistTab extends AppCompatActivity {
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
+
+        // Add this to EventDetailsOrganizer, EventWaitlistTab, and EventEntrantOrganizer
+        Button mapBtn = findViewById(R.id.mapBtn);
+        if (mapBtn != null) {
+            mapBtn.setOnClickListener(v -> {
+                finish();
+                Intent intent = new Intent(this, OrganizerWaitlistMapActivity.class);
+                intent.putExtra("event_id", eventId); // Make sure the variable name matches their intent key
+                startActivity(intent);
+            });
+        }
     }
 
     /**
