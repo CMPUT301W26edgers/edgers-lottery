@@ -52,6 +52,9 @@
         <activity android:name=".views.EventHistoryActivity" android:exported="false"/>
         <activity android:name=".views.EventCommentsOrganizer"
             android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".views.EventCommentsActivity"
+            android:windowSoftInputMode="adjustPan"/>
+
 
 
 

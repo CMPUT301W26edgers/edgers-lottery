@@ -59,7 +59,7 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment> {
                                 String username = document.getString("username");
                                 String profileImageUrl = document.getString("profileImage");
 
-                                usernameText.setText(username != null ? username : "Unknown User");
+                                usernameText.setText(username != null ? username : document.getString("name"));
 
                                 if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
                                     Glide.with(getContext())
