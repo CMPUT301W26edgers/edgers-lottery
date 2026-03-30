@@ -171,4 +171,19 @@ public class CommentService {
             Toast.makeText(context, "You are not an admin... How'd you get here?!", Toast.LENGTH_LONG).show();
         }
     }
+    public static void deleteCommentsOnEvent(String eventId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("comments")
+                .whereEqualTo("eventID", eventId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (com.google.firebase.firestore.DocumentSnapshot document : queryDocumentSnapshots) {
+                        db.collection("comments").document(document.getId()).delete();
+                    }
+                    android.util.Log.d("CommentService", "Comments for event deleted: " + eventId);
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("CommentService", "Failed to delete comments for event: " + eventId, e);
+                });
+    }
 }
