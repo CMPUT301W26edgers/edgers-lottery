@@ -222,6 +222,15 @@
                             android:text="View Waitlist"
                             android:textColor="@android:color/white" />
                     </LinearLayout>
+                    <Button
+                        android:id="@+id/btnViewComments"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:text="See Event Comments"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#6076AC"
+                        app:cornerRadius="4dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
