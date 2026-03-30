@@ -74,12 +74,39 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         WaitlistUser user = users.get(position);
         holder.tvName.setText(user.getName());
-        holder.btnRemove.setOnClickListener(v -> removeListener.onRemove(user, holder.getAdapterPosition()));
 
-        if (user.getProfileImage() != null) {
-            byte[] imageBytes = android.util.Base64.decode(user.getProfileImage(), android.util.Base64.DEFAULT);
-            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-            holder.ivProfile.setImageBitmap(bitmap);
+        // Safety check: ensure position is still valid before removing
+        holder.btnRemove.setOnClickListener(v -> {
+            int currentPosition = holder.getAdapterPosition();
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                removeListener.onRemove(user, currentPosition);
+            }
+        });
+
+        String base64String = user.getProfileImage();
+
+        // 1. Ensure the string is neither null NOR empty
+        if (base64String != null && !base64String.trim().isEmpty()) {
+            try {
+                // 2. Strip out HTML data prefixes if they exist (e.g., "data:image/jpeg;base64,")
+                if (base64String.contains(",")) {
+                    base64String = base64String.split(",")[1];
+                }
+
+                // 3. Safely attempt the decode
+                byte[] imageBytes = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT);
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                holder.ivProfile.setImageBitmap(bitmap);
+
+            } catch (IllegalArgumentException e) {
+                // 4. If it STILL fails (corrupted data), catch the crash and load a default state
+                // TODO: Replace 'null' with R.drawable.your_default_avatar if you have one
+                holder.ivProfile.setImageDrawable(null);
+            }
+        } else {
+            // The string was empty or null, load a default state
+            // TODO: Replace 'null' with R.drawable.your_default_avatar if you have one
+            holder.ivProfile.setImageDrawable(null);
         }
     }
 
