@@ -38,7 +38,8 @@
         <activity android:name=".views.QrScannerActivity"/>
         <activity android:name=".views.OrganizerHomeActivity"/>
         <activity android:name=".views.NewUserActivity"/>
-        <activity android:name=".views.HomeActivity"/>
+        <activity android:name=".views.HomeActivity"
+            android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".views.AdminHomeActivity"/>
         <activity android:name=".views.LoginActivity"/>
         <activity android:name=".views.CheckoutActivity"/>
