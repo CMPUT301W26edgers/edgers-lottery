@@ -140,10 +140,10 @@ public class User implements Serializable {
     }
 
     /**
-     * @return the user's display username, or {@code "no username"} if not set
+     * @return the user's display username, or {@code ""} if not set
      */
     public String getUsername() {
-        return username != null ? username : "no username";
+        return username != null ? username : "";
     }
 
     /**
