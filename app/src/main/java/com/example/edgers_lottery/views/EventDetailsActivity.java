@@ -1,5 +1,6 @@
 package com.example.edgers_lottery.views;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -67,6 +68,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private Button waitlistButton;
 
     private Button deleteButton;
+    private Button viewCommentsButton;
 
     /** The maximum number of entrants allowed for this event. */
     private int capacity;
@@ -134,6 +136,16 @@ public class EventDetailsActivity extends AppCompatActivity {
         joinButton = findViewById(R.id.join_button);
         waitlistButton = findViewById(R.id.view_waitlist);
         deleteButton = findViewById(R.id.delete_event_button);
+        viewCommentsButton = findViewById(R.id.btnViewComments);
+
+        viewCommentsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(EventDetailsActivity.this, EventCommentsActivity.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
+
+
+        // Initialize the user
         user = CurrentUser.get();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 

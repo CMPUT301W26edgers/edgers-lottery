@@ -338,6 +338,12 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
+        Button commentsBtn = findViewById(R.id.commentsBtn);
+        commentsBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EventCommentsOrganizer.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
 
         // Add this to EventDetailsOrganizer, EventWaitlistTab, and EventEntrantOrganizer
         Button mapBtn = findViewById(R.id.mapBtn);

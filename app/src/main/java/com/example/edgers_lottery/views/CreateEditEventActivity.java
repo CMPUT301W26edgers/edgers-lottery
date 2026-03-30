@@ -1,6 +1,7 @@
 package com.example.edgers_lottery.views;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.app.DatePickerDialog;
@@ -153,7 +154,25 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
     private void setupListeners() {
         // Back always just pops this screen
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        findViewById(R.id.btnBack).setOnClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Leaving Create Page?")
+                    .setMessage("Are you sure you are ready to leave this page?")
+                    .setPositiveButton("Leave", (dialog, which) -> {
+                        Intent intent;
+                        if (user.isOrganizer()){
+                            intent = new Intent(this, OrganizerHomeActivity.class);
+                        }else{
+                            intent = new Intent(this, HomeActivity.class);
+                        }
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+
+        });
 
         findViewById(R.id.btnAddImage).setOnClickListener(v -> pickImage());
         findViewById(R.id.btnSave).setOnClickListener(v -> onSaveClicked());
@@ -187,6 +206,17 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 return;
             }
             Intent intent = new Intent(this, EventEntrantOrganizer.class);
+            intent.putExtra("event_id", currentEventId);
+            startActivity(intent);
+        });
+//      Button commentsBtn = findViewById(R.id.commentsBtn);
+
+        findViewById(R.id.commentsBtn).setOnClickListener(v -> {
+            if (currentEventId == null) {
+                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, EventCommentsOrganizer.class);
             intent.putExtra("event_id", currentEventId);
             startActivity(intent);
         });

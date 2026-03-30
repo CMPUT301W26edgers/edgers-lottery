@@ -95,6 +95,13 @@ public class EventWaitlistTab extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+        findViewById(R.id.commentsBtn).setOnClickListener(v -> {
+            finish();
+            Intent intent = new Intent(this, EventCommentsOrganizer.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
+
     }
 
     /**
