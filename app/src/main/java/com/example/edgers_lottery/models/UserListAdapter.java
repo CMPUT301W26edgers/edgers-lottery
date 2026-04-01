@@ -18,35 +18,30 @@ import com.example.edgers_lottery.views.AdminUserProfileActivity;
 
 import java.util.List;
 
-/**
- * Adapter that populates the user list in {@link AdminUserListActivity}.
- * Each row displays the user's name and a delete button that prompts
- * for confirmation before removing the user.
- */
 public class UserListAdapter extends ArrayAdapter<User> {
     private Context context;
+    private boolean isReadOnly; // Add a flag to control the behavior
 
     /**
-     * Constructs a new adapter for the given list of users.
-     *
-     * @param context    the hosting context, expected to be an {@link AdminUserListActivity}
-     * @param users the list of {@link User}
+     * ORIGINAL CONSTRUCTOR (Your teammate's code uses this).
+     * By defaulting isReadOnly to false, their code continues to work perfectly!
      */
     public UserListAdapter(Context context, List<User> users) {
         super(context, 0, users);
         this.context = context;
+        this.isReadOnly = false;
     }
 
     /**
-     * Inflates or recycles a row view and binds the user's name and delete button.
-     * The delete button shows a confirmation dialog before calling
-     * {@link AdminUserListActivity#removeUser}.
-     *
-     * @param position    the index of the item in the list
-     * @param convertView a recycled view to reuse, or null if a new view must be inflated
-     * @param parent      the parent ViewGroup the view will be attached to
-     * @return the populated row view for the user at the given position
+     * NEW CONSTRUCTOR (You will use this in AdminNotificationLogActivity).
+     * Pass 'true' to disable the delete button and profile clicks.
      */
+    public UserListAdapter(Context context, List<User> users, boolean isReadOnly) {
+        super(context, 0, users);
+        this.context = context;
+        this.isReadOnly = isReadOnly;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
@@ -61,7 +56,6 @@ public class UserListAdapter extends ArrayAdapter<User> {
         name.setText(user.getName());
         String imageUrl = user.getProfileImage();
 
-        // Load and display the user's profile image
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(context)
                     .load(imageUrl)
@@ -72,27 +66,42 @@ public class UserListAdapter extends ArrayAdapter<User> {
             profileImage.setImageResource(R.drawable.default_avatar);
         }
 
-        // Open a user's full profile on click
-        convertView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, AdminUserProfileActivity.class);
-            intent.putExtra("userId", user.getId());
-            context.startActivity(intent);
-        });
+        // --- CHECK THE FLAG INSTEAD OF THE ACTIVITY ---
 
-        // delete button removes one's profile
-        delete.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
-                    .setTitle("Delete User")
-                    .setMessage("Are you sure you want to delete this user?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
-                        if (context instanceof AdminUserListActivity) {
-                            ((AdminUserListActivity) context)
-                                    .removeUser(user.getId());
-                        }
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+        if (!isReadOnly) {
+            // ORIGINAL BEHAVIOR: Show delete button and allow profile clicks
+            delete.setVisibility(View.VISIBLE);
+
+            convertView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, AdminUserProfileActivity.class);
+                intent.putExtra("userId", user.getId());
+                context.startActivity(intent);
+            });
+
+            delete.setOnClickListener(v -> {
+                new AlertDialog.Builder(context)
+                        .setTitle("Delete User")
+                        .setMessage("Are you sure you want to delete this user?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            if (context instanceof AdminUserListActivity) {
+                                ((AdminUserListActivity) context).removeUser(user.getId());
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            });
+
+        } else {
+            // READ-ONLY BEHAVIOR: Hide delete button, disable profile clicks
+            delete.setVisibility(View.GONE);
+            convertView.setOnClickListener(null);
+
+            convertView.setClickable(false);
+            convertView.setFocusable(false);
+
+            delete.setFocusable(false);
+            delete.setClickable(false);
+        }
 
         return convertView;
     }
