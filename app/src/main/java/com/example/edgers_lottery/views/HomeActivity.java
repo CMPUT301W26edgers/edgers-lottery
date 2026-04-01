@@ -59,20 +59,14 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                 .show();
     }
 
-//    /**
-//     * Updates the active filter criteria and shows a confirmation toast.
-//     *
-//     * @param interests         keyword to match against event name or description
-//     * @param registrationStart earliest event date to include, in {@code yyyy-MM-dd} format
-//     * @param registrationEnd   latest event date to include, in {@code yyyy-MM-dd} format
-//     */
-//    public void editFilter(String interests, String registrationStart, String registrationEnd) {
-//        this.keyword = interests;
-//        this.availabilityStart = registrationStart;
-//        this.availabilityEnd = registrationEnd;
-//        Toast.makeText(this, "Filters updated: " + interests + ", " + registrationStart + ", " + registrationEnd, Toast.LENGTH_SHORT).show();
-//    }
 
+    /**
+     * Filters the displayed events list based on a search query.
+     * Matches against event name and description (case-insensitive).
+     * If the query is empty, the full unfiltered list is restored.
+     *
+     * @param query the search string to filter events by
+     */
     private void filterEvents(String query) {
 //        eventsArray.clear();
         if (filteredEventsArray.isEmpty())
@@ -301,12 +295,18 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     }
 // this causes a bug where it reloads all events after a user clicks back to the home screen after searching
     // we want the search not to end because it makes the app more usable
+    /**
+     * Refreshes the current user reference when the activity resumes.
+     */
     @Override
     protected void onResume() {
         super.onResume();
         user = CurrentUser.get(); // update current user
     }
-
+    /**
+     * Loads all events from Firestore and populates the adapter.
+     * Clears the existing list before fetching. Logs an error on failure.
+     */
     private void loadEvents() {
         adapter.clear(); // Clear the old list before grabbing the new one
         db.collection("events").get()

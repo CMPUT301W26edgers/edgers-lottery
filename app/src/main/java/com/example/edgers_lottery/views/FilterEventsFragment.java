@@ -96,6 +96,12 @@ public class FilterEventsFragment extends DialogFragment {
                 })
                 .create();
     }
+    /**
+     * Shows a date picker dialog and sets the selected date on the target field.
+     * Date is formatted as yyyy-MM-dd.
+     *
+     * @param targetField the EditText to populate with the selected date
+     */
     private void showDatePicker(EditText targetField) {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
