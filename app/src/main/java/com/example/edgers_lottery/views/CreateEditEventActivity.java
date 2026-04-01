@@ -1,5 +1,6 @@
 package com.example.edgers_lottery.views;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,9 +14,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.ImageService;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.slider.Slider;
@@ -46,6 +49,8 @@ import com.google.firebase.firestore.DocumentReference;
 public class CreateEditEventActivity extends AppCompatActivity {
 
     private ImageView ivImage;
+    private Uri imageUri;
+    private String url;
     private EditText registrationDeadlineInput, eventDateInput, priceInput, descriptionInput;
     private TextInputLayout priceLayout;
     private SwitchMaterial swGeo, swWaitlist, swPublic;
@@ -53,11 +58,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private EditText eventNameInput;
     private User user;
 
+
     /**
      * Single source of truth for the event ID.
      * Null when creating; set from intent extra (or after first save) when editing.
      */
     private String currentEventId;
+    private static final int PICK_IMAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +146,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     if (waitlistEnabled != null) swWaitlist.setChecked(waitlistEnabled);
                     if (isPublic        != null) swPublic.setChecked(isPublic);
 
-                    String encodedImage = doc.getString("image");
+                    String encodedImage = doc.getString("poster");
                     if (encodedImage != null && !encodedImage.isEmpty()) {
                         try {
                             byte[] bytes  = Base64.decode(encodedImage, Base64.DEFAULT);
@@ -278,16 +285,18 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("waitlistEnabled",  swWaitlist.isChecked());
         eventData.put("ispublic",         swPublic.isChecked());
         eventData.put("organizerId",     organizerId);
+        eventData.put("poster", null);
 
-        Drawable drawable = ivImage.getDrawable();
-        if (drawable instanceof BitmapDrawable) {
-            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-            eventData.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
-        } else {
-            eventData.put("image", null);
-        }
+
+//        Drawable drawable = ivImage.getDrawable();
+//        if (drawable instanceof BitmapDrawable) {
+//            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+//            eventData.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+//        } else {
+//            eventData.put("image", null);
+//        }
 
         docRef.set(eventData)
                 .addOnSuccessListener(unused -> {
@@ -295,6 +304,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     //Intent intent = new Intent(this, EventDetailsOrganizer.class);
                     //intent.putExtra("event_id", currentEventId);
                     //startActivity(intent);
+                    if (imageUri != null) {
+                        ImageService.uploadEventImage(imageUri, newId, this);
+                    }
                     if (user.isOrganizer()){
                         Intent intent = new Intent(this, OrganizerEventsListActivity.class);
                         startActivity(intent);
@@ -311,7 +323,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
-        startActivityForResult(intent, 100);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     private Calendar parseDate(String dateStr) {
@@ -445,13 +457,15 @@ public class CreateEditEventActivity extends AppCompatActivity {
         updates.put("waitlistEnabled",  swWaitlist.isChecked());
         updates.put("ispublic",         swPublic.isChecked());
 
-        Drawable drawable = ivImage.getDrawable();
-        if (drawable instanceof BitmapDrawable) {
-            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-            updates.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
-        }
+        // update the event with the object
+
+//        Drawable drawable = ivImage.getDrawable();
+//        if (drawable instanceof BitmapDrawable) {
+//            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+//            updates.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+//        }
 
         FirebaseFirestore.getInstance()
                 .collection("events")
@@ -502,8 +516,17 @@ public class CreateEditEventActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
-            ivImage.setImageURI(data.getData());
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            imageUri = data.getData(); // the image the user picked
+            Glide.with(this).load(imageUri).circleCrop().into(ivImage); // load the image into the ImageView
+
+            url = imageUri.toString();
+            if (currentEventId != null) {
+                ImageService.uploadEventImage(imageUri, currentEventId, this);
+            }
+            // update the event here with the new image
+            // do it just in case, its already set in the db
+            // currentEvent.setPoster(imageUri.toString());
         }
     }
 }
