@@ -3,6 +3,10 @@ package com.example.edgers_lottery.models;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Seed events into the database.
+ * This is only used for testing purposes.
+ */
 public class SeedEvents {
     public static void seed() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

@@ -25,7 +25,11 @@ import com.example.edgers_lottery.services.CommentService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-
+/**
+ * Activity for users to view and post comments on an event.
+ * Users can post new comments and long-press any comment to view the commenter's profile.
+ * Comments are refreshed each time the activity resumes.
+ */
 public class EventCommentsActivity extends AppCompatActivity {
 
     private static final String TAG = "EventCommentsActivity";
@@ -36,7 +40,10 @@ public class EventCommentsActivity extends AppCompatActivity {
     private EditText etCommentInput;
     private ArrayList<Comment> commentsArray = new ArrayList<>();
     private CommentArrayAdapter adapter;
-
+    /**
+     * Initializes the activity, retrieves the event ID from the intent,
+     * and sets up views and listeners.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +59,9 @@ public class EventCommentsActivity extends AppCompatActivity {
             Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
     }
-
+    /**
+     * Reloads comments from Firestore each time the activity resumes.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -60,14 +69,18 @@ public class EventCommentsActivity extends AppCompatActivity {
             loadComments();
         }
     }
-
+    /**
+     * Binds UI elements and sets up the comment list adapter.
+     */
     private void initViews() {
         commentsList = findViewById(R.id.commentsList);
         etCommentInput = findViewById(R.id.etCommentInput);
         adapter = new CommentArrayAdapter(this, commentsArray);
         commentsList.setAdapter(adapter);
     }
-
+    /**
+     * Fetches comments for the current event from Firestore and refreshes the list.
+     */
     private void loadComments() {
         CommentService.getCommentsForEvent(eventId, comments -> {
             commentsArray.clear();
@@ -75,7 +88,10 @@ public class EventCommentsActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
         });
     }
-
+    /**
+     * Sets up click listeners for the back button, post comment button,
+     * and long-press on comments to view the commenter's profile.
+     */
     private void setupListeners() {
         findViewById(R.id.btnBackComments).setOnClickListener(v -> finish());
 
@@ -112,6 +128,12 @@ public class EventCommentsActivity extends AppCompatActivity {
             loadComments(); // refresh after posting
         });
     }
+    /**
+     * Fetches the commenter's profile from Firestore and displays it in a dialog,
+     * including their username, name, description, and profile image.
+     *
+     * @param comment the comment whose author's profile should be displayed
+     */
     private void viewProfile(Comment comment) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_user_profile, null);
         ImageView profileImage = dialogView.findViewById(R.id.dialogProfileImage);

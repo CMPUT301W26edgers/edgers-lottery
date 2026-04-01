@@ -14,15 +14,32 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.services.CommentService;
 
 import java.util.ArrayList;
-
+/**
+ * ArrayAdapter for displaying a list of {@link Comment} objects in a ListView.
+ * Loads user profile images and usernames from Firestore, and shows a delete
+ * button if the current user owns the comment.
+ */
 public class CommentArrayAdapter extends ArrayAdapter<Comment> {
-
+    /**
+     * @param context  the current context
+     * @param comments the list of comments to display
+     */
     public CommentArrayAdapter(Context context, ArrayList<Comment> comments) {
         super(context, 0, comments);
     }
-
+    /**
+     * Returns the view for a single comment item. Inflates the layout if needed,
+     * populates comment text, timestamp, username, and profile image. Shows a
+     * delete button only if the current user owns the comment.
+     *
+     * @param position    the position of the item in the list
+     * @param convertView a recycled view to reuse, or null if unavailable
+     * @param parent      the parent ViewGroup
+     * @return the populated view for this comment
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -86,8 +103,7 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment> {
                             .setTitle("Delete Comment")
                             .setMessage("Are you sure you want to delete this comment?")
                             .setPositiveButton("Delete", (dialog, which) -> {
-                                com.example.edgers_lottery.services.CommentService
-                                        .orgranizerDeleteComment(comment.getId(), getContext());
+                                CommentService.userDeleteComment(comment.getId(), getContext());
                                 remove(comment);
                                 notifyDataSetChanged();
                             })

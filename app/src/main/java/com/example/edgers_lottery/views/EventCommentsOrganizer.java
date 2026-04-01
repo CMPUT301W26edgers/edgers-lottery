@@ -17,7 +17,11 @@ import com.example.edgers_lottery.services.CommentService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-
+/**
+ * Activity for organizers to view and manage comments on their event.
+ * Organizers can post new comments and delete any existing comment.
+ * Comments are refreshed each time the activity resumes.
+ */
 public class EventCommentsOrganizer extends AppCompatActivity {
 
     private static final String TAG = "EventCommentsOrganizer";
@@ -28,7 +32,10 @@ public class EventCommentsOrganizer extends AppCompatActivity {
     private EditText etCommentInput;
     private ArrayList<Comment> commentsArray = new ArrayList<>();
     private OrganizerCommentArrayAdapter adapter;
-
+    /**
+     * Initializes the activity, retrieves the event ID from the intent,
+     * and sets up views and listeners.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +51,9 @@ public class EventCommentsOrganizer extends AppCompatActivity {
             Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
     }
-
+    /**
+     * Reloads comments from Firestore each time the activity resumes.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -52,14 +61,18 @@ public class EventCommentsOrganizer extends AppCompatActivity {
             loadComments();
         }
     }
-
+    /**
+     * Binds UI elements and sets up the comment list adapter.
+     */
     private void initViews() {
         commentsList = findViewById(R.id.commentsList);
         etCommentInput = findViewById(R.id.etCommentInput);
         adapter = new OrganizerCommentArrayAdapter(this, commentsArray);
         commentsList.setAdapter(adapter);
     }
-
+    /**
+     * Fetches comments for the current event from Firestore and refreshes the list.
+     */
     private void loadComments() {
         CommentService.getCommentsForEvent(eventId, comments -> {
             commentsArray.clear();
@@ -67,7 +80,10 @@ public class EventCommentsOrganizer extends AppCompatActivity {
             adapter.notifyDataSetChanged();
         });
     }
-
+    /**
+     * Sets up click listeners for navigation buttons, comment deletion via
+     * long press, and the post comment button.
+     */
     private void setupListeners() {
         findViewById(R.id.btnBackComments).setOnClickListener(v -> finish());
 
@@ -104,7 +120,7 @@ public class EventCommentsOrganizer extends AppCompatActivity {
                     .setTitle("Delete Comment")
                     .setMessage("Are you sure you want to delete this comment?")
                     .setPositiveButton("Delete", (dialog, which) -> {
-                        CommentService.orgranizerDeleteComment(comment.getId(), this);
+                        CommentService.organizerDeleteComment(comment.getId(), this);
                         commentsArray.remove(position);
                         adapter.notifyDataSetChanged();
                     })

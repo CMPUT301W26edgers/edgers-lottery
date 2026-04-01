@@ -181,6 +181,15 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
             finish();
         });
     }
+    /**
+     * Handles the result of the image picker. If a valid image was selected,
+     * displays it in the profile image view, uploads it to Firebase Storage,
+     * and updates the current user.
+     *
+     * @param requestCode the request code from startActivityForResult
+     * @param resultCode  the result code returned by the image picker activity
+     * @param data        the intent containing the selected image URI
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -202,6 +211,11 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
 //        // reload profile image from firebase storage
 //        Glide.with(this).load(user.getProfileImage()).circleCrop().into(profileImageView);
 //    }
+    /**
+     * Loads the current user's profile data and populates the UI fields,
+     * including name, username, description, email, phone, location,
+     * and profile image.
+     */
     private void loadUser(){
         user = CurrentUser.get();
 

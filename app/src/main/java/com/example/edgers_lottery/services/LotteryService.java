@@ -11,11 +11,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * Service class for running the event lottery on a waitlist of users.
+ */
 public class LotteryService {
     // this service should be able to randomly sample from a waitlist of users
     // these functions can be static and make edits to the firebase
-
+    /**
+     * Samples the waitlist for a given event, selects users up to the remaining
+     * capacity, updates the invited and waiting lists in Firestore, and triggers
+     * lottery result notifications. Returns early if the event is full or the
+     * waitlist is empty. Used by the organizer to run the lottery.
+     *
+     * @param eventId the ID of the event to run the lottery for
+     * @param result  callback called with a message describing the outcome
+     */
     public static void sampleWaitlist(String eventId, LotteryCallback result) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -108,6 +118,16 @@ public class LotteryService {
                     });
         }
     }
+    /**
+     * Randomly selects users from a sampling list up to the remaining capacity.
+     * If capacity exceeds the list size, all users are selected.
+     * Used interally within this class.
+     *
+     * @param samplingList      the list of users to sample from
+     * @param remainingCapacity the number of users that can be invited
+     * @return a map entry where the key is the list of chosen users
+     *         and the value is the list of users not invited
+     */
     public static Map.Entry<ArrayList<User>,ArrayList<User>> runLottery(ArrayList<User> samplingList, int remainingCapacity) {
         ArrayList<User> chosenList;
         ArrayList<User> notInvitedList;
