@@ -88,14 +88,11 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
 
         // Use Glide to load the URL, just like the comments feature!
         if (profileImageUrl != null && !profileImageUrl.trim().isEmpty()) {
-            // Note: You must have the Glide library imported at the top of your file
-            // import com.bumptech.glide.Glide;
-
             Glide.with(holder.itemView.getContext())
                     .load(profileImageUrl)
                     .circleCrop() // Makes the image circular
-                    //.placeholder(R.drawable.default_avatar) // Optional: shows while loading
-                    //.error(R.drawable.default_avatar)       // Optional: shows if URL is broken
+                    .placeholder(R.drawable.default_avatar) 
+                    // .error(R.drawable.default_avatar)       
                     .into(holder.ivProfile);
         } else {
             // Fallback if the user has no profile picture saved
