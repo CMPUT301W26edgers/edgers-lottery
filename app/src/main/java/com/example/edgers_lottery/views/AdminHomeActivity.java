@@ -3,11 +3,16 @@ package com.example.edgers_lottery.views;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.edgers_lottery.models.User;
 
 /**
  * Home screen for admin users providing navigation to all administrative sections.
@@ -16,6 +21,9 @@ import com.example.edgers_lottery.R;
  * Should only be launched for users with admin privileges.
  */
 public class AdminHomeActivity extends AppCompatActivity {
+
+    private FirebaseFirestore db;
+    private FirebaseAuth auth;
 
     /**
      * Initializes the admin home screen, sets menu item labels,
@@ -27,7 +35,12 @@ public class AdminHomeActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_adminhome);
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
 
+        ImageView profileImage = findViewById(R.id.profileImage);
+        TextView username = findViewById(R.id.usernameAdmin);
+        TextView userID = findViewById(R.id.userIDAdmin);
         TextView organizerList = findViewById(R.id.organizerListMenu).findViewById(R.id.menuTitle);
         TextView events = findViewById(R.id.eventListMenu).findViewById(R.id.menuTitle);
         TextView images = findViewById(R.id.imagesViewMenu).findViewById(R.id.menuTitle);
@@ -100,5 +113,36 @@ public class AdminHomeActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
+        loadAdminProfile(profileImage, username, userID);
+    }
+    private void loadAdminProfile(ImageView profileImage, TextView username, TextView userID) {
+        String uid = auth.getCurrentUser().getUid();
+
+        db.collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    User user = doc.toObject(User.class);
+
+                    if (user != null) {
+                        username.setText("Username: " + user.getUsername());
+                        userID.setText("UserID: " + uid);
+                        String imageUrl = user.getProfileImage();
+
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.default_avatar)
+                                    .circleCrop()
+                                    .into(profileImage);
+                        } else {
+                            Glide.with(this)
+                                    .load(R.drawable.default_avatar)
+                                    .circleCrop()
+                                    .into(profileImage);
+                        }
+                    }
+                });
     }
 }

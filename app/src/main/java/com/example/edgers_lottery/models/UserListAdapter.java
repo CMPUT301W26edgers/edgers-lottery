@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.views.AdminUserListActivity;
 import com.example.edgers_lottery.views.AdminUserProfileActivity;
@@ -55,14 +57,29 @@ public class UserListAdapter extends ArrayAdapter<User> {
         User user = getItem(position);
         TextView name = convertView.findViewById(R.id.userName);
         ImageButton delete = convertView.findViewById(R.id.deleteButton);
+        ImageView profileImage = convertView.findViewById(R.id.profileImage);
         name.setText(user.getName());
+        String imageUrl = user.getProfileImage();
 
+        // Load and display the user's profile image
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.default_avatar)
+                    .circleCrop()
+                    .into(profileImage);
+        } else {
+            profileImage.setImageResource(R.drawable.default_avatar);
+        }
+
+        // Open a user's full profile on click
         convertView.setOnClickListener(v -> {
             Intent intent = new Intent(context, AdminUserProfileActivity.class);
             intent.putExtra("userId", user.getId());
             context.startActivity(intent);
         });
 
+        // delete button removes one's profile
         delete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Delete User")

@@ -3,9 +3,11 @@ package com.example.edgers_lottery.views;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.User;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -13,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class AdminUserProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private TextView userprofile, name, username, role, description, email, phone, location;
+    private ImageView profileImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +24,7 @@ public class AdminUserProfileActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
+        profileImage = findViewById(R.id.imageView);
         userprofile = findViewById(R.id.userProfile);
         name = findViewById(R.id.profileName);
         username = findViewById(R.id.username);
@@ -52,11 +56,25 @@ public class AdminUserProfileActivity extends AppCompatActivity {
                         userprofile.setText(user.getName() + "'s Profile");
                         name.setText(user.getName());
                         username.setText(user.getUsername());
-                        role.setText(user.getRole());
+                        role.setText("Role: " + user.getRole());
                         description.setText(user.getDescription());
                         email.setText("Email: " + user.getEmail());
                         phone.setText("Phone: " +user.getPhone());
                         location.setText("Location: " +user.getLocation());
+
+                        String imageUrl = user.getProfileImage();
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.default_avatar)
+                                    .circleCrop()
+                                    .into(profileImage);
+                        } else {
+                            Glide.with(this)
+                                    .load(R.drawable.default_avatar)
+                                    .circleCrop()
+                                    .into(profileImage);
+                        }
                     }
                 });
     }
