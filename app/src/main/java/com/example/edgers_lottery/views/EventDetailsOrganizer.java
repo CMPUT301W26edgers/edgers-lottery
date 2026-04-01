@@ -195,6 +195,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.services.LotteryService;
 import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.*;
 
@@ -355,6 +356,11 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+        findViewById(R.id.btnRunLottery).setOnClickListener(v -> {
+            LotteryService.sampleWaitlist(eventId, result -> {
+                Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+            });
+        });
 
         // ✅ INVITE BUTTON
         btnInviteUser.setOnClickListener(v -> showInviteDialog());
