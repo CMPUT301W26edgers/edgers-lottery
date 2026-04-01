@@ -20,6 +20,7 @@ import com.example.edgers_lottery.models.Comment;
 import com.example.edgers_lottery.models.CommentArrayAdapter;
 import com.example.edgers_lottery.models.OrganizerCommentArrayAdapter;
 import com.example.edgers_lottery.models.CurrentUser;
+import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.services.CommentService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -78,10 +79,23 @@ public class EventCommentsActivity extends AppCompatActivity {
     private void setupListeners() {
         findViewById(R.id.btnBackComments).setOnClickListener(v -> finish());
 
-        // long press to delete comment as organizer
+        // long press to delete comment if admin, view profile if non-admin
         commentsList.setOnItemLongClickListener((parent, view, position, id) -> {
             Comment comment = commentsArray.get(position);
-            viewProfile(comment);
+            if ("ADMIN".equals(CurrentUser.get().getRole())) {
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Delete Comment")
+                        .setMessage("Are you sure you want to delete this comment?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            CommentService.adminDeleteComment(comment.getId(), this);
+                            commentsArray.remove(position);
+                            adapter.notifyDataSetChanged();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else {
+                viewProfile(comment);
+            }
             return true;
         });
 
