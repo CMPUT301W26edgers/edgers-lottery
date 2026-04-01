@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 
 import java.util.List;
@@ -75,7 +76,7 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         WaitlistUser user = users.get(position);
         holder.tvName.setText(user.getName());
 
-        // Safety check: ensure position is still valid before removing
+        // Safety check for removal
         holder.btnRemove.setOnClickListener(v -> {
             int currentPosition = holder.getAdapterPosition();
             if (currentPosition != RecyclerView.NO_POSITION) {
@@ -83,30 +84,19 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
             }
         });
 
-        String base64String = user.getProfileImage();
+        String profileImageUrl = user.getProfileImage();
 
-        // 1. Ensure the string is neither null NOR empty
-        if (base64String != null && !base64String.trim().isEmpty()) {
-            try {
-                // 2. Strip out HTML data prefixes if they exist (e.g., "data:image/jpeg;base64,")
-                if (base64String.contains(",")) {
-                    base64String = base64String.split(",")[1];
-                }
-
-                // 3. Safely attempt the decode
-                byte[] imageBytes = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT);
-                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                holder.ivProfile.setImageBitmap(bitmap);
-
-            } catch (IllegalArgumentException e) {
-                // 4. If it STILL fails (corrupted data), catch the crash and load a default state
-                // TODO: Replace 'null' with R.drawable.your_default_avatar if you have one
-                holder.ivProfile.setImageDrawable(null);
-            }
+        // Use Glide to load the URL, just like the comments feature!
+        if (profileImageUrl != null && !profileImageUrl.trim().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(profileImageUrl)
+                    .circleCrop() // Makes the image circular
+                    .placeholder(R.drawable.default_avatar) 
+                    // .error(R.drawable.default_avatar)       
+                    .into(holder.ivProfile);
         } else {
-            // The string was empty or null, load a default state
-            // TODO: Replace 'null' with R.drawable.your_default_avatar if you have one
-            holder.ivProfile.setImageDrawable(null);
+            // Fallback if the user has no profile picture saved
+            holder.ivProfile.setImageResource(R.drawable.default_avatar);
         }
     }
 
