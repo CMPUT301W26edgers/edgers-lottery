@@ -83,7 +83,7 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout14">
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/profileImage"
             android:layout_width="140dp"
             android:layout_height="wrap_content"
             android:layout_weight="0"
@@ -101,7 +101,7 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout14">
 
         <TextView
-            android:id="@+id/usernameOrg"
+            android:id="@+id/usernameAdmin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -114,7 +114,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/usernameID"
+            android:id="@+id/userIDAdmin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
