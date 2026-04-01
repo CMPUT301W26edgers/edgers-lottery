@@ -13,6 +13,7 @@ import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.CommentService;
 import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -319,7 +320,8 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /**
      * Displays an alert dialog confirming the admin wants to delete the event.
-     * If confirmed, deletes the document from Firestore and closes the activity.
+     * If confirmed, deletes the document from Firestore, deletes its comments,
+     * and closes the activity.
      */
     private void showDeleteConfirmationDialog() {
         new AlertDialog.Builder(this)
@@ -330,10 +332,14 @@ public class EventDetailsActivity extends AppCompatActivity {
                     // 1. Delete the event from the Firestore "events" collection
                     db.collection("events").document(eventId).delete()
                             .addOnSuccessListener(aVoid -> {
-                                // 2. Show success message
-                                Toast.makeText(EventDetailsActivity.this, "Event deleted successfully.", Toast.LENGTH_SHORT).show();
 
-                                // 3. Close the details screen and return to the event list
+                                // 2. Cascade delete: Remove all comments associated with this event
+                                CommentService.deleteCommentsOnEvent(eventId);
+
+                                // 3. Show success message
+                                Toast.makeText(EventDetailsActivity.this, "Event and associated comments deleted.", Toast.LENGTH_SHORT).show();
+
+                                // 4. Close the details screen and return to the event list
                                 finish();
                             })
                             .addOnFailureListener(e -> {
