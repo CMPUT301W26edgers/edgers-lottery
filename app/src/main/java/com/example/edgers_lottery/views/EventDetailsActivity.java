@@ -44,6 +44,8 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /** Button that navigates back to the previous screen. */
     private ImageView backButton;
+
+    /** Displays the poster of the event */
     private ImageView eventposter;
 
     /** Displays the name of the event. */
@@ -69,6 +71,9 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /** Button that opens a dialog showing all current waitlist members. */
     private Button waitlistButton;
+
+    /** The URL of the poster image for the event. */
+    private String imageURL;
 
     /** Button visible only to admins, allowing them to delete the event entirely. */
     private Button deleteButton;
@@ -147,6 +152,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         waitlistButton = findViewById(R.id.view_waitlist);
         deleteButton = findViewById(R.id.delete_event_button);
         viewCommentsButton = findViewById(R.id.btnViewComments);
+        eventposter = findViewById(R.id.imageView2);
 
         // Navigate to the comments section for this event
         viewCommentsButton.setOnClickListener(v -> {
