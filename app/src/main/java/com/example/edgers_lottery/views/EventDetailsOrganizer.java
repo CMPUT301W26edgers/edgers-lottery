@@ -189,12 +189,14 @@ package com.example.edgers_lottery.views;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.services.LotteryService;
 import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.*;
@@ -204,6 +206,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -222,6 +225,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private boolean isPublicEvent = false;
     private View inviteContainer;
     private Button btnInviteUser;
+    private Button btnViewChosen;
+    private Button btnViewCancelled;
+    private List<Map<String, Object>> invitedUsers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -237,6 +243,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         if (eventId == null) {
             Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     @Override
@@ -254,11 +261,14 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         countdown    = findViewById(R.id.tvRegistrationCountdown);
         ivQrCode     = findViewById(R.id.ivQrCode);
 
+
         // ✅ NEW
         inviteContainer = findViewById(R.id.inviteContainer);
         btnInviteUser = findViewById(R.id.btnInviteUser);
-    }
+        btnViewChosen = findViewById(R.id.btnChosenEntrants);
+        btnViewCancelled = findViewById(R.id.btnCancelledEntrants);
 
+    }
     private void loadEventFromFirestore() {
         db.collection("events")
                 .document(eventId)
@@ -270,6 +280,22 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         String dateString = doc.getString("date");
                         String desc       = doc.getString("description");
                         Long capacity     = doc.getLong("capacity");
+                        List<Map<String, Object>> rawInvitedUsers =
+                                (List<Map<String, Object>>) doc.get("invitedUsers");
+
+                        if (rawInvitedUsers != null) {
+                            invitedUsers = rawInvitedUsers;
+                        } else {
+                            invitedUsers = new ArrayList<>();
+                        }
+
+                        if (!invitedUsers.isEmpty()) {
+                            btnViewCancelled.setVisibility(View.VISIBLE);
+                            btnViewChosen.setVisibility(View.VISIBLE);
+                        } else {
+                            btnViewCancelled.setVisibility(View.GONE);
+                            btnViewChosen.setVisibility(View.GONE);
+                        }
 
                         locationName.setText(eventName != null ? eventName : "Unnamed Event");
                         entrantLimit.setText("Entrants: " + (capacity != null ? capacity : 0));
@@ -359,7 +385,36 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         findViewById(R.id.btnRunLottery).setOnClickListener(v -> {
             LotteryService.sampleWaitlist(eventId, result -> {
                 Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+                btnViewCancelled.setVisibility(View.VISIBLE);
+                btnViewChosen.setVisibility(View.VISIBLE);
             });
+        });
+        findViewById(R.id.btnChosenEntrants).setOnClickListener(v -> {
+            if (invitedUsers == null || invitedUsers.isEmpty()) {
+                Toast.makeText(this, "No invited users", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            StringBuilder list = new StringBuilder();
+
+            for (Map<String, Object> user : invitedUsers) {
+                String name = (String) user.get("name");
+                String email = (String) user.get("email");
+
+                list.append(name != null ? name : "Unknown")
+                        .append(" (")
+                        .append(email != null ? email : "No email")
+                        .append(")\n");
+            }
+
+            new AlertDialog.Builder(EventDetailsOrganizer.this)
+                    .setTitle("Invited Users (" + invitedUsers.size() + ")")
+                    .setMessage(list.toString())
+                    .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
+        findViewById(R.id.btnCancelledEntrants).setOnClickListener(v-> {
+
         });
 
         // ✅ INVITE BUTTON
