@@ -15,6 +15,7 @@ import com.example.edgers_lottery.models.WaitlistAdapter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Activity that displays the entrant management screen for an organizer.
@@ -29,6 +30,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
     private List<WaitlistUser> entrantUsers;
     private FirebaseFirestore db;
     private String eventId;
+    private List<Map<String, Object>> invitedUsers = new ArrayList<>();
 
     /**
      * Initializes the activity, reads the event ID from the intent,
@@ -46,10 +48,26 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         initViews();
         setupListeners();
         setupRecyclerView();
-
         if (eventId != null) {
             loadEntrants();
         }
+        db.collection("events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        List<Map<String, Object>> rawInvitedUsers =
+                                (List<Map<String, Object>>) doc.get("invitedUsers");
+
+                        if (rawInvitedUsers != null) {
+                            invitedUsers = rawInvitedUsers;
+                        } else {
+                            invitedUsers = new ArrayList<>();
+                        }
+                    } else {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     /**
@@ -102,6 +120,23 @@ public class EventEntrantOrganizer extends AppCompatActivity {
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
+        Button BtnChosen = findViewById(R.id.BtnChosen);
+        Button BtnCancelled = findViewById(R.id.BtnCancelled);
+        Button BtnTotal = findViewById(R.id.BtnTotal);
+        BtnChosen.setOnClickListener(v-> {
+            entrantUsers.clear();
+
+            for (Map<String, Object> userMap : invitedUsers) {
+                String userId = (String) userMap.get("id");
+                String name = (String) userMap.get("name");
+                String imageUrl = (String) userMap.get("profileImage");
+                entrantUsers.add(new WaitlistUser(userId, name, imageUrl));
+            }
+            adapter.notifyDataSetChanged();
+            tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
+
+        });
+
     }
 
     private void setupRecyclerView() {

@@ -225,8 +225,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private boolean isPublicEvent = false;
     private View inviteContainer;
     private Button btnInviteUser;
-    private Button btnViewChosen;
-    private Button btnViewCancelled;
+
     private List<Map<String, Object>> invitedUsers = new ArrayList<>();
 
     @Override
@@ -265,8 +264,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         // ✅ NEW
         inviteContainer = findViewById(R.id.inviteContainer);
         btnInviteUser = findViewById(R.id.btnInviteUser);
-        btnViewChosen = findViewById(R.id.btnChosenEntrants);
-        btnViewCancelled = findViewById(R.id.btnCancelledEntrants);
+
 
     }
     private void loadEventFromFirestore() {
@@ -289,13 +287,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                             invitedUsers = new ArrayList<>();
                         }
 
-                        if (!invitedUsers.isEmpty()) {
-                            btnViewCancelled.setVisibility(View.VISIBLE);
-                            btnViewChosen.setVisibility(View.VISIBLE);
-                        } else {
-                            btnViewCancelled.setVisibility(View.GONE);
-                            btnViewChosen.setVisibility(View.GONE);
-                        }
 
                         locationName.setText(eventName != null ? eventName : "Unnamed Event");
                         entrantLimit.setText("Entrants: " + (capacity != null ? capacity : 0));
@@ -385,8 +376,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         findViewById(R.id.btnRunLottery).setOnClickListener(v -> {
             LotteryService.sampleWaitlist(eventId, result -> {
                 Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
-                btnViewCancelled.setVisibility(View.VISIBLE);
-                btnViewChosen.setVisibility(View.VISIBLE);
+
             });
         });
         findViewById(R.id.btnChosenEntrants).setOnClickListener(v -> {
