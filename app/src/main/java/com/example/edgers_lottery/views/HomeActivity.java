@@ -259,7 +259,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                         .setTitle("Switch to Organizer")
                         .setMessage("Are you sure you want to switch to the organizer view?")
                         .setPositiveButton("Yes", (dialog, which) -> {
-                            user.setRole("ORGANIZER");
                             Intent intent = new Intent(this, OrganizerHomeActivity.class);
                             startActivity(intent);
                             finish();
