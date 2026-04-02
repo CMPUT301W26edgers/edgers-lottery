@@ -1,14 +1,17 @@
 package com.example.edgers_lottery.views;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.NotificationLogAdapter;
 import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.models.UserListAdapter;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -23,17 +26,34 @@ import java.util.Set;
 
 /**
  * Activity for Administrators to view logs of all notifications sent to users.
+ * This activity displays a list of users who have received notifications. Tapping on a
+ * user opens a custom dialog displaying a chronological list of their notification history.
  */
 public class AdminNotificationLogActivity extends AppCompatActivity {
 
+    /** Instance of FirebaseFirestore used to query the database. */
     private FirebaseFirestore db;
+
+    /** ListView displaying the list of users who have notification logs. */
     private ListView userListView;
+
+    /** Button to navigate back to the previous administrative screen. */
     private ImageButton backButton;
 
-    // Using your User model and custom adapter
+    /** Local list storing the retrieved User objects for the adapter. */
     private ArrayList<User> users;
+
+    /** Custom adapter used to display the users in a read-only visual state. */
     private UserListAdapter adapter;
 
+    /**
+     * Initializes the activity, configures the UI components, and triggers the initial
+     * data fetch. The {@link UserListAdapter} is intentionally initialized in 'read-only'
+     * mode to prevent accidental user deletion from this logging screen.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously
+     * being shut down, this Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +64,7 @@ public class AdminNotificationLogActivity extends AppCompatActivity {
         backButton = findViewById(R.id.backButton);
         users = new ArrayList<>();
 
-        // Reuse your existing UserListAdapter!
+        // Reuse the existing UserListAdapter, but pass 'true' to enable read-only mode!
         adapter = new UserListAdapter(this, users, true);
         userListView.setAdapter(adapter);
 
@@ -53,7 +73,7 @@ public class AdminNotificationLogActivity extends AppCompatActivity {
         // Load the cross-referenced list of users
         loadUsersWithNotifications();
 
-        // Handle clicks on specific users
+        // Handle clicks on specific users to view their logs
         userListView.setOnItemClickListener((parent, view, position, id) -> {
             User selectedUser = users.get(position);
             // Pass both the ID (for querying) and the Name (for the dialog title)
@@ -62,8 +82,14 @@ public class AdminNotificationLogActivity extends AppCompatActivity {
     }
 
     /**
-     * Step 1: Fetches all User IDs from the "notifications" collection.
-     * Step 2: Fetches User objects and filters them based on the IDs from Step 1.
+     * Fetches and populates the ListView with users who have an existing notification log.
+     * This is a two-step relational query process:
+     * <ol>
+     * <li>Queries the "notifications" collection to gather a unique Set of User IDs
+     * that have notification documents.</li>
+     * <li>Queries the "users" collection and filters the results, adding only the users
+     * whose IDs exist in the Set gathered from step 1.</li>
+     * </ol>
      */
     private void loadUsersWithNotifications() {
         // Step 1: Get the IDs of users who have notifications
@@ -88,7 +114,7 @@ public class AdminNotificationLogActivity extends AppCompatActivity {
                                     if (usersWithNotificationsIds.contains(doc.getId())) {
                                         User user = doc.toObject(User.class);
                                         if (user != null) {
-                                            user.setId(doc.getId());
+                                            user.setId(doc.getId()); // Ensure the ID is mapped
                                             users.add(user);
                                         }
                                     }
@@ -106,51 +132,56 @@ public class AdminNotificationLogActivity extends AppCompatActivity {
     }
 
     /**
-     * Fetches the notification array for a specific user and displays it in an AlertDialog.
-     * * @param userId   The ID of the user clicked (to query the database)
-     * @param userName The actual name of the user (to display in the UI)
+     * Retrieves the notification history for a specific user and displays it within a custom dialog.
+     * Reverses the notification array so the most recent events appear at the top, and uses
+     * {@link NotificationLogAdapter} to render each log entry as a visually styled card.
+     *
+     * @param userId   The unique Firestore document ID of the selected user (used to query their logs).
+     * @param userName The display name of the selected user (used to personalize the dialog title).
      */
     @SuppressWarnings("unchecked")
     private void showUserNotificationsDialog(String userId, String userName) {
         db.collection("notifications").document(userId).get()
                 .addOnSuccessListener(document -> {
                     if (document.exists()) {
-                        // IMPORTANT: Ensure "notifications" matches your array field name in Firestore
+                        // Extract the array of notification maps from the document
                         List<Map<String, Object>> notificationsArray =
                                 (List<Map<String, Object>>) document.get("notifications");
 
-                        StringBuilder sb = new StringBuilder();
+                        String displayName = (userName != null && !userName.isEmpty()) ? userName : "Unknown User";
 
-                        if (notificationsArray != null && !notificationsArray.isEmpty()) {
-                            // Loop backwards to show newest notifications at the top
-                            for (int i = notificationsArray.size() - 1; i >= 0; i--) {
-                                Map<String, Object> notif = notificationsArray.get(i);
-
-                                String eventName = (String) notif.get("eventName");
-                                String type = (String) notif.get("type");
-                                Boolean isRead = (Boolean) notif.get("isRead");
-                                com.google.firebase.Timestamp ts = (com.google.firebase.Timestamp) notif.get("timestamp");
-
-                                String dateStr = (ts != null) ? ts.toDate().toString() : "Unknown Date";
-                                String readStatus = (isRead != null && isRead) ? "Read" : "Unread";
-
-                                sb.append("Event: ").append(eventName).append("\n")
-                                        .append("Type: ").append(type).append("\n")
-                                        .append("Status: ").append(readStatus).append("\n")
-                                        .append("Time: ").append(dateStr).append("\n")
-                                        .append("---------------------------\n");
-                            }
-                        } else {
-                            sb.append("This user's notification array is empty.");
+                        if (notificationsArray == null || notificationsArray.isEmpty()) {
+                            // If empty, fallback to a standard simple text dialog
+                            new AlertDialog.Builder(this)
+                                    .setTitle("Logs for: " + displayName)
+                                    .setMessage("This user's notification array is empty.")
+                                    .setPositiveButton("Close", null)
+                                    .show();
+                            return;
                         }
 
-                        // Display the formatted string in a dialog, using their real name!
-                        String displayName = (userName != null && !userName.isEmpty()) ? userName : "Unknown User";
+                        // Reverse the list so the newest notifications are displayed at the top
+                        java.util.Collections.reverse(notificationsArray);
+
+                        // 1. Inflate the custom dialog layout containing a ListView
+                        View dialogView = getLayoutInflater().inflate(R.layout.dialog_admin_notification_list, null);
+
+                        // 2. Bind and set the dialog Title
+                        TextView titleText = dialogView.findViewById(R.id.dialogTitle);
+                        titleText.setText("Logs for: " + displayName);
+
+                        // 3. Bind the ListView and apply our custom NotificationLogAdapter
+                        ListView listView = dialogView.findViewById(R.id.dialogListView);
+                        NotificationLogAdapter logAdapter = new NotificationLogAdapter(this, notificationsArray);
+                        listView.setAdapter(logAdapter);
+
+                        // 4. Build and display the AlertDialog using the custom view
                         new AlertDialog.Builder(this)
-                                .setTitle("Logs for: " + displayName)
-                                .setMessage(sb.toString())
+                                .setView(dialogView)
                                 .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
                                 .show();
+                    } else {
+                        Toast.makeText(this, "No notification document found for this user.", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e ->
