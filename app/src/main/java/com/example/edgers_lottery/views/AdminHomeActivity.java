@@ -79,8 +79,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         });
 
         export.setOnClickListener(v -> {
-            // placeholder
-            Intent intent = new Intent(this, AdminEventListActivity.class);
+            Intent intent = new Intent(this, AdminNotificationLogActivity.class);
             startActivity(intent);
         });
 

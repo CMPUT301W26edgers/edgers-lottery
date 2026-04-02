@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.R;
@@ -43,6 +44,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /** Button that navigates back to the previous screen. */
     private ImageView backButton;
+    private ImageView eventposter;
 
     /** Displays the name of the event. */
     private TextView eventNameText;
@@ -75,6 +77,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private Button viewCommentsButton;
 
     /** The maximum number of entrants allowed for this event. */
+
     private int capacity;
 
     /** The current number of confirmed entrants for this event. */
@@ -164,6 +167,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog());
         }
 
+
         eventId = getIntent().getStringExtra("eventId");
 
         if (eventId != null) {
@@ -207,6 +211,16 @@ public class EventDetailsActivity extends AppCompatActivity {
         capacity = event.getCapacity();
         entrantCount = (event.getEntrants() == null) ? 0 : event.getEntrants().size();
         eventCapacityText.setText(String.format("Capacity: %d", capacity));
+        imageURL = event.getPoster();
+        if (imageURL != null && !imageURL.isEmpty()) {
+            Glide.with(this)
+                    .load(imageURL)
+                    .placeholder(R.drawable.blankphoto)
+                    .error(R.drawable.blankphoto)
+                    .into(eventposter);
+        } else {
+            eventposter.setImageResource(R.drawable.blankphoto);
+        }
 
         // Configure initial button state
         if (isUserInList(user.getId(), waitingList)) {
