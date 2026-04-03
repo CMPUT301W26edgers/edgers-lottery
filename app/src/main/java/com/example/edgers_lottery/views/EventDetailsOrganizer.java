@@ -278,11 +278,12 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         String dateString = doc.getString("date");
                         String desc       = doc.getString("description");
                         Long capacity     = doc.getLong("capacity");
-                        List<Map<String, Object>> rawInvitedUsers =
+                        List<Map<String, Object>> rawinvitedUsers =
                                 (List<Map<String, Object>>) doc.get("invitedUsers");
 
-                        if (rawInvitedUsers != null) {
-                            invitedUsers = rawInvitedUsers;
+                        if (rawinvitedUsers != null) {
+                            invitedUsers
+                                    = rawinvitedUsers;
                         } else {
                             invitedUsers = new ArrayList<>();
                         }

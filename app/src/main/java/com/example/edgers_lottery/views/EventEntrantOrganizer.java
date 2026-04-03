@@ -31,6 +31,10 @@ public class EventEntrantOrganizer extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventId;
     private List<Map<String, Object>> invitedUsers = new ArrayList<>();
+    private List<Map<String, Object>> allinvitedUsers = new ArrayList<>();
+    private List<Map<String, Object>> declinedUsers = new ArrayList<>();
+    private List<Map<String, Object>> acceptedUsers = new ArrayList<>();
+
 
     /**
      * Initializes the activity, reads the event ID from the intent,
@@ -56,13 +60,26 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
-                        List<Map<String, Object>> rawInvitedUsers =
-                                (List<Map<String, Object>>) doc.get("invitedUsers");
-
-                        if (rawInvitedUsers != null) {
-                            invitedUsers = rawInvitedUsers;
+                        List<Map<String, Object>> rawAllInvitedUsers =
+                                (List<Map<String, Object>>) doc.get("AllInvitedUsers");
+                        List<Map<String, Object>> rawDeclinedUsers =
+                                (List<Map<String, Object>>) doc.get("declinedUsers");
+                        List<Map<String, Object>> rawAcceptedUsers =
+                                (List<Map<String, Object>>) doc.get("entrants");
+                        if (rawAllInvitedUsers != null) {
+                            allinvitedUsers = rawAllInvitedUsers;
                         } else {
-                            invitedUsers = new ArrayList<>();
+                            allinvitedUsers = new ArrayList<>();
+                        }
+                        if (rawDeclinedUsers != null) {
+                            declinedUsers = rawDeclinedUsers;
+                        } else {
+                            declinedUsers = new ArrayList<>();
+                        }
+                        if (rawAcceptedUsers != null) {
+                            acceptedUsers = rawAcceptedUsers;
+                        } else {
+                            acceptedUsers = new ArrayList<>();
                         }
                     } else {
                         Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
@@ -123,10 +140,22 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         Button BtnChosen = findViewById(R.id.BtnChosen);
         Button BtnCancelled = findViewById(R.id.BtnCancelled);
         Button BtnTotal = findViewById(R.id.BtnTotal);
+        BtnTotal.setOnClickListener(v-> {
+            entrantUsers.clear();
+
+            for (Map<String, Object> userMap : acceptedUsers) {
+                String userId = (String) userMap.get("id");
+                String name = (String) userMap.get("name");
+                String imageUrl = (String) userMap.get("profileImage");
+                entrantUsers.add(new WaitlistUser(userId, name, imageUrl));
+            }
+            adapter.notifyDataSetChanged();
+            tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
+        });
         BtnChosen.setOnClickListener(v-> {
             entrantUsers.clear();
 
-            for (Map<String, Object> userMap : invitedUsers) {
+            for (Map<String, Object> userMap : allinvitedUsers) {
                 String userId = (String) userMap.get("id");
                 String name = (String) userMap.get("name");
                 String imageUrl = (String) userMap.get("profileImage");
@@ -136,7 +165,17 @@ public class EventEntrantOrganizer extends AppCompatActivity {
             tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
 
         });
-
+        BtnCancelled.setOnClickListener(v->{
+            entrantUsers.clear();
+            for (Map<String, Object> userMap : declinedUsers) {
+                String userId = (String) userMap.get("id");
+                String name = (String) userMap.get("name");
+                String imageUrl = (String) userMap.get("profileImage");
+                entrantUsers.add(new WaitlistUser(userId, name, imageUrl));
+            }
+            adapter.notifyDataSetChanged();
+            tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
+        });
     }
 
     private void setupRecyclerView() {
