@@ -121,7 +121,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     if (enforceLocation != null) swGeo.setChecked(enforceLocation);
                     if (ispublic        != null) swPublic.setChecked(ispublic);
 
-                    String encodedImage = doc.getString("image");
+                    String encodedImage = doc.getString("poster");
                     if (encodedImage != null && !encodedImage.isEmpty()) {
                         try {
                             byte[] bytes  = Base64.decode(encodedImage, Base64.DEFAULT);
@@ -212,9 +212,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-            eventData.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+            eventData.put("poster", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
         } else {
-            eventData.put("image", null);
+            eventData.put("poster", null);
         }
 
         docRef.set(eventData)
@@ -364,7 +364,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-            updates.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+            updates.put("poster", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
         }
 
         FirebaseFirestore.getInstance()
