@@ -30,9 +30,24 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * End-to-End (E2E) UI tests for verifying the Admin Notification Logs functionality.
+ * This class uses real Firebase Authentication to establish an Admin session,
+ * then utilizes Espresso to navigate the UI, click list items, and verify screen states.
+ */
 @RunWith(AndroidJUnit4.class)
 public class NotificationLogsAdminTest {
 
+    /**
+     * Sets up the testing environment before each test runs.
+     * <p>
+     * Setup flow:
+     * - Authenticates with Firebase Auth using real Admin credentials.
+     * - Fetches the Admin's user document from Firestore.
+     * - Initializes the global {@link CurrentUser} singleton.
+     * - Launches the {@link AdminHomeActivity} to act as the starting point for tests.
+     * * @throws InterruptedException if thread sleep or latch await is interrupted during network calls.
+     */
     @Before
     public void setupAdminSession() throws InterruptedException {
         // Authenticate as the Admin before running the tests
@@ -73,6 +88,16 @@ public class NotificationLogsAdminTest {
         ActivityScenario.launch(AdminHomeActivity.class);
     }
 
+    /**
+     * Tests whether an authenticated Admin can successfully navigate from the Home screen
+     * to the Notification Logs screen.
+     * <p>
+     * Execution:
+     * - Clicks the designated navigation button on the Admin dashboard.
+     * - Verifies that the "Notification Logs" title is displayed.
+     * - Verifies that the underlying ListView responsible for showing users is visible.
+     * * @throws InterruptedException if the thread is interrupted while waiting for UI transitions.
+     */
     @Test
     public void testAdminCanNavigateToNotificationLogs() throws InterruptedException {
         // 1. Let the Admin Home Screen load
@@ -92,6 +117,20 @@ public class NotificationLogsAdminTest {
         onView(withId(R.id.adminNotificationsUserList)).check(matches(isDisplayed()));
     }
 
+    /**
+     * Tests the Admin's ability to view specific notification logs for a user.
+     * <p>
+     * Setup:
+     * - Temporarily injects a mock user into the Firestore 'users' collection.
+     * - Temporarily injects a mock notification payload into the Firestore 'notifications' collection.
+     * This guarantees the ListView is never empty, preventing test crashes.
+     * <p>
+     * Execution:
+     * - Navigates to the Notification Logs screen.
+     * - Uses Espresso's {@code onData()} to click the very first item (position 0) in the ListView.
+     * - Asserts that an alert dialog/popup appears containing the string "Logs for:".
+     * * @throws InterruptedException if the thread is interrupted while waiting for Firestore writes or UI updates.
+     */
     @Test
     public void testAdminCanClickUserAndSeeLogsPopup() throws InterruptedException {
         // --- STEP 1: INJECT MOCK DATA ---
@@ -148,6 +187,11 @@ public class NotificationLogsAdminTest {
         onView(withText(containsString("Logs for:"))).check(matches(isDisplayed()));
     }
 
+    /**
+     * Cleans up the test environment after each test concludes.
+     * Safely signs out the authenticated user from Firebase and clears the local {@link CurrentUser} cache
+     * to prevent session leakages between consecutive test runs.
+     */
     @After
     public void cleanup() {
         FirebaseAuth.getInstance().signOut();
