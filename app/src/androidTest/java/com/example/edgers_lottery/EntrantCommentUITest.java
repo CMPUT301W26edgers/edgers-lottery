@@ -1,9 +1,9 @@
 package com.example.edgers_lottery;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -37,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class EntrantCommentUITest {
 
     private static final String EVENT_ID = "BgI19xgs0731KryGQdUq";
-    private static final String SOME_ID = "8PtvERpeA7V3zQStUhz11fH4b7a2"; // use Maanas's id
+    private static final String ENTRANT_ID = "8PtvERpeA7V3zQStUhz11fH4b7a2";
 
     private FirebaseFirestore db;
     private List<String> addedCommentIds = new ArrayList<>();
@@ -47,10 +46,10 @@ public class EntrantCommentUITest {
         db = FirebaseFirestore.getInstance();
 
         User entrant = new User();
-        entrant.setId(SOME_ID);
-        entrant.setName("Test");
-        entrant.setEmail("Test@test.com");
-//        entrant.setRole("ENTRANT");
+        entrant.setId(ENTRANT_ID);
+        entrant.setName("entrant");
+        entrant.setEmail("entrant@test.com");
+        entrant.setRole("ENTRANT");
         CurrentUser.set(entrant);
     }
 
@@ -73,7 +72,7 @@ public class EntrantCommentUITest {
     public void testEntrantCanTypeComment() {
         try (ActivityScenario<EventCommentsActivity> scenario = launchActivity()) {
             onView(withId(R.id.etCommentInput))
-                    .perform(click(), replaceText("Entrant UI test comment"), closeSoftKeyboard());
+                    .perform(click(), clearText(), replaceText("Entrant UI test comment"), closeSoftKeyboard());
 
             onView(withId(R.id.etCommentInput))
                     .check(matches(withText("Entrant UI test comment")));
@@ -81,33 +80,43 @@ public class EntrantCommentUITest {
     }
 
     @Test
-    public void testEmptyCommentDoesNotPost() throws InterruptedException {
-        try (ActivityScenario<EventCommentsActivity> scenario = launchActivity()) {
-            Thread.sleep(1000);
-            onView(withId(R.id.btnPostComment))
-                    .perform(click());
-            onView(withId(R.id.etCommentInput)).check(matches(withText("")));
-        }
-    }
-
-    @Test
     public void testEntrantCanPostComment() throws InterruptedException {
         try (ActivityScenario<EventCommentsActivity> scenario = launchActivity()) {
             Thread.sleep(2000);
+
             onView(withId(R.id.etCommentInput))
-                    .perform(replaceText("UI test entrant comment"), closeSoftKeyboard());
-            Thread.sleep(500);
+                    .perform(click(), typeText("UI test entrant comment"), closeSoftKeyboard());
+
             onView(withId(R.id.btnPostComment)).perform(click());
+
             Thread.sleep(2000);
+
             onView(withId(R.id.etCommentInput)).check(matches(withText("")));
         }
-        cleanupCommentsByUser(SOME_ID, "UI test entrant comment");
+
+        cleanupCommentsByUser(ENTRANT_ID, "UI test entrant comment");
+    }
+
+    @Test
+    public void testPostCommentButtonIsVisible() {
+        try (ActivityScenario<EventCommentsActivity> scenario = launchActivity()) {
+            onView(withId(R.id.btnPostComment)).check(matches(isDisplayed()));
+        }
     }
 
     @Test
     public void testBackButtonIsVisible() {
         try (ActivityScenario<EventCommentsActivity> scenario = launchActivity()) {
             onView(withId(R.id.btnBackComments)).check(matches(isDisplayed()));
+        }
+    }
+
+    @Test
+    public void testEmptyCommentDoesNotPost() throws InterruptedException {
+        try (ActivityScenario<EventCommentsActivity> scenario = launchActivity()) {
+            Thread.sleep(1000);
+            onView(withId(R.id.btnPostComment)).perform(click());
+            onView(withId(R.id.etCommentInput)).check(matches(withText("")));
         }
     }
 
