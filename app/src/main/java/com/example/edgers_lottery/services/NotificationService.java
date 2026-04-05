@@ -22,6 +22,8 @@ public class NotificationService {
     private static final String TYPE_JOINED_WAITLIST = "JOINED_WAITLIST";
     private static final String TYPE_PRIVATE_INVITE = "PRIVATE_EVENT_INVITE";
 
+    private static final String TYPE_DECLINED_INVITE = "CANCELLED";
+
     /**
      * Appends a notification to each selected and rejected user's document.
      * Called by LotteryService once the lottery resolves.
@@ -81,5 +83,17 @@ public class NotificationService {
                 eventName,
                 TYPE_PRIVATE_INVITE
         );
+    }
+
+    /**
+     * Appends a CANCELLED notification for a single user.
+     * Called by EventUserChoice when a user declines their event invitation.
+     *
+     * @param userId    the user who declined
+     * @param eventId   the event they declined
+     * @param eventName display name of the event
+     */
+    public static void sendCancelledNotification(String userId, String eventId, String eventName) {
+        appendNotification(FirebaseFirestore.getInstance(), userId, eventId, eventName, TYPE_DECLINED_INVITE);
     }
 }
