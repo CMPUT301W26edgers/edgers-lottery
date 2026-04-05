@@ -14,12 +14,23 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
+/**
+ * Admin-only activity that displays a list of all non-admin users.
+ * Allows administrators to view user profiles and delete user accounts.
+ * Should only be accessed for users with admin privileges.
+ */
 public class AdminUserListActivity extends AppCompatActivity {
     private ListView userList;
     private ArrayList<User> users = new ArrayList<>();
     private UserListAdapter adapter;
     private FirebaseFirestore db;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes the UI, sets up the adapter, and loads non-admin users from Firestore.
+     *
+     * @param savedInstanceState previously saved instance state, or null
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +48,11 @@ public class AdminUserListActivity extends AppCompatActivity {
         loadUsers();
     }
 
+    /**
+     * Deletes a user from Firestore by their ID and refreshes the list.
+     *
+     * @param userId the Firestore document ID of the user to delete
+     */
     public void removeUser(String userId) {
         db.collection("users")
                 .document(userId)
@@ -44,6 +60,9 @@ public class AdminUserListActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> loadUsers());
     }
 
+    /**
+     * Fetches all non-admin users from Firestore and updates the list view.
+     */
     private void loadUsers() {
         db.collection("users")
                 .whereNotEqualTo("role", "ADMIN")
