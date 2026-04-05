@@ -33,9 +33,32 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Isolated UI tests for verifying the geolocation and map functionality within the waitlist system.
+ * This class uses a combination of Espresso for in-app UI interactions and UIAutomator
+ * to handle Android OS-level permission dialogs.
+ * * It tests two primary user journeys:
+ * 1. An Entrant being prompted for location permissions when joining a geofenced event.
+ * 2. An Organizer navigating to the map view to see the coordinates of waitlisted users.
+ */
 @RunWith(AndroidJUnit4.class)
 public class WaitlistMapOrganizerTest {
 
+    /**
+     * Tests the entrant flow for joining an event waitlist that enforces geolocation.
+     * <p>
+     * Setup:
+     * - Mocks a globally authenticated "Entrant" user.
+     * - Injects a mock event into Firestore with {@code enforceLocation} set to true.
+     * <p>
+     * Execution:
+     * - Launches the {@link EventDetailsActivity} directly via Intent.
+     * - Simulates a user clicking the "Join Waitlist" button.
+     * - Uses UIAutomator to detect and accept the Android system location permission dialog.
+     * * @throws InterruptedException if the thread sleep is interrupted while waiting for UI updates.
+     * @throws UiObjectNotFoundException if UIAutomator cannot locate the system permission dialog.
+     * @throws AssertionError if the location permission dialog fails to appear.
+     */
     @Test
     public void testUserPromptedForLocationWhenJoiningWaitlist() throws InterruptedException, UiObjectNotFoundException {
         // 1. Setup the mock logged-in user
@@ -85,6 +108,21 @@ public class WaitlistMapOrganizerTest {
         }
     }
 
+    /**
+     * Tests the organizer flow for viewing the geographic distribution of entrants on a map.
+     * <p>
+     * Setup:
+     * - Mocks a globally authenticated "Organizer" (Admin) user.
+     * - Injects a mock event into Firestore containing a waitlist with one dummy user.
+     * - The dummy user is pre-configured with valid GPS coordinates (latitude/longitude).
+     * <p>
+     * Execution:
+     * - Launches the {@link EventDetailsOrganizer} directly via Intent.
+     * - Scrolls the horizontal view to locate the "Map" button.
+     * - Simulates a click on the map button.
+     * - Asserts that the Map Fragment container becomes visible on the screen.
+     * * @throws InterruptedException if the thread sleep is interrupted while waiting for UI updates or activity transitions.
+     */
     @Test
     public void testOrganizerCanNavigateToMapForEvent() throws InterruptedException {
         // 1. Setup the mock logged-in Organizer/Admin user
