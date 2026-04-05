@@ -43,11 +43,27 @@ import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.ViewAssertion;
 import static org.junit.Assert.fail;
 
+/**
+ * End-to-End (E2E) UI tests for verifying the Admin Event Management functionality.
+ * This class uses real Firebase Authentication to establish an Admin session and
+ * utilizes Espresso to navigate the UI, verify admin-specific privileges (like deleting events),
+ * and assert that UI state updates correctly upon deletion.
+ */
 @RunWith(AndroidJUnit4.class)
 public class EventListAdminTest {
 
     private static final String TAG = "EventListAdminTest";
 
+    /**
+     * Sets up the testing environment before each test executes.
+     * <p>
+     * Setup flow:
+     * - Authenticates with Firebase Auth using real Admin credentials.
+     * - Fetches the Admin's user document from Firestore to ensure valid role access.
+     * - Initializes the global {@link CurrentUser} singleton with the fetched Admin data.
+     * - Launches the {@link AdminHomeActivity} to serve as the starting point.
+     * * @throws InterruptedException if the thread is interrupted while waiting for the async network calls to resolve.
+     */
     @Before
     public void setupAdminSession() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
@@ -100,6 +116,15 @@ public class EventListAdminTest {
         ActivityScenario.launch(AdminHomeActivity.class);
     }
 
+    /**
+     * Tests whether an authenticated Admin can successfully navigate from the Admin Home
+     * screen to the Event List screen.
+     * <p>
+     * Execution:
+     * - Clicks the Event List menu item.
+     * - Verifies that the underlying ListView responsible for rendering events is displayed.
+     * * @throws InterruptedException if the thread is interrupted while waiting for UI transitions.
+     */
     @Test
     public void testAdminCanNavigateToEventList() throws InterruptedException {
         // Pause to let the Admin Home Screen load
@@ -115,6 +140,16 @@ public class EventListAdminTest {
         onView(withId(R.id.adminEventsList)).check(matches(isDisplayed()));
     }
 
+    /**
+     * Tests the Admin's specific privilege to view the "Delete Event" button.
+     * <p>
+     * Execution:
+     * - Navigates to the Event List screen.
+     * - Clicks the first event in the ListView to open its details.
+     * - Asserts that the Delete button is visible, which confirms the UI correctly parsed
+     * the Admin role from the {@link CurrentUser} singleton.
+     * * @throws InterruptedException if the thread is interrupted while waiting for UI interactions or data fetching.
+     */
     @Test
     public void testAdminCanSelectEventAndSeeDeleteButton() throws InterruptedException {
         // Pause to let the Admin Home Screen load
@@ -139,6 +174,21 @@ public class EventListAdminTest {
         onView(withId(R.id.delete_event_button)).check(matches(isDisplayed()));
     }
 
+    /**
+     * Tests the full End-to-End flow of an Admin successfully deleting an event.
+     * <p>
+     * Setup:
+     * - Injects a mock event directly into Firestore to guarantee a safe test target without
+     * destroying permanent production data.
+     * <p>
+     * Execution:
+     * - Navigates to the Event List screen.
+     * - Uses the custom {@link #withEventName(String)} matcher to find and click the exact mock event.
+     * - Clicks the Delete Event button and confirms the action on the resulting popup dialog.
+     * - Uses the custom {@link #isNotInAdapter(String)} ViewAssertion to verify the item has been
+     * fully removed from the ListView's underlying adapter data.
+     * * @throws InterruptedException if the thread is interrupted during the complex UI deletion sequence.
+     */
     @Test
     public void testAdminCanSuccessfullyDeleteEvent() throws InterruptedException {
         // --- STEP 1: INJECT MOCK EVENT INTO FIRESTORE ---
@@ -195,6 +245,11 @@ public class EventListAdminTest {
         onView(withId(R.id.adminEventsList)).check(isNotInAdapter(uniqueMockEventName));
     }
 
+    /**
+     * Cleans up the test environment after each test concludes.
+     * Safely signs out the authenticated user from Firebase and clears the local {@link CurrentUser} cache
+     * to prevent session leakages between consecutive test runs.
+     */
     @After
     public void cleanup() {
         // Clear Firebase Auth session and Singleton memory to prevent test leakage
@@ -204,7 +259,10 @@ public class EventListAdminTest {
 
 
     /**
-     * Custom Matcher to find an Event in an Adapter by its name.
+     * Custom Matcher to find an Event object inside an AdapterView (like ListView) by its string name.
+     * Espresso requires custom Matchers to target specific complex objects when using {@code onData()}.
+     * * @param expectedName The exact string name of the Event to search for.
+     * @return A {@link Matcher} that evaluates to true if the item is an Event with a matching name.
      */
     public static Matcher<Object> withEventName(final String expectedName) {
         return new TypeSafeMatcher<Object>() {
@@ -225,7 +283,11 @@ public class EventListAdminTest {
     }
 
     /**
-     * Custom ViewAssertion to verify an Event is NO LONGER inside the ListView's Adapter.
+     * Custom ViewAssertion to verify that an Event is completely removed from a ListView's Adapter.
+     * Traditional Espresso checks struggle to assert that dynamic data is truly gone,
+     * so this iterates through the Adapter to prove the item no longer exists.
+     * * @param eventName The name of the event that should no longer be present in the adapter.
+     * @return A {@link ViewAssertion} that will fail the test if the specified event is still found.
      */
     public static ViewAssertion isNotInAdapter(final String eventName) {
         return new ViewAssertion() {
