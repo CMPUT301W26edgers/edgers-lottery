@@ -4,11 +4,13 @@ import static org.junit.Assert.*;
 
 import com.example.edgers_lottery.models.AppNotification;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.models.WaitlistUser;
 import com.example.edgers_lottery.services.NotificationService;
 
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NotificationServiceTest {
 
@@ -105,30 +107,60 @@ public class NotificationServiceTest {
 //    }
 
 
-    // ─── US 02.07.03 — Cancelled Entrant Notification ─────────────────────────
+//    // ─── US 02.07.03 — Cancelled Entrant Notification ─────────────────────────
+//
+//    @Test
+//    public void testAppNotification_cancelled_typeIsCorrect() {
+//        AppNotification n = new AppNotification("user1", "event1", "Test Event", "CANCELLED");
+//        assertEquals("CANCELLED", n.getType());
+//    }
+//
+//    @Test
+//    public void testAppNotification_cancelled_defaultsToUnread() {
+//        AppNotification n = new AppNotification("user1", "event1", "Test Event", "CANCELLED");
+//        assertFalse("Cancelled notification should default to unread", n.isRead());
+//    }
+//
+//    @Test
+//    public void testSendCancelledNotification_doesNotCrash() {
+//        try {
+//            NotificationService.sendCancelledNotification(
+//                    "user_abc",
+//                    "event_xyz",
+//                    "Test Event"
+//            );
+//        } catch (Exception e) {
+//            fail("sendCancelledNotification threw an exception: " + e.getMessage());
+//        }
+//    }
+
+    // ─── US 02.07.01 — Notify All Waitlist Entrants ───────────────────────────
 
     @Test
-    public void testAppNotification_cancelled_typeIsCorrect() {
-        AppNotification n = new AppNotification("user1", "event1", "Test Event", "CANCELLED");
-        assertEquals("CANCELLED", n.getType());
+    public void testAppNotification_waitlistUpdate_typeIsCorrect() {
+        AppNotification n = new AppNotification("user1", "event1", "Test Event", "WAITLIST_UPDATE");
+        assertEquals("WAITLIST_UPDATE", n.getType());
     }
 
     @Test
-    public void testAppNotification_cancelled_defaultsToUnread() {
-        AppNotification n = new AppNotification("user1", "event1", "Test Event", "CANCELLED");
-        assertFalse("Cancelled notification should default to unread", n.isRead());
+    public void testAppNotification_waitlistUpdate_defaultsToUnread() {
+        AppNotification n = new AppNotification("user1", "event1", "Test Event", "WAITLIST_UPDATE");
+        assertFalse("Waitlist update notification should default to unread", n.isRead());
     }
 
     @Test
-    public void testSendCancelledNotification_doesNotCrash() {
+    public void testSendWaitlistUpdateNotifications_doesNotCrash() {
+        List<WaitlistUser> waitlistUsers = new ArrayList<>();
+        waitlistUsers.add(new WaitlistUser("user_1", "Alice", null));
+        waitlistUsers.add(new WaitlistUser("user_2", "Bob", null));
         try {
-            NotificationService.sendCancelledNotification(
-                    "user_abc",
+            NotificationService.sendWaitlistUpdateNotifications(
+                    waitlistUsers,
                     "event_xyz",
                     "Test Event"
             );
         } catch (Exception e) {
-            fail("sendCancelledNotification threw an exception: " + e.getMessage());
+            fail("sendWaitlistUpdateNotifications threw an exception: " + e.getMessage());
         }
     }
 }

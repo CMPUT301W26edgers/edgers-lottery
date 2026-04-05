@@ -1,12 +1,14 @@
 package com.example.edgers_lottery.services;
 
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.models.WaitlistUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,8 +23,8 @@ public class NotificationService {
     private static final String TYPE_NOT_SELECTED = "NOT_SELECTED";
     private static final String TYPE_JOINED_WAITLIST = "JOINED_WAITLIST";
     private static final String TYPE_PRIVATE_INVITE = "PRIVATE_EVENT_INVITE";
-
     private static final String TYPE_DECLINED_INVITE = "CANCELLED";
+    private static final String TYPE_WAITLIST_UPDATE = "WAITLIST_UPDATE";
 
     /**
      * Appends a notification to each selected and rejected user's document.
@@ -95,5 +97,20 @@ public class NotificationService {
      */
     public static void sendCancelledNotification(String userId, String eventId, String eventName) {
         appendNotification(FirebaseFirestore.getInstance(), userId, eventId, eventName, TYPE_DECLINED_INVITE);
+    }
+
+    /**
+     * Sends a WAITLIST_UPDATE notification to all users on the waitlist.
+     * Called by EventWaitlistTab when the organizer clicks Notify Waitlisters.
+     *
+     * @param waitlistUsers list of users currently on the waitlist
+     * @param eventId       the event ID
+     * @param eventName     display name of the event
+     */
+    public static void sendWaitlistUpdateNotifications(List<WaitlistUser> waitlistUsers, String eventId, String eventName) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        for (WaitlistUser user : waitlistUsers) {
+            appendNotification(db, user.getUserId(), eventId, eventName, TYPE_WAITLIST_UPDATE);
+        }
     }
 }
