@@ -59,22 +59,34 @@ public class NotificationService {
      */
     private static void appendNotification(FirebaseFirestore db, String userId,
                                            String eventId, String eventName, String type) {
-        Map<String, Object> notificationEntry = new HashMap<>();
-        notificationEntry.put("eventId",   eventId);
-        notificationEntry.put("eventName", eventName);
-        notificationEntry.put("type",      type);
-        notificationEntry.put("timestamp", com.google.firebase.Timestamp.now());
-        notificationEntry.put("isRead",    false);
+        // Check if user has notifications enabled before writing
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(userDoc -> {
+                    if (userDoc.exists()) {
+                        Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
+                        // If field is null it means existing user before feature — default to true
+                        if (Boolean.FALSE.equals(notificationsEnabled)) {
+                            android.util.Log.d("NotificationService", "Notifications disabled for " + userId + ", skipping");
+                            return;
+                        }
+                    }
+                    Map<String, Object> notificationEntry = new HashMap<>();
+                    notificationEntry.put("eventId",   eventId);
+                    notificationEntry.put("eventName", eventName);
+                    notificationEntry.put("type",      type);
+                    notificationEntry.put("timestamp", com.google.firebase.Timestamp.now());
+                    notificationEntry.put("isRead",    false);
 
-        Map<String, Object> update = new HashMap<>();
-        update.put("notifications", FieldValue.arrayUnion(notificationEntry));
+                    Map<String, Object> update = new HashMap<>();
+                    update.put("notifications", FieldValue.arrayUnion(notificationEntry));
 
-        db.collection(COLLECTION).document(userId)
-                .set(update, SetOptions.merge())
-                .addOnSuccessListener(unused ->
-                        android.util.Log.d("NotificationService", type + " notif written for " + userId))
-                .addOnFailureListener(e ->
-                        android.util.Log.e("NotificationService", "Failed " + type + " notif for " + userId, e));
+                    db.collection(COLLECTION).document(userId)
+                            .set(update, SetOptions.merge())
+                            .addOnSuccessListener(unused ->
+                                    android.util.Log.d("NotificationService", type + " notif written for " + userId))
+                            .addOnFailureListener(e ->
+                                    android.util.Log.e("NotificationService", "Failed " + type + " notif for " + userId, e));
+                });
     }
 
     public static void sendPrivateEventInvite(String userId, String eventId, String eventName) {

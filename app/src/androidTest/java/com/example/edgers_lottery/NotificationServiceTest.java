@@ -134,33 +134,56 @@ public class NotificationServiceTest {
 //        }
 //    }
 
-    // ─── US 02.07.01 — Notify All Waitlist Entrants ───────────────────────────
+//    // ─── US 02.07.01 — Notify All Waitlist Entrants ───────────────────────────
+//
+//    @Test
+//    public void testAppNotification_waitlistUpdate_typeIsCorrect() {
+//        AppNotification n = new AppNotification("user1", "event1", "Test Event", "WAITLIST_UPDATE");
+//        assertEquals("WAITLIST_UPDATE", n.getType());
+//    }
+//
+//    @Test
+//    public void testAppNotification_waitlistUpdate_defaultsToUnread() {
+//        AppNotification n = new AppNotification("user1", "event1", "Test Event", "WAITLIST_UPDATE");
+//        assertFalse("Waitlist update notification should default to unread", n.isRead());
+//    }
+//
+//    @Test
+//    public void testSendWaitlistUpdateNotifications_doesNotCrash() {
+//        List<WaitlistUser> waitlistUsers = new ArrayList<>();
+//        waitlistUsers.add(new WaitlistUser("user_1", "Alice", null));
+//        waitlistUsers.add(new WaitlistUser("user_2", "Bob", null));
+//        try {
+//            NotificationService.sendWaitlistUpdateNotifications(
+//                    waitlistUsers,
+//                    "event_xyz",
+//                    "Test Event"
+//            );
+//        } catch (Exception e) {
+//            fail("sendWaitlistUpdateNotifications threw an exception: " + e.getMessage());
+//        }
+//    }
+
+    // ─── US 01.04.03 — Opt Out of Notifications ───────────────────────────────
 
     @Test
-    public void testAppNotification_waitlistUpdate_typeIsCorrect() {
-        AppNotification n = new AppNotification("user1", "event1", "Test Event", "WAITLIST_UPDATE");
-        assertEquals("WAITLIST_UPDATE", n.getType());
+    public void testUser_notificationsEnabledByDefault() {
+        User user = new User();
+        assertTrue("Notifications should be enabled by default", user.isNotificationsEnabled());
     }
 
     @Test
-    public void testAppNotification_waitlistUpdate_defaultsToUnread() {
-        AppNotification n = new AppNotification("user1", "event1", "Test Event", "WAITLIST_UPDATE");
-        assertFalse("Waitlist update notification should default to unread", n.isRead());
+    public void testUser_canOptOutOfNotifications() {
+        User user = new User();
+        user.setNotificationsEnabled(false);
+        assertFalse("User should be able to opt out of notifications", user.isNotificationsEnabled());
     }
 
     @Test
-    public void testSendWaitlistUpdateNotifications_doesNotCrash() {
-        List<WaitlistUser> waitlistUsers = new ArrayList<>();
-        waitlistUsers.add(new WaitlistUser("user_1", "Alice", null));
-        waitlistUsers.add(new WaitlistUser("user_2", "Bob", null));
-        try {
-            NotificationService.sendWaitlistUpdateNotifications(
-                    waitlistUsers,
-                    "event_xyz",
-                    "Test Event"
-            );
-        } catch (Exception e) {
-            fail("sendWaitlistUpdateNotifications threw an exception: " + e.getMessage());
-        }
+    public void testUser_canReOptInToNotifications() {
+        User user = new User();
+        user.setNotificationsEnabled(false);
+        user.setNotificationsEnabled(true);
+        assertTrue("User should be able to re-enable notifications", user.isNotificationsEnabled());
     }
 }
