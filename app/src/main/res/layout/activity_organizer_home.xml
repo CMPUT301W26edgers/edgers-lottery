@@ -52,7 +52,7 @@
         android:layout_marginTop="16dp"
         android:text="Organizer Mode"
         android:textColor="#4B0082"
-        android:textSize="24sp"
+        android:textSize="30sp"
         android:textStyle="bold" />
 
     <androidx.cardview.widget.CardView
@@ -69,15 +69,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:padding="15dp">
 
             <ImageView
                 android:id="@+id/profileImage"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@drawable/profile"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:src="@drawable/default_avatar"
                 android:scaleType="centerCrop"
-                android:background="@drawable/common_google_signin_btn_icon_dark_normal_background"
                 android:padding="4dp"/>
 
             <LinearLayout
@@ -87,20 +87,20 @@
                 android:layout_marginStart="16dp">
 
                 <TextView
-                    android:id="@+id/tvUsername"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tvName"
+                    android:layout_width="180dp"
                     android:layout_height="wrap_content"
-                    android:text="username"
-                    android:textSize="16sp"
+                    android:text="Name"
+                    android:textSize="30sp"
                     android:textStyle="bold"
                     android:textColor="#333333"/>
 
                 <TextView
-                    android:id="@+id/tvUserID"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tvUsername"
+                    android:layout_width="180dp"
                     android:layout_height="wrap_content"
-                    android:text="userID"
-                    android:textSize="14sp"
+                    android:text="Username"
+                    android:textSize="24sp"
                     android:textColor="#666666"/>
             </LinearLayout>
         </LinearLayout>
@@ -117,7 +117,7 @@
         android:padding="8dp">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
@@ -126,7 +126,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="⊙  Create Event"
-                android:textSize="16sp"
+                android:textSize="24sp"
                 android:padding="16dp"
                 android:drawableEnd="@drawable/right_arrow_small"
                 android:background="?attr/selectableItemBackground"
@@ -144,7 +144,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="⊙  Events List"
-                android:textSize="16sp"
+                android:textSize="24sp"
                 android:padding="16dp"
                 android:drawableEnd="@drawable/right_arrow_small"
                 android:background="?attr/selectableItemBackground"
