@@ -88,6 +88,7 @@
                 android:layout_marginEnd="8dp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 app:cornerRadius="20dp"/>
+
             <Button
                 android:id="@+id/commentsBtn"
                 android:layout_width="wrap_content"
@@ -96,6 +97,7 @@
                 android:layout_marginEnd="8dp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 app:cornerRadius="20dp"/>
+
             <Button
                 android:id="@+id/mapBtn"
                 android:layout_width="wrap_content"
@@ -144,26 +146,40 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <!-- Run Lottery Button -->
-
-    <!-- Notify Waitlisters Button -->
-
     <Button
         android:id="@+id/btnRunLottery"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="12dp"
         android:backgroundTint="#2ECC71"
         android:elevation="6dp"
         android:text="🧑‍🤝‍🧑 Run Lottery"
         android:textColor="#FFFFFF"
         app:cornerRadius="25dp"
-        app:layout_constraintBottom_toTopOf="@id/btnNotifyWaitlisters"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/btnInviteUser"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Invite User Button (US 02.01.03) -->
+    <Button
+        android:id="@+id/btnInviteUser"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="12dp"
+        android:text="Invite User"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#3498DB"
+        android:elevation="6dp"
+        app:cornerRadius="25dp"
+        app:layout_constraintBottom_toTopOf="@id/btnNotifyWaitlisters"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Notify Waitlisters Button -->
     <Button
         android:id="@+id/btnNotifyWaitlisters"
         android:layout_width="match_parent"
