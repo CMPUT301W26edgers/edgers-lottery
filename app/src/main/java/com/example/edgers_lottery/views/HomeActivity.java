@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -69,7 +67,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     Button organizerButton;
     Button adminButton;
     SearchView searchView;
-    HorizontalScrollView filter_buttons_scroll;
+
     LinearLayout linearLayout13; // holds the search bar
 
     /**
@@ -114,7 +112,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                     searchArray.add(event);
                 }
             }
-//        }
             adapter.clear();
             adapter.addAll(searchArray);
             adapter.notifyDataSetChanged();
@@ -187,6 +184,11 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
 
 
         findViews();
+        // set these visibilities by default
+        cardStackView.setVisibility(GONE);
+        filterButton.setVisibility(View.VISIBLE);
+        eventsList.setVisibility(View.VISIBLE);
+        linearLayout13.setVisibility(View.VISIBLE);
         if (user.isOrganizer()) {
             organizerButton.setText("\uD83D\uDCC4 Organizer Mode");
         } else {
@@ -276,7 +278,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         carouselButton = findViewById(R.id.btnCarousel);
         cardStackView = findViewById(R.id.card_stack_view);
         eventsList = findViewById(R.id.eventListView);
-        filter_buttons_scroll = findViewById(R.id.filter_buttons_scroll);
         linearLayout13 = findViewById(R.id.linearLayout13);
     }
     private void setListeners(){
@@ -348,7 +349,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                 carouselButton.setText("♡ List Mode");
                 cardStackView.setVisibility(View.VISIBLE);
                 eventsList.setVisibility(GONE);
-                filter_buttons_scroll.setVisibility(GONE);
+                filterButton.setVisibility(GONE);
                 linearLayout13.setVisibility(GONE);
 
                 carouselAdapter.setEvents(allEventsArray);
@@ -362,7 +363,7 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
             } else{ // entering list mode
                 carouselButton.setText("♡ Carousel Mode");
                 cardStackView.setVisibility(GONE);
-                filter_buttons_scroll.setVisibility(View.VISIBLE);
+                filterButton.setVisibility(View.VISIBLE);
                 eventsList.setVisibility(View.VISIBLE);
                 linearLayout13.setVisibility(View.VISIBLE);
             }

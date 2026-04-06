@@ -16,25 +16,37 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
+/**
+ * RecyclerView adapter for displaying {@link Event} objects as swipeable cards
+ * in the home screen carousel (CardStackView).
+ * Each card shows the event poster, name, date, location, registration countdown,
+ * organizer name (fetched asynchronously from Firestore), and an open/full status badge.
+ * Navigation is handled by the CardStackView's swipe listener in HomeActivity,
+ * not by individual card click listeners.
+ */
 public class EventCarouselAdapter extends RecyclerView.Adapter<EventCarouselAdapter.CarouselViewHolder> {
-
-    public interface OnEventClickListener {
-        void onEventClick(Event event);
-    }
 
     private final Context context;
     private final List<Event> events;
-    private OnEventClickListener listener;
 
+    /**
+     * Constructs a new EventCarouselAdapter.
+     *
+     * @param context the current context
+     * @param events  the list of events to display as cards
+     */
     public EventCarouselAdapter(Context context, List<Event> events) {
         this.context = context;
         this.events = events;
     }
 
-    public void setOnEventClickListener(OnEventClickListener listener) {
-        this.listener = listener;
-    }
-
+    /**
+     * Inflates the card layout and returns a new {@link CarouselViewHolder}.
+     *
+     * @param parent   the parent ViewGroup
+     * @param viewType the view type (not used; only one card type exists)
+     * @return a new {@link CarouselViewHolder} wrapping the inflated card view
+     */
     @NonNull
     @Override
     public CarouselViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -42,19 +54,34 @@ public class EventCarouselAdapter extends RecyclerView.Adapter<EventCarouselAdap
         return new CarouselViewHolder(view);
     }
 
+    /**
+     * Binds event data to the card at the given position.
+     * Populates the poster image via Glide, sets the event name, date, location,
+     * registration countdown, and open/full status badge.
+     * Organizer name is fetched asynchronously from Firestore using the event's organizer ID.
+     *
+     * @param holder   the {@link CarouselViewHolder} to bind data into
+     * @param position the position of the event in the list
+     */
     @Override
     public void onBindViewHolder(@NonNull CarouselViewHolder holder, int position) {
         Event event = events.get(position);
+
         holder.name.setText(event.getName() != null ? event.getName() : "Unknown Event");
+
         holder.date.setText(event.getDate() != null
                 ? "📅 " + EventArrayAdapter.formatDate(event.getDate())
                 : "📅 Unknown Date");
+
         holder.location.setText(event.getLocation() != null
                 ? "📍 " + event.getLocation()
                 : "📍 Unknown Location");
+
         holder.registrationEnd.setText(event.getRegistrationEnd() != null
                 ? EventArrayAdapter.timeUntilRegistration(event.getRegistrationEnd())
                 : "Unknown Registration End");
+
+        // Set open/full status badge based on capacity vs confirmed entrants
         int capacity = event.getCapacity();
         int entrantCount = event.getEntrants() != null ? event.getEntrants().size() : 0;
         if (capacity > 0 && entrantCount >= capacity) {
@@ -65,6 +92,7 @@ public class EventCarouselAdapter extends RecyclerView.Adapter<EventCarouselAdap
             holder.status.setBackgroundResource(R.drawable.badge_open);
         }
 
+        // Fetch organizer name asynchronously from Firestore
         if (event.getOrganizerId() != null) {
             FirebaseFirestore.getInstance()
                     .collection("users")
@@ -83,7 +111,7 @@ public class EventCarouselAdapter extends RecyclerView.Adapter<EventCarouselAdap
             holder.organizer.setText("☆ Unknown Organizer");
         }
 
-        // Poster image — same Glide setup with blank_event fallback
+        // Load poster image with Glide, falling back to blank_event placeholder
         if (event.getPoster() == null) {
             holder.poster.setImageResource(R.drawable.blank_event);
         } else {
@@ -93,27 +121,46 @@ public class EventCarouselAdapter extends RecyclerView.Adapter<EventCarouselAdap
                     .centerCrop()
                     .into(holder.poster);
         }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onEventClick(event);
-        });
     }
 
+    /**
+     * Returns the total number of event cards in the adapter.
+     *
+     * @return the size of the events list
+     */
     @Override
     public int getItemCount() {
         return events.size();
     }
 
+    /**
+     * Replaces the current event list with a new one and refreshes the adapter.
+     *
+     * @param newEvents the new list of events to display
+     */
     public void setEvents(List<Event> newEvents) {
         events.clear();
         events.addAll(newEvents);
         notifyDataSetChanged();
     }
 
+    /**
+     * ViewHolder for a single event card in the carousel.
+     * Holds references to all views within the card layout.
+     */
     static class CarouselViewHolder extends RecyclerView.ViewHolder {
         ImageView poster;
-        TextView name, date, location, status, organizer, registrationEnd;
-
+        TextView name;
+        TextView date;
+        TextView location;
+        TextView status;
+        TextView organizer;
+        TextView registrationEnd;
+        /**
+         * Constructs a CarouselViewHolder and binds all child views.
+         *
+         * @param itemView the inflated card view
+         */
         CarouselViewHolder(@NonNull View itemView) {
             super(itemView);
             poster = itemView.findViewById(R.id.ivCarouselPoster);
