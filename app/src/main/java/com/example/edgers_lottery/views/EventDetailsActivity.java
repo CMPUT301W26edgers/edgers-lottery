@@ -107,6 +107,7 @@ public class EventDetailsActivity extends AppCompatActivity {
      * If granted, immediately proceeds with fetching the location and joining the user.
      * If denied, re-enables the join button and alerts the user.
      */
+    private boolean isPendingInvite;
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
 
@@ -153,6 +154,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         deleteButton = findViewById(R.id.delete_event_button);
         viewCommentsButton = findViewById(R.id.btnViewComments);
         eventposter = findViewById(R.id.imageView2);
+        isPendingInvite = getIntent().getBooleanExtra("isPendingInvite", false);
 
         // Navigate to the comments section for this event
         viewCommentsButton.setOnClickListener(v -> {
@@ -186,7 +188,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                                 waitingList = event.getWaitingList() != null
                                         ? event.getWaitingList()
                                         : new ArrayList<>();
-                                showEvent(event);
+                                showEvent(event, isPendingInvite);
                             }
                         } else {
                             Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
@@ -208,7 +210,7 @@ public class EventDetailsActivity extends AppCompatActivity {
      *
      * @param event the {@link Event} object to display
      */
-    private void showEvent(Event event) {
+    private void showEvent(Event event, boolean isPendingInvite) {
         eventNameText.setText(event.getName());
         eventDescriptionText.setText(event.getDescription());
         eventDateText.setText(event.getDate());
@@ -227,6 +229,58 @@ public class EventDetailsActivity extends AppCompatActivity {
         } else {
             eventposter.setImageResource(R.drawable.blankphoto);
         }
+        // 🔥 NEW: Pending Invite UI override
+        if (isPendingInvite) {
+
+            // Accept button
+            joinButton.setText("Accept Invite");
+            joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+
+            // Decline button (reuse waitlistButton)
+            waitlistButton.setVisibility(View.VISIBLE);
+            waitlistButton.setText("Decline Invite");
+            waitlistButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+
+            // ACCEPT logic
+            joinButton.setOnClickListener(v -> {
+                joinButton.setEnabled(false);
+
+                addUserToList(user, waitingList);
+
+                db.collection("events").document(eventId)
+                        .update(
+                                "waitingList", waitingList,
+                                "AllInvitedUsers", com.google.firebase.firestore.FieldValue.arrayRemove(user)
+                        )
+                        .addOnSuccessListener(unused -> {
+                            Toast.makeText(this, "Accepted invite!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Failed to accept invite", Toast.LENGTH_SHORT).show();
+                            joinButton.setEnabled(true);
+                        });
+            });
+
+            // DECLINE logic
+            waitlistButton.setOnClickListener(v -> {
+                db.collection("events").document(eventId)
+                        .update(
+                                "declinedUsers", com.google.firebase.firestore.FieldValue.arrayUnion(user),
+                                "AllInvitedUsers", com.google.firebase.firestore.FieldValue.arrayRemove(user)
+                        )
+                        .addOnSuccessListener(unused -> {
+                            Toast.makeText(this, "Invite declined", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Failed to decline invite", Toast.LENGTH_SHORT).show();
+                        });
+            });
+
+            return;
+        }
+
 
         // Configure initial button state
         if (isUserInList(user.getId(), waitingList)) {
