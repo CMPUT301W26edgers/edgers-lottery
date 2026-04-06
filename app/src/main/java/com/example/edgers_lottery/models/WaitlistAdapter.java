@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 
 import java.util.List;
@@ -74,12 +75,28 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         WaitlistUser user = users.get(position);
         holder.tvName.setText(user.getName());
-        holder.btnRemove.setOnClickListener(v -> removeListener.onRemove(user, holder.getAdapterPosition()));
 
-        if (user.getProfileImage() != null) {
-            byte[] imageBytes = android.util.Base64.decode(user.getProfileImage(), android.util.Base64.DEFAULT);
-            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-            holder.ivProfile.setImageBitmap(bitmap);
+        // Safety check for removal
+        holder.btnRemove.setOnClickListener(v -> {
+            int currentPosition = holder.getAdapterPosition();
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                removeListener.onRemove(user, currentPosition);
+            }
+        });
+
+        String profileImageUrl = user.getProfileImage();
+
+        // Use Glide to load the URL, just like the comments feature!
+        if (profileImageUrl != null && !profileImageUrl.trim().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(profileImageUrl)
+                    .circleCrop() // Makes the image circular
+                    .placeholder(R.drawable.default_avatar) 
+                    // .error(R.drawable.default_avatar)       
+                    .into(holder.ivProfile);
+        } else {
+            // Fallback if the user has no profile picture saved
+            holder.ivProfile.setImageResource(R.drawable.default_avatar);
         }
     }
 

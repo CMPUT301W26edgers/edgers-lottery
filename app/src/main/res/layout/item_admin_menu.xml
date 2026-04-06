@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:text="Menu Item"
         android:textSize="20sp"
-        android:textColor="@color/black"
+        android:textColor="#4B0082"
         android:layout_marginStart="12dp"
         android:layout_weight="1"/>
 

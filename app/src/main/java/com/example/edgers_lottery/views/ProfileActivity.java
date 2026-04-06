@@ -1,17 +1,21 @@
 package com.example.edgers_lottery.views;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.ImageService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -29,7 +33,11 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
     private TextView locationTextView;
     private TextView usernameTextView;
     private TextView phoneTextView;
+    private ImageView profileImageView;
 
+    private  ImageButton uploadProfileImageButton;
+
+    private static final int PICK_IMAGE_REQUEST = 1;
     /**
      * Displays an alert dialog showing the given user's name and email.
      *
@@ -89,48 +97,48 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        user = CurrentUser.get();
+        loadUser();
 
-        TextView profileNames = findViewById(R.id.ProfileNames);
-        profileNames.setText(user.getName());
-
-        usernameTextView = findViewById(R.id.Username);
-        usernameTextView.setText(user.getUsername());
-
-        descriptionTextView = findViewById(R.id.descriptionText);
-        descriptionTextView.setText(user.getDescription());
-
-        emailTextView = findViewById(R.id.ProfileEmail);
-        emailTextView.setText("Email: " + user.getEmail());
-
-        phoneTextView = findViewById(R.id.ProfilePhone);
-        phoneTextView.setText("Phone: " + user.getPhone());
-
-        locationTextView = findViewById(R.id.ProfileLocation);
-        locationTextView.setText("Location: " + user.getLocation());
+        uploadProfileImageButton = findViewById(R.id.uploadImageButton);
 
         ImageButton homeButton = findViewById(R.id.HomeButton);
+        ImageButton qrButton = findViewById(R.id.qrButton);
+        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
         Button editProfileButton = findViewById(R.id.ProfileEditButton);
         Button deleteProfileButton = findViewById(R.id.deleteProfileButton);
         Button signoutButton = findViewById(R.id.signoutButton);
 
         homeButton.setOnClickListener(v -> {
-            String role = user.getRole();
-            if (role.equals("ADMIN")) {
-                Intent intent = new Intent(this, AdminHomeActivity.class);
-                startActivity(intent);
-                finish();
-            } else {
-                Intent intent = new Intent(this, HomeActivity.class);
-                startActivity(intent);
-                finish();
-            }
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        qrButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        checkoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CheckoutActivity.class);
+            startActivity(intent);
+            finish();
         });
 
         editProfileButton.setOnClickListener(v -> {
             EditProfileFragment editProfileFragment = EditProfileFragment.newInstance(user);
             editProfileFragment.show(getSupportFragmentManager(), "edit_profile");
         });
+
+        // click profile image to upload new image
+        uploadProfileImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        });
+
+
 
         deleteProfileButton.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
@@ -172,5 +180,67 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
             startActivity(intent);
             finish();
         });
+    }
+    /**
+     * Handles the result of the image picker. If a valid image was selected,
+     * displays it in the profile image view, uploads it to Firebase Storage,
+     * and updates the current user.
+     *
+     * @param requestCode the request code from startActivityForResult
+     * @param resultCode  the result code returned by the image picker activity
+     * @param data        the intent containing the selected image URI
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            Uri imageUri = data.getData(); // the image the user picked
+            Glide.with(this).load(imageUri).circleCrop().into(profileImageView); // load the image into the ImageView
+            ImageService.uploadProfileImage(imageUri, this);
+            assert imageUri != null;
+            // update current user
+            user.setProfileImage(imageUri.toString());
+            CurrentUser.set(user);
+        }
+    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        // reload profile image from firebase storage
+//        Glide.with(this).load(user.getProfileImage()).circleCrop().into(profileImageView);
+//    }
+    /**
+     * Loads the current user's profile data and populates the UI fields,
+     * including name, username, description, email, phone, location,
+     * and profile image.
+     */
+    private void loadUser(){
+        user = CurrentUser.get();
+
+        TextView profileNames = findViewById(R.id.ProfileNames);
+        profileNames.setText(user.getName());
+
+        usernameTextView = findViewById(R.id.Username);
+        usernameTextView.setText(user.getUsername());
+
+        descriptionTextView = findViewById(R.id.descriptionText);
+        descriptionTextView.setText(user.getDescription());
+
+        emailTextView = findViewById(R.id.ProfileEmail);
+        emailTextView.setText("Email: " + user.getEmail());
+
+        phoneTextView = findViewById(R.id.ProfilePhone);
+        phoneTextView.setText("Phone: " + user.getPhone());
+
+        locationTextView = findViewById(R.id.ProfileLocation);
+        locationTextView.setText("Location: " + user.getLocation());
+
+        profileImageView = findViewById(R.id.profileImageView);
+        if (user.getProfileImage() == null) {
+            profileImageView.setImageResource(R.drawable.default_avatar);// set as default avatar for now as user has not profile picture
+        }
+        else Glide.with(this).load(user.getProfileImage()).circleCrop().into(profileImageView);
     }
 }

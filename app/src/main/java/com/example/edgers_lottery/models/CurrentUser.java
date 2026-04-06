@@ -1,5 +1,7 @@
 package com.example.edgers_lottery.models;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 /**
  * Singleton helper class that holds the currently authenticated user in memory.
  * Provides static methods to set, retrieve, and clear the global {@link User} instance
@@ -32,5 +34,13 @@ public class CurrentUser {
      */
     public static void clear() {
         instance = null;
+    }
+    /**
+     * Retrieves the current logged-in user's UID.
+     *
+     * @return the String UID of the current user, or null if no user is logged in using the Firebase Auth
+     */
+    public static String getUid() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 }

@@ -4,13 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/edit_interests_text"
+    <CheckBox
+        android:id="@+id/capacity_checkbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Interests"
-        android:inputType="text" />
+        android:text="Available Capacity" />
     <EditText
         android:id="@+id/edit_availability_start_text"
         android:layout_width="match_parent"

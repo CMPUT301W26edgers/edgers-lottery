@@ -1,6 +1,7 @@
 package com.example.edgers_lottery.models;
 
 import java.io.Serializable;
+import java.net.URI;
 
 /**
  * Model class representing a user account in the Edgers Lottery system.
@@ -32,15 +33,26 @@ public class User implements Serializable {
 
     /** Role assigned to this user, corresponding to {@link Role}. */
     private String role;
-
+    /** This is a URI that holds a reference to the users profile image. */
+    private String profileImage;
     /**
      * Enum representing the possible roles a user can hold.
      */
     public static enum Role {
-        ENTRANT,
-        ORGANIZER,
+        USER,
         ADMIN
     }
+
+    /**
+     * Indicates whether the current user is an organizer.
+     */
+    private boolean isOrganizer;
+
+    /** Latitude coordinate for waitlist mapping. */
+    private Double latitude;
+
+    /** Longitude coordinate for waitlist mapping. */
+    private Double longitude;
 
     /**
      * Required no-argument constructor for Firestore deserialization.
@@ -134,10 +146,10 @@ public class User implements Serializable {
     }
 
     /**
-     * @return the user's display username, or {@code "no username"} if not set
+     * @return the user's display username, or {@code ""} if not set
      */
     public String getUsername() {
-        return username != null ? username : "no username";
+        return username != null ? username : "";
     }
 
     /**
@@ -173,5 +185,53 @@ public class User implements Serializable {
      */
     public void setRole(String role) {
         this.role = role;
+    }
+    /**
+     * @return string url to user's profile image
+     */
+    public String getProfileImage() {
+        return profileImage;
+    }
+    /**
+     * @param profileImage the image url to set
+     */
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public boolean isOrganizer() {
+        return isOrganizer;
+    }
+
+    public void setOrganizer(boolean organizer) {
+        isOrganizer = organizer;
+    }
+
+    /**
+     * @return the user's latitude coordinate
+     */
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    /**
+     * @param latitude the latitude coordinate to set
+     */
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    /**
+     * @return the user's longitude coordinate
+     */
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    /**
+     * @param longitude the longitude coordinate to set
+     */
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

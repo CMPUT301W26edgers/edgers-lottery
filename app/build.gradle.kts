@@ -61,6 +61,9 @@ dependencies {
     androidTestImplementation ("androidx.test.ext:junit:1.1.5")
     androidTestImplementation ("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    // this is for the storage of images
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.google.firebase:firebase-storage")
 
     // CameraX
     implementation("androidx.camera:camera-core:1.3.1")
@@ -70,4 +73,8 @@ dependencies {
 
     // ML Kit Barcode / QR scanning
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+    // Organizer's Events Map Of Waitlist Entrants
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 }
