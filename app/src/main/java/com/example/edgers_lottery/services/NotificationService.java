@@ -25,6 +25,7 @@ public class NotificationService {
     private static final String TYPE_PRIVATE_INVITE = "PRIVATE_EVENT_INVITE";
     private static final String TYPE_DECLINED_INVITE = "CANCELLED";
     private static final String TYPE_WAITLIST_UPDATE = "WAITLIST_UPDATE";
+    private static final String TYPE_CO_ORGANIZER_INVITE = "CO_ORGANIZER_INVITE";
 
     /**
      * Appends a notification to each selected and rejected user's document.
@@ -124,5 +125,17 @@ public class NotificationService {
         for (WaitlistUser user : waitlistUsers) {
             appendNotification(db, user.getUserId(), eventId, eventName, TYPE_WAITLIST_UPDATE);
         }
+    }
+
+    /**
+     * Appends a CO_ORGANIZER_INVITE notification for a single user.
+     * Called by EventEntrantOrganizer when an organizer assigns an entrant as co-organizer.
+     *
+     * @param userId    the user who has been assigned as co-organizer
+     * @param eventId   the event they have been assigned to
+     * @param eventName display name of the event
+     */
+    public static void sendCoOrganizerInviteNotification(String userId, String eventId, String eventName) {
+        appendNotification(FirebaseFirestore.getInstance(), userId, eventId, eventName, TYPE_CO_ORGANIZER_INVITE);
     }
 }

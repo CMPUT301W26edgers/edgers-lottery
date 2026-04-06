@@ -116,10 +116,15 @@ public class EventWaitlistTab extends AppCompatActivity {
 
     /**
      * Initializes the RecyclerView with a {@link WaitlistAdapter} and a linear layout manager.
+     * Passes a long-click listener to support co-organizer assignment (US 02.09.01).
      */
     private void setupRecyclerView() {
         waitlistUsers = new ArrayList<>();
-        adapter = new WaitlistAdapter(waitlistUsers, this::removeFromWaitlist);
+        adapter = new WaitlistAdapter(
+                waitlistUsers,
+                this::removeFromWaitlist,
+                this::onWaitlisterLongPressed  // US 02.09.01
+        );
         rvWaitlist.setLayoutManager(new LinearLayoutManager(this));
         rvWaitlist.setAdapter(adapter);
     }
@@ -379,5 +384,104 @@ public class EventWaitlistTab extends AppCompatActivity {
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to notify: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Called when a waitlist row is long-pressed.
+     * Shows a confirmation dialog before assigning the user as co-organizer.
+     *
+     * @param user the long-pressed {@link WaitlistUser}
+     */
+    private void onWaitlisterLongPressed(WaitlistUser user) {
+        new AlertDialog.Builder(this)
+                .setTitle("Assign Co-Organizer?")
+                .setMessage(user.getName() + " will be made a co-organizer for this event "
+                        + "and removed from the waitlist.")
+                .setPositiveButton("Confirm", (dialog, which) -> assignCoOrganizer(user))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    /**
+     * Assigns the given user as a co-organizer by:
+     *  1. Checking they are not already a co-organizer for this event.
+     *  2. Adding their ID to the event's {@code coOrganizers} array.
+     *  3. Setting {@code isOrganizer = true} on their user document.
+     *  4. Sending a CO_ORGANIZER_INVITE notification to the user.
+     *  5. Removing them from the event's {@code waitingList}.
+     *
+     * @param user the {@link WaitlistUser} to promote
+     */
+    private void assignCoOrganizer(WaitlistUser user) {
+        String userId = user.getUserId();
+
+        // Step 1 — guard: check not already a co-organizer for this event
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(eventDoc -> {
+                    List<String> coOrgs = (List<String>) eventDoc.get("coOrganizers");
+                    if (coOrgs != null && coOrgs.contains(userId)) {
+                        Toast.makeText(this, user.getName() + " is already a co-organizer", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Step 2 — add to coOrganizers on the event
+                    db.collection("events").document(eventId)
+                            .update("coOrganizers", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener(unused1 -> {
+
+                                // Step 3 — set isOrganizer = true on the user document
+                                db.collection("users").document(userId)
+                                        .update("isOrganizer", true)
+                                        .addOnSuccessListener(unused2 -> {
+
+                                            // Step 4 — send co-organizer invite notification
+                                            db.collection("events").document(eventId).get()
+                                                    .addOnSuccessListener(doc -> {
+                                                        String eventName = doc.getString("name");
+                                                        NotificationService.sendCoOrganizerInviteNotification(
+                                                                userId,
+                                                                eventId,
+                                                                eventName
+                                                        );
+                                                    });
+
+                                            // Step 5 — remove from waitingList
+                                            db.collection("events").document(eventId)
+                                                    .update("waitingList", FieldValue.arrayRemove(
+                                                            getUserMapFromWaitlist(user)))
+                                                    .addOnSuccessListener(unused3 ->
+                                                            Toast.makeText(this,
+                                                                    user.getName() + " is now a co-organizer",
+                                                                    Toast.LENGTH_SHORT).show())
+                                                    .addOnFailureListener(e ->
+                                                            Toast.makeText(this,
+                                                                    "Co-organizer assigned but waitlist removal failed",
+                                                                    Toast.LENGTH_SHORT).show());
+                                        })
+                                        .addOnFailureListener(e ->
+                                                Toast.makeText(this,
+                                                        "Assigned co-organizer but could not update user record: " + e.getMessage(),
+                                                        Toast.LENGTH_SHORT).show());
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to assign co-organizer: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Could not load event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Builds a minimal user map matching the waitingList schema from a {@link WaitlistUser}.
+     * Used to identify and remove the correct entry from the Firestore waitingList array.
+     *
+     * @param user the {@link WaitlistUser} to convert
+     * @return a map containing the user's id, name, and profileImage
+     */
+    private Map<String, Object> getUserMapFromWaitlist(WaitlistUser user) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id",           user.getUserId());
+        map.put("name",         user.getName());
+        map.put("profileImage", user.getProfileImage());
+        return map;
     }
 }
