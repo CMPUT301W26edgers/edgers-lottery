@@ -12,10 +12,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.WaitlistUser;
 import com.example.edgers_lottery.models.WaitlistAdapter;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 /**
  * Activity that displays the entrant management screen for an organizer.
@@ -31,9 +33,10 @@ public class EventEntrantOrganizer extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventId;
     private List<Map<String, Object>> invitedUsers = new ArrayList<>();
-    private List<Map<String, Object>> allinvitedUsers = new ArrayList<>();
+    private List<Map<String, Object>> AllInvitedUsers = new ArrayList<>();
     private List<Map<String, Object>> declinedUsers = new ArrayList<>();
     private List<Map<String, Object>> acceptedUsers = new ArrayList<>();
+    private String currentView = "allInvited";
 
 
     /**
@@ -67,9 +70,9 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                         List<Map<String, Object>> rawAcceptedUsers =
                                 (List<Map<String, Object>>) doc.get("entrants");
                         if (rawAllInvitedUsers != null) {
-                            allinvitedUsers = rawAllInvitedUsers;
+                            AllInvitedUsers = rawAllInvitedUsers;
                         } else {
-                            allinvitedUsers = new ArrayList<>();
+                            AllInvitedUsers = new ArrayList<>();
                         }
                         if (rawDeclinedUsers != null) {
                             declinedUsers = rawDeclinedUsers;
@@ -141,6 +144,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         Button BtnCancelled = findViewById(R.id.BtnCancelled);
         Button BtnTotal = findViewById(R.id.BtnTotal);
         BtnTotal.setOnClickListener(v-> {
+            currentView = "accepted";
             entrantUsers.clear();
 
             for (Map<String, Object> userMap : acceptedUsers) {
@@ -153,9 +157,10 @@ public class EventEntrantOrganizer extends AppCompatActivity {
             tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
         });
         BtnChosen.setOnClickListener(v-> {
+            currentView = "allInvited";
             entrantUsers.clear();
 
-            for (Map<String, Object> userMap : allinvitedUsers) {
+            for (Map<String, Object> userMap : AllInvitedUsers) {
                 String userId = (String) userMap.get("id");
                 String name = (String) userMap.get("name");
                 String imageUrl = (String) userMap.get("profileImage");
@@ -166,6 +171,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
 
         });
         BtnCancelled.setOnClickListener(v->{
+            currentView = "declined";
             entrantUsers.clear();
             for (Map<String, Object> userMap : declinedUsers) {
                 String userId = (String) userMap.get("id");
@@ -180,7 +186,13 @@ public class EventEntrantOrganizer extends AppCompatActivity {
 
     private void setupRecyclerView() {
         entrantUsers = new ArrayList<>();
-        adapter = new WaitlistAdapter(entrantUsers, this::removeFromEntrants);
+        adapter = new WaitlistAdapter(entrantUsers, (user, position) -> {
+            if ("accepted".equals(currentView)) {
+                removeFromEntrants(user, position);
+            } else {
+                Toast.makeText(this, "You can only move users from the accepted list.", Toast.LENGTH_SHORT).show();
+            }
+        });
         rvEntrants.setLayoutManager(new LinearLayoutManager(this));
         rvEntrants.setAdapter(adapter);
     }
@@ -194,7 +206,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                         return;
                     }
                     if (documentSnapshot != null && documentSnapshot.exists()) {
-                        List<Object> entrantsRaw = (List<Object>) documentSnapshot.get("waitingList");
+                        List<Object> entrantsRaw = (List<Object>) documentSnapshot.get("AllInvitedUsers");
                         entrantUsers.clear();
                         if (entrantsRaw != null) {
                             for (Object item : entrantsRaw) {
@@ -212,37 +224,80 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                     }
                 });
     }
-
     private void removeFromEntrants(WaitlistUser user, int position) {
         db.collection("events")
                 .document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    List<Object> entrantsRaw = new ArrayList<>((List<Object>) documentSnapshot.get("waitingList"));
-                    if (entrantsRaw != null) {
-                        for (int i = 0; i < entrantsRaw.size(); i++) {
-                            Object item = entrantsRaw.get(i);
-                            if (item instanceof java.util.Map) {
-                                if (user.getUserId().equals(((java.util.Map<?, ?>) item).get("id"))) {
-                                    entrantsRaw.remove(i);
-                                    break;
-                                }
-                            }
-                        }
-
-                        db.collection("events")
-                                .document(eventId)
-                                .update("waitingList", entrantsRaw)
-                                .addOnSuccessListener(aVoid -> {
-                                    entrantUsers.remove(position);
-                                    adapter.notifyItemRemoved(position);
-                                    tvEntrantCount.setText("Entrants for Event: " + entrantUsers.size());
-                                    Toast.makeText(this, "User removed from entrants", Toast.LENGTH_SHORT).show();
-                                })
-                                .addOnFailureListener(err -> {
-                                    Toast.makeText(this, "Failed to remove user: " + err.getMessage(), Toast.LENGTH_SHORT).show();
-                                });
+                    if (!documentSnapshot.exists()) {
+                        Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        return;
                     }
+
+                    List<Map<String, Object>> entrants =
+                            (List<Map<String, Object>>) documentSnapshot.get("entrants");
+                    List<Map<String, Object>> declined =
+                            (List<Map<String, Object>>) documentSnapshot.get("declinedUsers");
+
+                    if (entrants == null) entrants = new ArrayList<>();
+                    if (declined == null) declined = new ArrayList<>();
+                    final List<Map<String, Object>> finalEntrants = entrants;
+                    final List<Map<String, Object>> finalDeclined = declined;
+
+                    Map<String, Object> movedUser = null;
+
+                    for (int i = 0; i < entrants.size(); i++) {
+                        Map<String, Object> userMap = entrants.get(i);
+                        if (user.getUserId().equals(userMap.get("id"))) {
+                            movedUser = userMap;
+                            entrants.remove(i);
+                            break;
+                        }
+                    }
+
+                    if (movedUser == null) {
+                        Toast.makeText(this, "User not found in accepted list", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    boolean alreadyDeclined = false;
+                    for (Map<String, Object> declinedUser : declined) {
+                        if (user.getUserId().equals(declinedUser.get("id"))) {
+                            alreadyDeclined = true;
+                            break;
+                        }
+                    }
+
+                    if (!alreadyDeclined) {
+                        declined.add(movedUser);
+                        //declined.add(movedUser);
+                    }
+
+                    db.collection("events")
+                            .document(eventId)
+                            .update(
+                                    "entrants", finalEntrants,
+                                    "declinedUsers", finalDeclined
+                            )
+                            .addOnSuccessListener(aVoid -> {
+                                acceptedUsers.clear();
+                                acceptedUsers.addAll(finalEntrants);
+
+                                declinedUsers.clear();
+                                declinedUsers.addAll(finalDeclined);
+
+                                entrantUsers.remove(position);
+                                adapter.notifyItemRemoved(position);
+
+                                tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
+                                Toast.makeText(this, "User moved to declined", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(err -> {
+                                Toast.makeText(this, "Failed to update user: " + err.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(err -> {
+                    Toast.makeText(this, "Failed to load event: " + err.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 }
