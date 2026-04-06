@@ -138,16 +138,10 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         Button BtnChosen    = findViewById(R.id.BtnChosen);
         Button BtnCancelled = findViewById(R.id.BtnCancelled);
         Button BtnTotal = findViewById(R.id.BtnTotal);
-        BtnTotal.setOnClickListener(v-> {
-            currentView = "accepted";
-            entrantUsers.clear();
 
-            for (Map<String, Object> userMap : acceptedUsers) {
-                tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
-            }
-        });
 
         BtnTotal.setOnClickListener(v -> {
+            currentView = "accepted";
             entrantUsers.clear();
             for (Map<String, Object> userMap : acceptedUsers) {
                 entrantUsers.add(new WaitlistUser(
@@ -188,7 +182,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
     private void setupRecyclerView() {
         entrantUsers = new ArrayList<>();
         adapter = new WaitlistAdapter(entrantUsers, (user, position) -> {
-            if ("accepted".equals(currentView)) {
+            if ("allInvited".equals(currentView)) {
                 removeFromEntrants(user, position);
             } else {
                 Toast.makeText(this, "You can only move users from the accepted list.", Toast.LENGTH_SHORT).show();
@@ -246,29 +240,29 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                         return;
                     }
 
-                    List<Map<String, Object>> entrants =
-                            (List<Map<String, Object>>) documentSnapshot.get("entrants");
+                    List<Map<String, Object>> allInvited =
+                            (List<Map<String, Object>>) documentSnapshot.get("AllInvitedUsers");
                     List<Map<String, Object>> declined =
                             (List<Map<String, Object>>) documentSnapshot.get("declinedUsers");
 
-                    if (entrants == null) entrants = new ArrayList<>();
+                    if (allInvited  == null) allInvited  = new ArrayList<>();
                     if (declined == null) declined = new ArrayList<>();
-                    final List<Map<String, Object>> finalEntrants = entrants;
+                    final List<Map<String, Object>> finalAllInvited  = allInvited;
                     final List<Map<String, Object>> finalDeclined = declined;
 
                     Map<String, Object> movedUser = null;
 
-                    for (int i = 0; i < entrants.size(); i++) {
-                        Map<String, Object> userMap = entrants.get(i);
+                    for (int i = 0; i < allInvited.size(); i++) {
+                        Map<String, Object> userMap = allInvited.get(i);
                         if (user.getUserId().equals(userMap.get("id"))) {
                             movedUser = userMap;
-                            entrants.remove(i);
+                            allInvited.remove(i);
                             break;
                         }
                     }
 
                     if (movedUser == null) {
-                        Toast.makeText(this, "User not found in accepted list", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "User not found in AllInvitedUsers list", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -288,12 +282,12 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                     db.collection("events")
                             .document(eventId)
                             .update(
-                                    "entrants", finalEntrants,
+                                    "AllInvitedUsers", finalAllInvited,
                                     "declinedUsers", finalDeclined
                             )
                             .addOnSuccessListener(aVoid -> {
-                                acceptedUsers.clear();
-                                acceptedUsers.addAll(finalEntrants);
+                                AllInvitedUsers.clear();
+                                AllInvitedUsers.addAll(finalAllInvited);
 
                                 declinedUsers.clear();
                                 declinedUsers.addAll(finalDeclined);
