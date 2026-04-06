@@ -1,6 +1,9 @@
 package com.example.edgers_lottery.services;
 
+import android.util.Log;
+
 import com.example.edgers_lottery.models.User;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -21,7 +24,9 @@ public class NotificationService {
     private static final String TYPE_NOT_SELECTED = "NOT_SELECTED";
     private static final String TYPE_JOINED_WAITLIST = "JOINED_WAITLIST";
     private static final String TYPE_PRIVATE_INVITE = "PRIVATE_EVENT_INVITE";
-
+    private static final String STATUS_PENDING = "pending";
+    private static final String STATUS_ACCEPTED = "accepted";
+    private static final String STATUS_DECLINED = "declined";
     /**
      * Appends a notification to each selected and rejected user's document.
      * Called by LotteryService once the lottery resolves.
@@ -74,12 +79,26 @@ public class NotificationService {
     }
 
     public static void sendPrivateEventInvite(String userId, String eventId, String eventName) {
-        appendNotification(
-                FirebaseFirestore.getInstance(),
-                userId,
-                eventId,
-                eventName,
-                TYPE_PRIVATE_INVITE
-        );
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> notificationEntry = new HashMap<>();
+        notificationEntry.put("eventId", eventId);
+        notificationEntry.put("eventName", eventName);
+        notificationEntry.put("type", TYPE_PRIVATE_INVITE);
+        notificationEntry.put("timestamp", Timestamp.now());
+        notificationEntry.put("isRead", false);
+        notificationEntry.put("status", STATUS_PENDING);
+        notificationEntry.put("message", "You have been invited to join the waitlist for this event.");
+
+        Map<String, Object> update = new HashMap<>();
+        update.put("notifications", FieldValue.arrayUnion(notificationEntry));
+
+        db.collection(COLLECTION).document(userId)
+                .set(update, SetOptions.merge())
+                .addOnSuccessListener(unused ->
+                        Log.d("NotificationService", "PRIVATE_EVENT_INVITE notif written for " + userId))
+                .addOnFailureListener(e ->
+                        Log.e("NotificationService", "Failed PRIVATE_EVENT_INVITE notif for " + userId, e));
     }
+
 }
