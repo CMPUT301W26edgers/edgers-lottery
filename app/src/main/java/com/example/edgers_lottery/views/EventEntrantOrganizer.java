@@ -403,7 +403,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
 
                                 // Step 2 — set isOrganizer = true on the user document
                                 db.collection("users").document(userId)
-                                        .update("isOrganizer", true)
+                                        .update("organizer", true)
                                         .addOnSuccessListener(unused2 ->
 
                                                 // Step 3 — remove from waitingList

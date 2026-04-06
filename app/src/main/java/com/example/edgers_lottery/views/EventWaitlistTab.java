@@ -379,7 +379,7 @@ public class EventWaitlistTab extends AppCompatActivity {
 
                                 // Step 3 — set isOrganizer = true on the user document
                                 db.collection("users").document(userId)
-                                        .update("isOrganizer", true)
+                                        .update("organizer", true)
                                         .addOnSuccessListener(unused2 -> {
 
                                             // Step 4 — remove the full matching entry from waitingList
