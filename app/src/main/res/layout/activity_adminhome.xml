@@ -43,7 +43,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="#F5F0FF"
             android:contentDescription="@string/home"
             app:srcCompat="@drawable/home_selected" />
 
@@ -52,7 +52,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="#F5F0FF"
             android:contentDescription="@string/qrCode"
             app:srcCompat="@drawable/camera" />
 
@@ -61,7 +61,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="#F5F0FF"
             android:contentDescription="@string/profile"
             app:srcCompat="@drawable/profile" />
     </LinearLayout>
