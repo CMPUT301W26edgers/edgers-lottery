@@ -5,19 +5,21 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="12dp"
     android:layout_marginVertical="6dp"
-    android:background="@android:color/white"
+    android:background="#EFE8FD"
     android:elevation="4dp">
 
     <!-- Event Poster (full width image at top) -->
     <ImageView
         android:id="@+id/event_poster"
         android:layout_width="400dp"
-        android:layout_height="160dp"
+        android:layout_height="200dp"
         android:scaleType="centerCrop"
+        android:tint="#EDE7FB"
+        android:tintMode="multiply"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/default_avatar" />
+        app:srcCompat="@drawable/blank_event" />
 
     <!-- Event Title -->
     <TextView
@@ -28,9 +30,9 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="12dp"
         android:text="Title"
+        android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/event_poster" />
@@ -44,10 +46,10 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="12dp"
         android:text="☆ Organizer"
-        android:textSize="16sp"
         android:textColor="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/event_text" />
 
     <!-- Date -->
@@ -59,10 +61,10 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="12dp"
         android:text="📅 Date"
-        android:textSize="16sp"
         android:textColor="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/organizer_text" />
 
     <!-- Registration End -->
@@ -75,11 +77,11 @@
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="12dp"
         android:text="⏱ Registration ends: X"
-        android:textSize="16sp"
         android:textColor="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/date_text"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

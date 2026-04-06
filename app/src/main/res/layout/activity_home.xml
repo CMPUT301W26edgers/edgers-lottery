@@ -74,8 +74,7 @@
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/cardview_light_background"
-            android:backgroundTint="#F5F5F5"
+            android:backgroundTint="#DBC5FF"
             android:iconifiedByDefault="false"
             android:queryHint="Search events..."
             app:cornerRadius="@dimen/cardview_default_radius" />
@@ -166,6 +165,7 @@
         android:id="@+id/view_switcher"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#F2ECFF"
         app:layout_constraintBottom_toTopOf="@+id/action_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -176,7 +176,8 @@
             android:layout_width="match_parent"
             android:layout_height="580dp"
             android:layout_marginHorizontal="1dp"
-            android:visibility="gone" />
+            android:background="#F2ECFF"
+            android:visibility="visible" />
 
         <com.yuyakaido.android.cardstackview.CardStackView
             android:id="@+id/card_stack_view"
