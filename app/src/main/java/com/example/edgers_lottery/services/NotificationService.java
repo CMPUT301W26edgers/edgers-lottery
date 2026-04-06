@@ -4,12 +4,14 @@ import android.util.Log;
 
 import com.example.edgers_lottery.models.User;
 import com.google.firebase.Timestamp;
+import com.example.edgers_lottery.models.WaitlistUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +29,9 @@ public class NotificationService {
     private static final String STATUS_PENDING = "pending";
     private static final String STATUS_ACCEPTED = "accepted";
     private static final String STATUS_DECLINED = "declined";
+    private static final String TYPE_DECLINED_INVITE = "CANCELLED";
+    private static final String TYPE_WAITLIST_UPDATE = "WAITLIST_UPDATE";
+
     /**
      * Appends a notification to each selected and rejected user's document.
      * Called by LotteryService once the lottery resolves.
@@ -60,22 +65,34 @@ public class NotificationService {
      */
     private static void appendNotification(FirebaseFirestore db, String userId,
                                            String eventId, String eventName, String type) {
-        Map<String, Object> notificationEntry = new HashMap<>();
-        notificationEntry.put("eventId",   eventId);
-        notificationEntry.put("eventName", eventName);
-        notificationEntry.put("type",      type);
-        notificationEntry.put("timestamp", com.google.firebase.Timestamp.now());
-        notificationEntry.put("isRead",    false);
+        // Check if user has notifications enabled before writing
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(userDoc -> {
+                    if (userDoc.exists()) {
+                        Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
+                        // If field is null it means existing user before feature — default to true
+                        if (Boolean.FALSE.equals(notificationsEnabled)) {
+                            android.util.Log.d("NotificationService", "Notifications disabled for " + userId + ", skipping");
+                            return;
+                        }
+                    }
+                    Map<String, Object> notificationEntry = new HashMap<>();
+                    notificationEntry.put("eventId",   eventId);
+                    notificationEntry.put("eventName", eventName);
+                    notificationEntry.put("type",      type);
+                    notificationEntry.put("timestamp", com.google.firebase.Timestamp.now());
+                    notificationEntry.put("isRead",    false);
 
-        Map<String, Object> update = new HashMap<>();
-        update.put("notifications", FieldValue.arrayUnion(notificationEntry));
+                    Map<String, Object> update = new HashMap<>();
+                    update.put("notifications", FieldValue.arrayUnion(notificationEntry));
 
-        db.collection(COLLECTION).document(userId)
-                .set(update, SetOptions.merge())
-                .addOnSuccessListener(unused ->
-                        android.util.Log.d("NotificationService", type + " notif written for " + userId))
-                .addOnFailureListener(e ->
-                        android.util.Log.e("NotificationService", "Failed " + type + " notif for " + userId, e));
+                    db.collection(COLLECTION).document(userId)
+                            .set(update, SetOptions.merge())
+                            .addOnSuccessListener(unused ->
+                                    android.util.Log.d("NotificationService", type + " notif written for " + userId))
+                            .addOnFailureListener(e ->
+                                    android.util.Log.e("NotificationService", "Failed " + type + " notif for " + userId, e));
+                });
     }
 
     public static void sendPrivateEventInvite(String userId, String eventId, String eventName) {
@@ -101,4 +118,30 @@ public class NotificationService {
                         Log.e("NotificationService", "Failed PRIVATE_EVENT_INVITE notif for " + userId, e));
     }
 
+    /**
+     * Appends a CANCELLED notification for a single user.
+     * Called by EventUserChoice when a user declines their event invitation.
+     *
+     * @param userId    the user who declined
+     * @param eventId   the event they declined
+     * @param eventName display name of the event
+     */
+    public static void sendCancelledNotification(String userId, String eventId, String eventName) {
+        appendNotification(FirebaseFirestore.getInstance(), userId, eventId, eventName, TYPE_DECLINED_INVITE);
+    }
+
+    /**
+     * Sends a WAITLIST_UPDATE notification to all users on the waitlist.
+     * Called by EventWaitlistTab when the organizer clicks Notify Waitlisters.
+     *
+     * @param waitlistUsers list of users currently on the waitlist
+     * @param eventId       the event ID
+     * @param eventName     display name of the event
+     */
+    public static void sendWaitlistUpdateNotifications(List<WaitlistUser> waitlistUsers, String eventId, String eventName) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        for (WaitlistUser user : waitlistUsers) {
+            appendNotification(db, user.getUserId(), eventId, eventName, TYPE_WAITLIST_UPDATE);
+        }
+    }
 }

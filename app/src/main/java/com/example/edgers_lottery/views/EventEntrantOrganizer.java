@@ -5,6 +5,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,7 +14,9 @@ import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.WaitlistUser;
 import com.example.edgers_lottery.models.WaitlistAdapter;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,10 @@ import java.util.Date;
  * Activity that displays the entrant management screen for an organizer.
  * Provides navigation to the event details, waitlist, and edit event screens.
  * Requires an {@code event_id} intent extra to identify the current event.
+ *
+ * Long-pressing a user row lets the organizer assign them as a co-organizer
+ * (US 02.09.01), which adds them to the event's coOrganizers list and removes
+ * them from the waitlist pool.
  */
 public class EventEntrantOrganizer extends AppCompatActivity {
 
@@ -69,21 +76,9 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                                 (List<Map<String, Object>>) doc.get("declinedUsers");
                         List<Map<String, Object>> rawAcceptedUsers =
                                 (List<Map<String, Object>>) doc.get("entrants");
-                        if (rawAllInvitedUsers != null) {
-                            AllInvitedUsers = rawAllInvitedUsers;
-                        } else {
-                            AllInvitedUsers = new ArrayList<>();
-                        }
-                        if (rawDeclinedUsers != null) {
-                            declinedUsers = rawDeclinedUsers;
-                        } else {
-                            declinedUsers = new ArrayList<>();
-                        }
-                        if (rawAcceptedUsers != null) {
-                            acceptedUsers = rawAcceptedUsers;
-                        } else {
-                            acceptedUsers = new ArrayList<>();
-                        }
+                        allinvitedUsers = rawAllInvitedUsers != null ? rawAllInvitedUsers : new ArrayList<>();
+                        declinedUsers   = rawDeclinedUsers   != null ? rawDeclinedUsers   : new ArrayList<>();
+                        acceptedUsers   = rawAcceptedUsers   != null ? rawAcceptedUsers   : new ArrayList<>();
                     } else {
                         Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
                     }
@@ -94,9 +89,8 @@ public class EventEntrantOrganizer extends AppCompatActivity {
      * Binds views and attaches a click listener to the back button.
      */
     private void initViews() {
-        rvEntrants = findViewById(R.id.listEntrants);
+        rvEntrants     = findViewById(R.id.listEntrants);
         tvEntrantCount = findViewById(R.id.entrantCount);
-
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
     }
 
@@ -124,34 +118,37 @@ public class EventEntrantOrganizer extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Add this to EventDetailsOrganizer, EventWaitlistTab, and EventEntrantOrganizer
         Button mapBtn = findViewById(R.id.mapBtn);
         if (mapBtn != null) {
             mapBtn.setOnClickListener(v -> {
                 finish();
                 Intent intent = new Intent(this, OrganizerWaitlistMapActivity.class);
-                intent.putExtra("event_id", eventId); // Make sure the variable name matches their intent key
+                intent.putExtra("event_id", eventId);
                 startActivity(intent);
             });
         }
+
         Button commentsBtn = findViewById(R.id.commentsBtn);
         commentsBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, EventCommentsOrganizer.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
-        Button BtnChosen = findViewById(R.id.BtnChosen);
+
+        Button BtnChosen    = findViewById(R.id.BtnChosen);
         Button BtnCancelled = findViewById(R.id.BtnCancelled);
         Button BtnTotal = findViewById(R.id.BtnTotal);
         BtnTotal.setOnClickListener(v-> {
             currentView = "accepted";
             entrantUsers.clear();
 
+        BtnTotal.setOnClickListener(v -> {
+            entrantUsers.clear();
             for (Map<String, Object> userMap : acceptedUsers) {
-                String userId = (String) userMap.get("id");
-                String name = (String) userMap.get("name");
-                String imageUrl = (String) userMap.get("profileImage");
-                entrantUsers.add(new WaitlistUser(userId, name, imageUrl));
+                entrantUsers.add(new WaitlistUser(
+                        (String) userMap.get("id"),
+                        (String) userMap.get("name"),
+                        (String) userMap.get("profileImage")));
             }
             adapter.notifyDataSetChanged();
             tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
@@ -168,16 +165,15 @@ public class EventEntrantOrganizer extends AppCompatActivity {
             }
             adapter.notifyDataSetChanged();
             tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
-
         });
         BtnCancelled.setOnClickListener(v->{
             currentView = "declined";
             entrantUsers.clear();
             for (Map<String, Object> userMap : declinedUsers) {
-                String userId = (String) userMap.get("id");
-                String name = (String) userMap.get("name");
-                String imageUrl = (String) userMap.get("profileImage");
-                entrantUsers.add(new WaitlistUser(userId, name, imageUrl));
+                entrantUsers.add(new WaitlistUser(
+                        (String) userMap.get("id"),
+                        (String) userMap.get("name"),
+                        (String) userMap.get("profileImage")));
             }
             adapter.notifyDataSetChanged();
             tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
@@ -197,6 +193,10 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         rvEntrants.setAdapter(adapter);
     }
 
+    /**
+     * Loads confirmed entrants from the "entrants" array in Firestore.
+     * Each entry is a full user object; we read id, name, and profileImage.
+     */
     private void loadEntrants() {
         db.collection("events")
                 .document(eventId)
@@ -210,12 +210,12 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                         entrantUsers.clear();
                         if (entrantsRaw != null) {
                             for (Object item : entrantsRaw) {
-                                if (item instanceof java.util.Map) {
-                                    java.util.Map<String, Object> userMap = (java.util.Map<String, Object>) item;
-                                    String userId = (String) userMap.get("id");
-                                    String name = (String) userMap.get("name");
-                                    String imageUrl = (String) userMap.get("profileImage");
-                                    entrantUsers.add(new WaitlistUser(userId, name, imageUrl));
+                                if (item instanceof Map) {
+                                    Map<String, Object> userMap = (Map<String, Object>) item;
+                                    entrantUsers.add(new WaitlistUser(
+                                            (String) userMap.get("id"),
+                                            (String) userMap.get("name"),
+                                            (String) userMap.get("profileImage")));
                                 }
                             }
                         }
@@ -224,6 +224,13 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                     }
                 });
     }
+
+    /**
+     * Removes a user from the "entrants" array in Firestore and updates the RecyclerView.
+     *
+     * @param user     the {@link WaitlistUser} to remove
+     * @param position the position of the user in the adapter list
+     */
     private void removeFromEntrants(WaitlistUser user, int position) {
         db.collection("events")
                 .document(eventId)
@@ -298,6 +305,111 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                 })
                 .addOnFailureListener(err -> {
                     Toast.makeText(this, "Failed to load event: " + err.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // US 02.09.01 — Assign an entrant as co-organizer
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Called when a row is long-pressed. Shows a confirmation dialog before
+     * assigning the user as a co-organizer for this event.
+     *
+     * @param user the long-pressed {@link WaitlistUser}
+     */
+    private void onEntrantLongPressed(WaitlistUser user) {
+        new AlertDialog.Builder(this)
+                .setTitle("Assign Co-Organizer?")
+                .setMessage(user.getName() + " will be made a co-organizer for this event "
+                        + "and removed from the entrant pool.")
+                .setPositiveButton("Confirm", (dialog, which) -> assignCoOrganizer(user))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    /**
+     * Assigns the given user as a co-organizer by:
+     *  1. Adding their ID to the event's {@code coOrganizers} array.
+     *  2. Setting {@code isOrganizer = true} on their user document.
+     *  3. Removing them from the event's {@code waitingList}.
+     *
+     * @param user the {@link WaitlistUser} to promote
+     */
+    private void assignCoOrganizer(WaitlistUser user) {
+        String userId = user.getUserId();
+
+        // Step 1 — guard: check not already a co-organizer for this event
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(eventDoc -> {
+                    List<String> coOrgs = (List<String>) eventDoc.get("coOrganizers");
+                    if (coOrgs != null && coOrgs.contains(userId)) {
+                        Toast.makeText(this, user.getName() + " is already a co-organizer", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Step 2 — add to coOrganizers on the event
+                    db.collection("events").document(eventId)
+                            .update("coOrganizers", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener(unused1 -> {
+
+                                // Step 3 — set isOrganizer = true on the user document
+                                db.collection("users").document(userId)
+                                        .update("isOrganizer", true)
+                                        .addOnSuccessListener(unused2 ->
+
+                                                // Step 4 — remove from waitingList
+                                                removeCoOrgFromWaitlist(user)
+                                        )
+                                        .addOnFailureListener(e ->
+                                                Toast.makeText(this,
+                                                        "Assigned co-organizer but could not update user record: " + e.getMessage(),
+                                                        Toast.LENGTH_SHORT).show());
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to assign co-organizer: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Could not load event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Removes the newly assigned co-organizer from the event's {@code waitingList}.
+     *
+     * @param user the user to remove from the waiting list
+     */
+    private void removeCoOrgFromWaitlist(WaitlistUser user) {
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    List<Object> waitingList = (List<Object>) doc.get("waitingList");
+                    if (waitingList == null || waitingList.isEmpty()) {
+                        Toast.makeText(this, user.getName() + " is now a co-organizer", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    Object entryToRemove = null;
+                    for (Object item : waitingList) {
+                        if (item instanceof Map && user.getUserId().equals(((Map<?, ?>) item).get("id"))) {
+                            entryToRemove = item;
+                            break;
+                        }
+                    }
+
+                    if (entryToRemove == null) {
+                        Toast.makeText(this, user.getName() + " is now a co-organizer", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    db.collection("events").document(eventId)
+                            .update("waitingList", FieldValue.arrayRemove(entryToRemove))
+                            .addOnSuccessListener(unused ->
+                                    Toast.makeText(this,
+                                            user.getName() + " is now a co-organizer and has been removed from the waitlist",
+                                            Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this,
+                                            "Co-organizer assigned but waitlist removal failed: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show());
                 });
     }
 }

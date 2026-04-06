@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.edgers_lottery.models.CurrentUser;
@@ -20,7 +21,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * Dialog fragment that allows a user to edit their profile information.
- * Displays editable fields for description, email, location, phone, and username.
+ * Displays editable fields for description, email, location, phone, username,
+ * and a toggle to opt in or out of receiving notifications.
  * Requires the host activity to implement {@link EditProfileDialogListener}.
  */
 public class EditProfileFragment extends DialogFragment {
@@ -61,19 +63,22 @@ public class EditProfileFragment extends DialogFragment {
          * Updates the {@link User} object with the new values and saves to Firestore.
          * Also updates the global {@link CurrentUser} instance on success.
          *
-         * @param user        the {@link User} object to update
-         * @param newDesc     the new description entered by the user
-         * @param newEmail    the new email entered by the user
-         * @param newLocation the new location entered by the user
-         * @param newPhone    the new phone number entered by the user
-         * @param newUsername the new username entered by the user
+         * @param user                 the {@link User} object to update
+         * @param newDesc              the new description entered by the user
+         * @param newEmail             the new email entered by the user
+         * @param newLocation          the new location entered by the user
+         * @param newPhone             the new phone number entered by the user
+         * @param newUsername          the new username entered by the user
+         * @param notificationsEnabled true if the user wants to receive notifications, false to opt out
          */
-        default void editUser(User user, String newDesc, String newEmail, String newLocation, String newPhone, String newUsername) {
+        default void editUser(User user, String newDesc, String newEmail, String newLocation,
+                              String newPhone, String newUsername, boolean notificationsEnabled) {
             user.setEmail(newEmail);
             user.setDescription(newDesc);
             user.setLocation(newLocation);
             user.setPhone(newPhone);
             user.setUsername(newUsername);
+            user.setNotificationsEnabled(notificationsEnabled);
             FirebaseFirestore.getInstance()
                     .collection("users")
                     .document(user.getId())
@@ -120,6 +125,7 @@ public class EditProfileFragment extends DialogFragment {
         EditText editLocation = view.findViewById(R.id.edit_location_text);
         EditText editPhone = view.findViewById(R.id.edit_phone_text);
         EditText editUsername = view.findViewById(R.id.edit_username_text);
+        SwitchCompat switchNotifications = view.findViewById(R.id.switchNotifications);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -131,19 +137,21 @@ public class EditProfileFragment extends DialogFragment {
             editLocation.setText(editingProfile.getLocation());
             editPhone.setText(editingProfile.getPhone());
             editUsername.setText(editingProfile.getUsername());
+            // Pre-populate switch with current notification preference
+            switchNotifications.setChecked(editingProfile.isNotificationsEnabled());
         }
 
         return builder
                 .setView(view)
                 .setTitle("Editing Your Profile")
                 .setNegativeButton("Cancel", null)
-                .setPositiveButton("Edit", (dialog, which) -> {
+                .setPositiveButton("Save", (dialog, which) -> {
                     assert getArguments() != null;
                     editingProfile = (User) getArguments().getSerializable("profile");
                     assert editingProfile != null;
                     String phone = editPhone.getText().toString().trim();
                     // check that phone number is 10 digits
-                    if (phone.length() != 10) { // if we want to make it not empty, we add in a condition here
+                    if (phone.length() != 10) {
                         Toast.makeText(getContext(), "Phone number must be 10 digits", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -152,7 +160,8 @@ public class EditProfileFragment extends DialogFragment {
                             editEmail.getText().toString().trim(),
                             editLocation.getText().toString().trim(),
                             editPhone.getText().toString().trim(),
-                            editUsername.getText().toString().trim());
+                            editUsername.getText().toString().trim(),
+                            switchNotifications.isChecked());
                 })
                 .create();
     }

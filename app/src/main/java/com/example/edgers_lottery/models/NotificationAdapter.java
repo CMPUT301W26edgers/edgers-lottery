@@ -82,6 +82,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 message = "You joined the waitlist for " + n.getEventName();
                 break;
 
+            case "CANCELLED":
+                message = "You have declined your invitation to " + n.getEventName();
+                break;
+            case "WAITLIST_UPDATE":
+                message = "The organizer has sent you an update for " + n.getEventName();
+                break;
             default:
                 message = n.getEventName();
         }

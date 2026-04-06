@@ -451,7 +451,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         return;
                     }
 
-                    // Get event waitlist
+                    // Get event invitedUsers instead of waitingList
                     db.collection("events")
                             .document(eventId)
                             .get()
@@ -464,12 +464,12 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                                     AllInvitedList = new ArrayList<>();
                                 }
 
-                                // ✅ Prevent duplicates (by id)
+                                // Prevent duplicates by id
                                 String newUserId = (String) userData.get("id");
 
                                 for (Map<String, Object> user : AllInvitedList) {
                                     if (newUserId.equals(user.get("id"))) {
-                                        Toast.makeText(this, "User already in waitlist", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(this, "User already invited", Toast.LENGTH_SHORT).show();
                                         return;
                                     }
                                 }
@@ -481,6 +481,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                                         .update("AllInvitedUsers", AllInvitedList)
                                         .addOnSuccessListener(unused -> {
                                             String invitedUserId = (String) userData.get("id");
+                                            android.util.Log.d("InviteDebug", "invitedUserId = " + invitedUserId);
 
                                             NotificationService.sendPrivateEventInvite(
                                                     invitedUserId,
@@ -497,6 +498,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                 );
     }
+
 
     private Bitmap generateQrCode(String content) throws WriterException {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(

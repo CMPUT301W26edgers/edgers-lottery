@@ -38,6 +38,8 @@ public class User implements Serializable {
     /**
      * Enum representing the possible roles a user can hold.
      */
+    /** Whether the user has opted in to receiving notifications. Defaults to true. */
+    private boolean notificationsEnabled = true;
     public static enum Role {
         USER,
         ADMIN
@@ -233,5 +235,19 @@ public class User implements Serializable {
      */
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    /**
+     * @return true if the user has notifications enabled, false if they have opted out
+     */
+    public boolean isNotificationsEnabled() {
+        return notificationsEnabled;
+    }
+
+    /**
+     * @param notificationsEnabled true to enable notifications, false to opt out
+     */
+    public void setNotificationsEnabled(boolean notificationsEnabled) {
+        this.notificationsEnabled = notificationsEnabled;
     }
 }
