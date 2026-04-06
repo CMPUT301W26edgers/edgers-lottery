@@ -12,11 +12,22 @@ import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.User;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Admin-only activity that displays detailed profile information for a selected user,
+ * including profile details and image.
+ * Should only be accessed for users with admin privileges.
+ */
 public class AdminUserProfileActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private TextView userprofile, name, username, role, description, email, phone, location;
     private ImageView profileImage;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes UI components and loads the selected user's profile.
+     *
+     * @param savedInstanceState previously saved instance state, or null
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +56,11 @@ public class AdminUserProfileActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
     }
 
-    // load user profile from Firestore
+    /**
+     * Retrieves and displays user data from Firestore.
+     *
+     * @param userId the Firestore document ID of the user
+     */
     private void loadUser(String userId) {
         db.collection("users")
                 .document(userId)

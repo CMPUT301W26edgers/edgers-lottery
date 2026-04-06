@@ -55,19 +55,22 @@ public class ProfileActivity extends AppCompatActivity implements EditProfileFra
      * Applies edited profile fields to the given user, persists the changes to Firestore,
      * and refreshes the displayed profile TextViews.
      *
-     * @param user        the {@link User} object to update
-     * @param newDesc     the new description entered by the user
-     * @param newEmail    the new email entered by the user
-     * @param newLocation the new location entered by the user
-     * @param newPhone    the new phone number entered by the user
-     * @param newUsername the new username entered by the user
+     * @param user                 the {@link User} object to update
+     * @param newDesc              the new description entered by the user
+     * @param newEmail             the new email entered by the user
+     * @param newLocation          the new location entered by the user
+     * @param newPhone             the new phone number entered by the user
+     * @param newUsername          the new username entered by the user
+     * @param notificationsEnabled true if the user wants to receive notifications, false to opt out
      */
-    public void editUser(User user, String newDesc, String newEmail, String newLocation, String newPhone, String newUsername) {
+    public void editUser(User user, String newDesc, String newEmail, String newLocation,
+                         String newPhone, String newUsername, boolean notificationsEnabled) {
         user.setEmail(newEmail);
         user.setDescription(newDesc);
         user.setLocation(newLocation);
         user.setPhone(newPhone);
         user.setUsername(newUsername);
+        user.setNotificationsEnabled(notificationsEnabled);
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(user.getId())

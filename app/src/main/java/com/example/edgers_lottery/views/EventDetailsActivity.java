@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.R;
@@ -33,8 +34,8 @@ import com.google.android.gms.location.LocationServices;
 
 /**
  * Activity that displays the details of a single event to an entrant.
- * Allows the current user to join or leave the event waitlist.
- * Loads event data from Firestore using the {@code eventId} passed via intent extra.
+ * Allows the current user to view event specifics, read comments, and join or leave the event waitlist.
+ * Includes admin-specific functionality for event deletion. Location data is required to join a waitlist.
  */
 public class EventDetailsActivity extends AppCompatActivity {
 
@@ -43,6 +44,9 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /** Button that navigates back to the previous screen. */
     private ImageView backButton;
+
+    /** Displays the poster of the event */
+    private ImageView eventposter;
 
     /** Displays the name of the event. */
     private TextView eventNameText;
@@ -68,10 +72,17 @@ public class EventDetailsActivity extends AppCompatActivity {
     /** Button that opens a dialog showing all current waitlist members. */
     private Button waitlistButton;
 
+    /** The URL of the poster image for the event. */
+    private String imageURL;
+
+    /** Button visible only to admins, allowing them to delete the event entirely. */
     private Button deleteButton;
+
+    /** Button that navigates the user to the dedicated comments thread for this event. */
     private Button viewCommentsButton;
 
     /** The maximum number of entrants allowed for this event. */
+
     private int capacity;
 
     /** The current number of confirmed entrants for this event. */
@@ -83,16 +94,19 @@ public class EventDetailsActivity extends AppCompatActivity {
     /** Tag used for logging within this activity. */
     private static final String TAG = "EventDetailsActivity";
 
-    /** The currently logged-in user. */
+    /** The currently logged-in user viewing the event details. */
     protected User user;
 
     /** The Firestore document ID of the event being displayed. */
     private String eventId;
 
-    /** Client used to grab device location */
+    /** Client used to retrieve the device's GPS coordinates for waitlist geolocation validation. */
     private FusedLocationProviderClient fusedLocationClient;
 
-    /** Handles the system permission pop-up for location */
+    /** * Handles the system permission pop-up for location access.
+     * If granted, immediately proceeds with fetching the location and joining the user.
+     * If denied, re-enables the join button and alerts the user.
+     */
     private final ActivityResultLauncher<String[]> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
 
@@ -113,20 +127,20 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /**
      * Initializes the activity, binds UI components, retrieves the event ID
-     * from the launching Intent, and loads the event data from Firestore.
+     * from the launching Intent, sets up admin controls, and loads the event data from Firestore.
      *
-     * @param savedInstanceState the previously saved instance state, or {@code null}
-     *                           if this is a fresh start
+     * @param savedInstanceState the previously saved instance state, or {@code null} if a fresh start.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
-        backButton = findViewById(R.id.backButton);
 
+        backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> {
             finish();
         });
+
         db = FirebaseFirestore.getInstance();
         eventNameText = findViewById(R.id.event_name);
         eventDescriptionText = findViewById(R.id.event_description);
@@ -138,30 +152,29 @@ public class EventDetailsActivity extends AppCompatActivity {
         waitlistButton = findViewById(R.id.view_waitlist);
         deleteButton = findViewById(R.id.delete_event_button);
         viewCommentsButton = findViewById(R.id.btnViewComments);
+        eventposter = findViewById(R.id.imageView2);
 
+        // Navigate to the comments section for this event
         viewCommentsButton.setOnClickListener(v -> {
             Intent intent = new Intent(EventDetailsActivity.this, EventCommentsActivity.class);
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
 
-
-        // Initialize the user
+        // Initialize the currently logged-in user and the location client
         user = CurrentUser.get();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // Check if the current user is an Admin
         if (user != null && User.Role.ADMIN.name().equals(user.getRole())) {
-            // Make the delete button visible
+            // Make the delete button visible for admins
             deleteButton.setVisibility(View.VISIBLE);
-
             // Trigger the confirmation popup when clicked
             deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog());
         }
 
+
         eventId = getIntent().getStringExtra("eventId");
-        //ImageButton backButton = findViewById(R.id.backButton);
-        //backButton.setOnClickListener(v -> finish());
 
         if (eventId != null) {
             db.collection("events").document(eventId).get()
@@ -204,7 +217,18 @@ public class EventDetailsActivity extends AppCompatActivity {
         capacity = event.getCapacity();
         entrantCount = (event.getEntrants() == null) ? 0 : event.getEntrants().size();
         eventCapacityText.setText(String.format("Capacity: %d", capacity));
+        imageURL = event.getPoster();
+        if (imageURL != null && !imageURL.isEmpty()) {
+            Glide.with(this)
+                    .load(imageURL)
+                    .placeholder(R.drawable.blankphoto)
+                    .error(R.drawable.blankphoto)
+                    .into(eventposter);
+        } else {
+            eventposter.setImageResource(R.drawable.blankphoto);
+        }
 
+        // Configure initial button state
         if (isUserInList(user.getId(), waitingList)) {
             joinButton.setText("Leave Waitlist");
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
@@ -218,33 +242,24 @@ public class EventDetailsActivity extends AppCompatActivity {
             joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
 
+        // Handle joining/leaving logic
         joinButton.setOnClickListener(v -> {
-            joinButton.setEnabled(false);
+            joinButton.setEnabled(false); // Disable to prevent spam clicking
 
             if (isUserInList(user.getId(), waitingList)) {
-                // LEAVING — no location needed, just remove and push
+                // LEAVING — no location needed, just remove and push to Firestore directly
                 removeUserFromListSafely(user.getId(), waitingList);
                 joinButton.setText("Join Waitlist");
                 joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                updateWaitlistInFirestore(null); // null = no notification
+                updateWaitlistInFirestore(null); // Pass null so a notification isn't sent
             } else {
-                // JOINING — go through location check first
+                // JOINING — must go through location permission check first
+                // Button stays disabled until the location flow completes and pushes to Firestore
                 checkLocationPermissionAndJoin();
-                // Button stays disabled until location flow completes inside getLocationAndExecuteJoin()
             }
-
-            db.collection("events").document(eventId)
-                    .update("waitingList", waitingList)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Waitlist updated successfully!", Toast.LENGTH_SHORT).show();
-                        joinButton.setEnabled(true);
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to update waitlist.", Toast.LENGTH_SHORT).show();
-                        joinButton.setEnabled(true);
-                    });
         });
 
+        // Setup the waitlist viewer dialog
         waitlistButton.setOnClickListener(v -> {
             StringBuilder list = new StringBuilder();
             for (User u : waitingList) {
@@ -289,7 +304,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Removes a user from the list by their ID, iterating in reverse to avoid index issues.
+     * Removes a user from the list by their ID, iterating in reverse to safely
+     * handle dynamic array resizing during removal.
      *
      * @param targetUserId the ID of the user to remove
      * @param userList     the list to remove the user from
@@ -310,8 +326,8 @@ public class EventDetailsActivity extends AppCompatActivity {
      * @param capacity     the maximum number of users allowed on the waitlist
      * @param waitingList  the list of users currently on the waitlist
      * @return true if the waitlist size is greater than or equal to the capacity,
-     *         false if the list is null, capacity is non-positive, or the waitlist
-     *         has not yet reached capacity
+     * false if the list is null, capacity is non-positive, or the waitlist
+     * has not yet reached capacity
      */
     public static boolean isWaitlistFull(int capacity, ArrayList<User> waitingList) {
         if (waitingList == null) return false;
@@ -320,8 +336,8 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /**
      * Displays an alert dialog confirming the admin wants to delete the event.
-     * If confirmed, deletes the document from Firestore, deletes its comments,
-     * and closes the activity.
+     * If confirmed, deletes the document from Firestore, cascades the deletion to
+     * its associated comments, and closes the activity.
      */
     private void showDeleteConfirmationDialog() {
         new AlertDialog.Builder(this)
@@ -346,15 +362,14 @@ public class EventDetailsActivity extends AppCompatActivity {
                                 Toast.makeText(EventDetailsActivity.this, "Failed to delete event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {
-                    // User canceled, just dismiss the dialog
-                    dialog.dismiss();
-                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
     /**
-     * Checks if we already have permission. If yes, grabs location. If no, asks user.
+     * Verifies if the app already has location permissions.
+     * If granted, immediately proceeds to fetch coordinates.
+     * If missing, requests permissions from the OS.
      */
     private void checkLocationPermissionAndJoin() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -368,7 +383,10 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Grabs the GPS coordinates, updates the User object, and adds them to the list.
+     * Attempts to grab the device's GPS coordinates to attach to the user.
+     * Uses the cached last known location for speed if available; otherwise, requests
+     * a fresh coordinate update. Fails gracefully by joining the user without coordinates
+     * if the location cannot be determined.
      */
     @SuppressWarnings("MissingPermission")
     private void getLocationAndExecuteJoin() {
@@ -386,6 +404,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
+                    // Graceful fallback if Location Services are entirely unreachable
                     Toast.makeText(this, "Location unavailable. Joining without coordinates.", Toast.LENGTH_SHORT).show();
                     user.setLatitude(null);
                     user.setLongitude(null);
@@ -394,7 +413,12 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Centralized method to push the waitingList array to Firestore.
+     * Centralized method to push the updated waitingList array to Firestore.
+     * Re-enables the join button upon completion to prevent duplicate pushes,
+     * and optionally triggers a "Joined Waitlist" notification.
+     *
+     * @param newlyJoinedUserId The ID of the user who just joined, used to send a push notification.
+     * Pass null if a user is leaving the waitlist to bypass the notification.
      */
     private void updateWaitlistInFirestore(String newlyJoinedUserId) {
         db.collection("events").document(eventId)
@@ -403,7 +427,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Waitlist updated successfully!", Toast.LENGTH_SHORT).show();
                     joinButton.setEnabled(true);
 
-                    // If a userId was passed in, it means they just joined, so send the notification
+                    // Send the notification only if a user actively joined
                     if (newlyJoinedUserId != null) {
                         NotificationService.sendWaitlistJoinedNotification(newlyJoinedUserId, eventId, eventNameText.getText().toString());
                     }
@@ -414,6 +438,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Explicitly requests a fresh, single high-accuracy location update from the GPS hardware.
+     * Used as a fallback when the system's cached location is null or stale.
+     */
     @SuppressWarnings("MissingPermission")
     private void requestFreshLocation() {
         com.google.android.gms.location.LocationRequest locationRequest =
@@ -444,10 +472,17 @@ public class EventDetailsActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Handles the final steps of joining a user to the waitlist.
+     * Updates the local array, modifies the UI button to represent the "Leave Waitlist" state,
+     * and calls the centralized Firestore update method.
+     */
     private void finalizeJoin() {
         addUserToList(user, waitingList);
         joinButton.setText("Leave Waitlist");
         joinButton.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-        updateWaitlistInFirestore(user.getId()); // your existing method handles notification + Firestore push
+
+        // Pushes the updated array to Firestore and triggers the notification
+        updateWaitlistInFirestore(user.getId());
     }
 }

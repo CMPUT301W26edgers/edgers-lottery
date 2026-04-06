@@ -65,6 +65,9 @@
             android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".views.EventCommentsActivity"
             android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".views.AdminNotificationLogActivity"
+            android:exported="false" />
 
 
 

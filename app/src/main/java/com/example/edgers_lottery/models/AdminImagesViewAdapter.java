@@ -18,8 +18,9 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
-/*
- * Adapter for AdminImagesViewActivity, adds functionality for viewing and deleting images
+/**
+ * RecyclerView adapter for displaying images in the admin images view.
+ * Supports viewing images in fullscreen and deleting images from Firebase Storage.
  */
 public class AdminImagesViewAdapter extends RecyclerView.Adapter<AdminImagesViewAdapter.ViewHolder> {
 
@@ -33,12 +34,18 @@ public class AdminImagesViewAdapter extends RecyclerView.Adapter<AdminImagesView
         this.imageRefs = imageRefs;
     }
 
+    /**
+     * Inflates the layout for an individual image item.
+     */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_image, parent, false);
         return new ViewHolder(view);
     }
 
+    /**
+     * Binds an image to the view holder and sets up click and long-click actions.
+     */
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String url = imageUrls.get(position);
@@ -78,6 +85,9 @@ public class AdminImagesViewAdapter extends RecyclerView.Adapter<AdminImagesView
 
     }
 
+    /**
+     * Returns the total number of images.
+     */
     @Override
     public int getItemCount() {
         return imageUrls.size();
