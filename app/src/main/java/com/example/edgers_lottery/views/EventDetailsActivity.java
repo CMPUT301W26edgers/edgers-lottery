@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.EventArrayAdapter;
 import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.services.CommentService;
 import com.example.edgers_lottery.services.NotificationService;
@@ -99,6 +100,8 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /** The Firestore document ID of the event being displayed. */
     private String eventId;
+    private TextView registrationEndsText;
+    private TextView alreadyRegisteredText;
 
     /** Client used to retrieve the device's GPS coordinates for waitlist geolocation validation. */
     private FusedLocationProviderClient fusedLocationClient;
@@ -154,6 +157,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         deleteButton = findViewById(R.id.delete_event_button);
         viewCommentsButton = findViewById(R.id.btnViewComments);
         eventposter = findViewById(R.id.imageView2);
+        registrationEndsText = findViewById(R.id.registration_ends_text);
+        alreadyRegisteredText = findViewById(R.id.already_registered_text);
         isPendingInvite = getIntent().getBooleanExtra("isPendingInvite", false);
 
         // Navigate to the comments section for this event
@@ -213,11 +218,15 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void showEvent(Event event, boolean isPendingInvite) {
         eventNameText.setText(event.getName());
         eventDescriptionText.setText(event.getDescription());
-        eventDateText.setText(event.getDate());
+        if (event.getDate() != null) {
+            eventDateText.setText("📅 " + EventArrayAdapter.formatDate(event.getDate()));
+        }
+
         eventTimeText.setText(event.getTime());
         eventLocationText.setText(event.getLocation());
         capacity = event.getCapacity();
         entrantCount = (event.getEntrants() == null) ? 0 : event.getEntrants().size();
+
         eventCapacityText.setText(String.format("Capacity: %d", capacity));
         imageURL = event.getPoster();
         if (imageURL != null && !imageURL.isEmpty()) {
@@ -228,6 +237,19 @@ public class EventDetailsActivity extends AppCompatActivity {
                     .into(eventposter);
         } else {
             eventposter.setImageResource(R.drawable.blankphoto);
+        }
+        if (event.getRegistrationEnd() != null) {
+            registrationEndsText.setText(EventArrayAdapter.timeUntilRegistration(event.getRegistrationEnd()));
+        } else {
+            registrationEndsText.setText("Unknown Registration End Date");
+        }
+        if (isUserInList(user.getId(), event.getEntrants())) {
+            joinButton.setVisibility(View.GONE);
+            waitlistButton.setVisibility(View.GONE);
+
+            alreadyRegisteredText.setVisibility(View.VISIBLE);
+            alreadyRegisteredText.setText("✅ You are already registered for this event");
+            return;
         }
         // 🔥 NEW: Pending Invite UI override
         if (isPendingInvite) {

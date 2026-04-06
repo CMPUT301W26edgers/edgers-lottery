@@ -123,14 +123,14 @@ public class EventHistoryAdapter extends RecyclerView.Adapter<EventHistoryAdapte
      * @return a status string: "Selected", "In waitlist", "Accepted", or "Rejected"
      */
     private String determineUserStatus(Event event) {
-        if (isUserInList(currentUserId, event.getInvitedUsers())) {
+        if (isUserInList(currentUserId, event.getDeclinedUsers())) {
+            return "Rejected";
+        } else if (isUserInList(currentUserId, event.getInvitedUsers())) {
             return "Selected";
         } else if (isUserInList(currentUserId, event.getWaitingList())) {
             return "In waitlist";
         } else if (isUserInList(currentUserId, event.getEntrants())) {
             return "Accepted";
-        } else if (isUserInList(currentUserId, event.getDeclinedUsers())) {
-            return "Rejected";
         } else if (isUserInList(currentUserId, event.getAllInvitedUsers())) {
             return "Pending Invite";
         } else {
