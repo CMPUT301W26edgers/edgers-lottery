@@ -4,13 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F2ECFF"
-    android:fitsSystemWindows="true">
+    android:background="#F2ECFF">
 
     <LinearLayout
         android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_height="40dp"
         android:background="#DBC5FF"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,7 +34,7 @@
             android:padding="10dp"
             android:text="@string/home"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="#4B0082"
             android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -141,6 +140,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#DBC5FF"
+                android:layout_marginEnd="8dp"
                 android:stateListAnimator="@null"
                 android:text="📄 Organizer Mode"
                 android:textAllCaps="false"
@@ -151,7 +151,6 @@
                 android:id="@+id/btnAdminMode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#F5F0FF"
                 android:backgroundTint="#DBC5FF"
                 android:stateListAnimator="@null"
                 android:text="📄 Admin Mode"

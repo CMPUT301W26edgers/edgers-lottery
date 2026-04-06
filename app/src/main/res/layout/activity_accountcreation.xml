@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F2ECFF">
 
     <LinearLayout
         android:id="@+id/linearLayout3"
@@ -32,7 +33,7 @@
             android:padding="24dp"
             android:text="@string/app_name"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="#4B0082"
             android:textSize="25sp"
             android:textStyle="bold" />
 
@@ -42,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="@string/createAccount"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="#4B0082"
             android:textSize="25sp"
             android:textStyle="bold" />
 
@@ -53,7 +54,7 @@
             android:fontFamily="@font/inter"
             android:text="@string/createAccountMessage"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="#4B0082"
             android:textSize="18sp" />
     </LinearLayout>
 
@@ -141,7 +142,7 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="7dp"
             android:layout_marginHorizontal="32dp"
-            android:backgroundTint="@color/black"
+            android:backgroundTint="#4B0082"
             android:fontFamily="@font/inter_semibold"
             android:text="@string/register"
             android:textAllCaps="false" />
@@ -154,7 +155,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="32dp"
             android:layout_marginVertical="7dp"
-            android:backgroundTint="@color/loginGray"
+            android:backgroundTint="#DBC5FF"
             android:fontFamily="@font/inter_semibold"
             android:text="@string/log_in_as_existing_user"
             android:textColor="@color/black"

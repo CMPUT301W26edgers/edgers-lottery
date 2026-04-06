@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="#F2ECFF"
     tools:context=".views.OrganizerEventsListActivity">
 
     <!-- Top spacing / status bar area -->
@@ -14,6 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="20dp"
         android:orientation="vertical"
+        android:background="#DBC5FF"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -23,7 +25,7 @@
         android:id="@+id/headerBar"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:background="@color/headerGray"
+        android:background="#DBC5FF"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingHorizontal="12dp"
@@ -46,7 +48,7 @@
             android:layout_weight="1"
             android:text="My Created Events"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="#4B0082"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -61,6 +63,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginEnd="20dp"
         android:orientation="vertical"
+
         app:layout_constraintTop_toBottomOf="@id/headerBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -69,6 +72,7 @@
             android:id="@+id/searchView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="#F2ECFF"
             android:background="@color/cardview_light_background"
             android:iconifiedByDefault="false"
             android:queryHint="Search your events..." />
