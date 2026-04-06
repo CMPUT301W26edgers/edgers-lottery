@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#000000">
 
     <!-- Camera takes up full screen -->
@@ -11,7 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Bottom action panel, hidden until scan succeeds -->
+    <!-- Back button overlaid on top left -->
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="44dp"
+        android:layout_height="39dp"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="48dp"
+        android:layout_marginStart="16dp"
+        android:backgroundTint="@color/white"
+        android:contentDescription="@string/backButton"
+        app:srcCompat="@drawable/left_arrow_small" />
+
+    <!-- Bottom action panel -->
     <LinearLayout
         android:id="@+id/actionPanel"
         android:layout_width="match_parent"

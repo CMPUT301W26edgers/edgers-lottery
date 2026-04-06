@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.views.OrganizerListActivity;
 
@@ -53,12 +55,26 @@ public class OrganizerListAdapter extends ArrayAdapter<User> {
         User organizer = getItem(position);
         TextView name = convertView.findViewById(R.id.organizerName);
         ImageButton delete = convertView.findViewById(R.id.deleteButton);
+        ImageView profileImage = convertView.findViewById(R.id.profileImage);
         name.setText(organizer.getName());
+        String imageUrl = organizer.getProfileImage();
 
+        // Load and display the organizer's profile image
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.default_avatar)
+                    .circleCrop()
+                    .into(profileImage);
+        } else {
+            profileImage.setImageResource(R.drawable.default_avatar);
+        }
+
+        // delete button removes organizer's profile
         delete.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Delete Organizer")
-                    .setMessage("Delete this organizer and all their events?")
+                    .setMessage("Delete this organizer for violating app policies?")
                     .setPositiveButton("Delete", (dialog, which) -> {
                         if (context instanceof OrganizerListActivity) {
                             ((OrganizerListActivity) context)

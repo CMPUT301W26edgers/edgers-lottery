@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FAFAFA"
-    tools:context=".views.EventDetailsActivity">
+    tools:context=".views.EventDetailsActivity"
+    android:fitsSystemWindows="true">
 
     <ImageView
         android:id="@+id/backButton"
@@ -51,11 +52,12 @@
                 android:id="@+id/scroll_tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fillViewport="true"
                 android:scrollbars="none"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
@@ -66,8 +68,23 @@
                         android:text="Event Details"
                         android:backgroundTint="#333333"
                         android:textColor="#FFFFFF"
-                        android:layout_marginEnd="8dp"
                         android:minHeight="36dp" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Button
+                        android:id="@+id/delete_event_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delete Event"
+                        android:backgroundTint="#F44336"
+                        android:textColor="#FFFFFF"
+                        android:minHeight="36dp"
+                        android:visibility="gone" />
+
                 </LinearLayout>
             </HorizontalScrollView>
 
@@ -205,6 +222,15 @@
                             android:text="View Waitlist"
                             android:textColor="@android:color/white" />
                     </LinearLayout>
+                    <Button
+                        android:id="@+id/btnViewComments"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:text="See Event Comments"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#6076AC"
+                        app:cornerRadius="4dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

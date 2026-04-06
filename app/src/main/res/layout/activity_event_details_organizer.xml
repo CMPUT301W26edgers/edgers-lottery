@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="#F9F7FB">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -82,6 +83,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:text="Entrants"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:cornerRadius="20dp"/>
+                <Button
+                    android:id="@+id/commentsBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Comments"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:cornerRadius="20dp"/>
+                <Button
+                    android:id="@+id/mapBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Map"
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     app:cornerRadius="20dp"/>
@@ -224,6 +241,76 @@
                         app:cornerRadius="24dp"/>
 
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp">
+
+                    <Button
+                        android:id="@+id/btnChosenEntrants"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="View Chosen"
+                        android:textColor="#FFFFFF"
+                        android:visibility="gone"
+                        android:backgroundTint="#6076AC"
+                        android:elevation="6dp"
+                        app:cornerRadius="24dp"/>
+
+                    <Button
+                        android:id="@+id/btnCancelledEntrants"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="View No-Show"
+                        android:visibility="gone"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#6076AC"
+                        android:elevation="6dp"
+                        app:cornerRadius="24dp"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/inviteContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:layout_constraintTop_toBottomOf="@id/cvEventInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Invite Users"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <Button
+                    android:id="@+id/btnInviteUser"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Invite by Email"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#3498DB"
+                    app:cornerRadius="20dp"/>
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>

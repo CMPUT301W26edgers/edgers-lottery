@@ -1,6 +1,7 @@
 package com.example.edgers_lottery.views;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.WaitlistUser;
 import com.example.edgers_lottery.models.WaitlistAdapter;
+import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -83,6 +85,24 @@ public class EventWaitlistTab extends AppCompatActivity {
             intent.putExtra("event_id", eventId);
             startActivity(intent);
         });
+
+        // Add this to EventDetailsOrganizer, EventWaitlistTab, and EventEntrantOrganizer
+        Button mapBtn = findViewById(R.id.mapBtn);
+        if (mapBtn != null) {
+            mapBtn.setOnClickListener(v -> {
+                finish();
+                Intent intent = new Intent(this, OrganizerWaitlistMapActivity.class);
+                intent.putExtra("event_id", eventId); // Make sure the variable name matches their intent key
+                startActivity(intent);
+            });
+        }
+        findViewById(R.id.commentsBtn).setOnClickListener(v -> {
+            finish();
+            Intent intent = new Intent(this, EventCommentsOrganizer.class);
+            intent.putExtra("event_id", eventId);
+            startActivity(intent);
+        });
+
     }
 
     /**
@@ -174,9 +194,22 @@ public class EventWaitlistTab extends AppCompatActivity {
     }
 
     /**
-     * Placeholder method for sending notifications to all users on the waitlist.
+     * Sends a WAITLIST_UPDATE notification to all users currently on the waitlist.
+     * Called when the organizer clicks the Notify Waitlisters button.
      */
     private void notifyWaitlisters() {
-        Toast.makeText(this, "Notifying waitlisters...", Toast.LENGTH_SHORT).show();
+        if (waitlistUsers.isEmpty()) {
+            Toast.makeText(this, "No users on the waitlist to notify", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    String eventName = doc.getString("name");
+                    NotificationService.sendWaitlistUpdateNotifications(waitlistUsers, eventId, eventName);
+                    Toast.makeText(this, "Waitlisters notified!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to notify: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 }

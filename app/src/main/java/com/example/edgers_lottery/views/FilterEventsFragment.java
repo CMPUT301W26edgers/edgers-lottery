@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -23,7 +24,7 @@ import java.util.Calendar;
 public class FilterEventsFragment extends DialogFragment {
 
     private static final String TAG = "FilterEventsFragment";
-    EditText editInterests;
+    CheckBox capacity_bool;
     EditText editAvailabilityStart;
     EditText editAvailabilityEnd;
      /**
@@ -36,11 +37,11 @@ public class FilterEventsFragment extends DialogFragment {
         /**
          * Called when the user confirms the filter by tapping the Filter button.
          *
-         * @param interests         the interests keyword to filter by
+         * @param isChecked         the interests keyword to filter by
          * @param availabilityStart the start of the availability window
          * @param availabilityEnd   the end of the availability window
          */
-        void onFilterApplied(String interests, String availabilityStart, String availabilityEnd);
+        void onFilterApplied(boolean isChecked, String availabilityStart, String availabilityEnd);
     }
 
     private EditFilterDialogListener listener;
@@ -71,7 +72,7 @@ public class FilterEventsFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_filter_events, null);
-        editInterests = view.findViewById(R.id.edit_interests_text);
+        capacity_bool = view.findViewById(R.id.capacity_checkbox);
         editAvailabilityStart = view.findViewById(R.id.edit_availability_start_text);
         editAvailabilityEnd = view.findViewById(R.id.edit_availability_end_text);
 
@@ -87,14 +88,20 @@ public class FilterEventsFragment extends DialogFragment {
                 .setTitle("Filter Events")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Filter", (dialog, which) -> {
-                    String interests = editInterests.getText().toString().trim();
+                    boolean isChecked = capacity_bool.isChecked();
                     String availabilityStart = editAvailabilityStart.getText().toString().trim();
                     String availabilityEnd = editAvailabilityEnd.getText().toString().trim();
 
-                    listener.onFilterApplied(interests, availabilityStart, availabilityEnd);
+                    listener.onFilterApplied(isChecked, availabilityStart, availabilityEnd);
                 })
                 .create();
     }
+    /**
+     * Shows a date picker dialog and sets the selected date on the target field.
+     * Date is formatted as yyyy-MM-dd.
+     *
+     * @param targetField the EditText to populate with the selected date
+     */
     private void showDatePicker(EditText targetField) {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);

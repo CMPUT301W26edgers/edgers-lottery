@@ -2,7 +2,8 @@
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/app/docs" />
-    <option name="OTHER_OPTIONS" value="-classpath &quot;C:\Users\maana\AppData\Local\Android\Sdk\platforms\android-36\android.jar&quot;" />
+    <option name="OPTION_SCOPE" value="public" />
+    <option name="OTHER_OPTIONS" value="-classpath &quot;C:\Users\tamzm\AppData\Local\Android\Sdk\platforms\android-36\android.jar&quot;" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="jbr-21" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
@@ -13,7 +14,7 @@
   <component name="VisualizationToolProject">
     <option name="state">
       <ProjectState>
-        <option name="scale" value="0.088046875" />
+        <option name="scale" value="0.10280273437500001" />
       </ProjectState>
     </option>
   </component>

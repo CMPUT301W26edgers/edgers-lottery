@@ -48,14 +48,15 @@ public class OrganizerHomeActivity extends AppCompatActivity {
 
         TextView btnEventsList = findViewById(R.id.btnEventsList);
         btnEventsList.setOnClickListener(v -> {
-            // navigate to your events list activity
+            Intent intent = new Intent(this, OrganizerEventsListActivity.class);
+            startActivity(intent);
         });
         backButton.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Go Back")
                     .setMessage("Are you sure you want to go back to User Home?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        currentUser.setRole("ENTRANT");
+//                        currentUser.setRole("ENTRANT");
                         Intent intent = new Intent(this, HomeActivity.class);
                         startActivity(intent);
                         finish();

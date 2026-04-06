@@ -111,7 +111,7 @@ public class NewUserActivity extends AppCompatActivity {
      * @param firstName the user's first name
      * @param lastName  the user's last name
      * @param email     the user's email address
-     * @param role      the user's role, either {@code "ENTRANT"} or {@code "ORGANIZER"}
+     * @param role      the user's role, {@code "ENTRANT"} or {@code "ADMIN"}
      */
     private void saveUserToFirestore(String uid, String firstName, String lastName, String email, String role) {
         User user = new User(uid, firstName + " " + lastName, email, role);
@@ -119,17 +119,10 @@ public class NewUserActivity extends AppCompatActivity {
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "User created successfully", Toast.LENGTH_SHORT).show();
                     CurrentUser.set(user);
-                    if ("ORGANIZER".equals(role)) {
-                        Intent intent = new Intent(this, OrgHomeActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Intent intent = new Intent(this, HomeActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    }
+                    Intent intent = new Intent(this, HomeActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to save user: " + e.getMessage(), Toast.LENGTH_SHORT).show();

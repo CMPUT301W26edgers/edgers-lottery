@@ -1,6 +1,8 @@
 package com.example.edgers_lottery.views;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.app.DatePickerDialog;
@@ -12,13 +14,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.CurrentUser;
+import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.ImageService;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.slider.Slider;
 import java.util.Calendar;
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,21 +41,32 @@ import com.google.firebase.firestore.DocumentReference;
 public class CreateEditEventActivity extends AppCompatActivity {
 
     private ImageView ivImage;
+    private Uri imageUri;
+    private String url;
     private EditText registrationDeadlineInput, eventDateInput, priceInput, descriptionInput;
     private TextInputLayout priceLayout;
     private SwitchMaterial swGeo, swWaitlist, swPublic;
     private Slider sliderEntrants;
     private Slider sliderWaitlist;
     private EditText eventNameInput;
+    private User user;
+
 
     private String currentEventId;
+    private static final int PICK_IMAGE_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_end_event);
-
+        // get the current user
+        user = CurrentUser.get();
+        if (user == null) {
+            Toast.makeText(this, "No user found", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         initViews();
         setupListeners();
         setupEdgeToEdge();
@@ -70,6 +89,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         sliderEntrants.setValueFrom(1);
         sliderEntrants.setValueTo(100);
         sliderEntrants.setStepSize(1);
+        sliderEntrants.setEnabled(false);
 
         sliderWaitlist.setValueFrom(1);
         sliderWaitlist.setValueTo(100);
@@ -135,7 +155,27 @@ public class CreateEditEventActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        // Back always just pops this screen
+        findViewById(R.id.btnBack).setOnClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Leaving Create Page?")
+                    .setMessage("Are you sure you are ready to leave this page?")
+                    .setPositiveButton("Leave", (dialog, which) -> {
+                        Intent intent;
+                        if (user.isOrganizer()){
+                            intent = new Intent(this, OrganizerHomeActivity.class);
+                        }else{
+                            intent = new Intent(this, HomeActivity.class);
+                        }
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+
+        });
+
         findViewById(R.id.btnAddImage).setOnClickListener(v -> pickImage());
         findViewById(R.id.btnSave).setOnClickListener(v -> onSaveClicked());
         findViewById(R.id.btnRemove).setOnClickListener(v -> onRemoveClicked());
@@ -170,6 +210,27 @@ public class CreateEditEventActivity extends AppCompatActivity {
             intent.putExtra("event_id", currentEventId);
             startActivity(intent);
         });
+//      Button commentsBtn = findViewById(R.id.commentsBtn);
+
+        findViewById(R.id.commentsBtn).setOnClickListener(v -> {
+            if (currentEventId == null) {
+                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, EventCommentsOrganizer.class);
+            intent.putExtra("event_id", currentEventId);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.mapBtn).setOnClickListener(v -> {
+            if (currentEventId == null) {
+                Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, OrganizerWaitlistMapActivity.class);
+            intent.putExtra("event_id", currentEventId); // Using "event_id" to match your teammate's intent keys
+            startActivity(intent);
+        });
 
         registrationDeadlineInput.setOnClickListener(v -> showDatePicker(registrationDeadlineInput));
         eventDateInput.setOnClickListener(v -> showDatePicker(eventDateInput));
@@ -192,6 +253,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
             return;
         }
 
+        FirebaseUser deviceUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (deviceUser == null){
+            Toast.makeText(this, "No logged in user found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String organizerId = deviceUser.getUid();
         DocumentReference docRef = FirebaseFirestore.getInstance().collection("events").document();
         String newId = docRef.getId();
 
@@ -206,7 +274,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("waitlistCapacity", waitlistCapacity);
         eventData.put("enforceLocation",  swGeo.isChecked());
         eventData.put("ispublic",         swPublic.isChecked());
+        eventData.put("organizerId",      organizerId);
 
+        // Handle image → Base64
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -220,18 +290,27 @@ public class CreateEditEventActivity extends AppCompatActivity {
         docRef.set(eventData)
                 .addOnSuccessListener(unused -> {
                     currentEventId = newId;
-                    Intent intent = new Intent(this, EventDetailsOrganizer.class);
-                    intent.putExtra("event_id", currentEventId);
-                    startActivity(intent);
+
+                    if (imageUri != null) {
+                        ImageService.uploadEventImage(imageUri, newId, this);
+                    }
+
+                    if (user.isOrganizer()) {
+                        startActivity(new Intent(this, OrganizerEventsListActivity.class));
+                    } else {
+                        Toast.makeText(this, "Event created! You are now an organizer!", Toast.LENGTH_SHORT).show();
+                        updateUserOrganizerPermission();
+                    }
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
-        startActivityForResult(intent, 100);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     private Calendar parseDate(String dateStr) {
@@ -324,7 +403,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
 
     private void onGeoToggled(boolean isChecked) { }
 
-    private void onWaitlistToggled(boolean isChecked) { }
+    private void onWaitlistToggled(boolean isChecked) {
+        sliderEntrants.setEnabled(isChecked);
+    }
 
     private void setupEdgeToEdge() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -359,6 +440,15 @@ public class CreateEditEventActivity extends AppCompatActivity {
         updates.put("enforceLocation",  swGeo.isChecked());
         updates.put("ispublic",         swPublic.isChecked());
 
+        // update the event with the object
+
+//        Drawable drawable = ivImage.getDrawable();
+//        if (drawable instanceof BitmapDrawable) {
+//            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+//            updates.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+//        }
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -373,7 +463,10 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .update(updates)
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Event updated!", Toast.LENGTH_SHORT).show();
-                    finish();
+                    // confirm user roles as an organizer
+                    updateUserOrganizerPermission();
+
+                    finish(); // pops back to EventDetailsOrganizer → onResume() reloads data
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
@@ -396,12 +489,34 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
+    private void updateUserOrganizerPermission(){
+        if (!user.isOrganizer()) {
+            user.setOrganizer(true);
+            CurrentUser.set(user);// update current user
+            FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.getId())
+                    .set(user);
+            startActivity(new Intent(this, OrganizerHomeActivity.class));
+            finish();
+        }
+
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
-            ivImage.setImageURI(data.getData());
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            imageUri = data.getData(); // the image the user picked
+            Glide.with(this).load(imageUri).circleCrop().into(ivImage); // load the image into the ImageView
+
+            url = imageUri.toString();
+            if (currentEventId != null) {
+                ImageService.uploadEventImage(imageUri, currentEventId, this);
+            }
+            // update the event here with the new image
+            // do it just in case, its already set in the db
+            // currentEvent.setPoster(imageUri.toString());
         }
     }
 }
