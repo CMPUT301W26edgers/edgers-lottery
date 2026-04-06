@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
+import com.example.edgers_lottery.models.EventArrayAdapter;
 import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,6 +42,7 @@ public class EventUserChoice extends AppCompatActivity {
     private User currentUser;
     private Event currentEvent;
     private String currentEventId;
+    private TextView registrationEndsText;
 
     private FirebaseFirestore db;
 
@@ -66,6 +68,7 @@ public class EventUserChoice extends AppCompatActivity {
         tvLocationName = findViewById(R.id.tv_location_name);
         tvEventDate = findViewById(R.id.tv_event_date);
         tvDescriptionBody = findViewById(R.id.tv_description_body);
+        registrationEndsText = findViewById(R.id.tv_registration_deadline);
 
         currentEventId = getIntent().getStringExtra("eventId");
 
@@ -75,7 +78,13 @@ public class EventUserChoice extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             currentEvent = documentSnapshot.toObject(Event.class);
                             currentEvent.setId(documentSnapshot.getId());
-
+                            if (currentEvent.getRegistrationEnd() != null) {
+                                registrationEndsText.setText(
+                                        EventArrayAdapter.timeUntilRegistration(currentEvent.getRegistrationEnd())
+                                );
+                            } else {
+                                registrationEndsText.setText("Unknown Registration End Date");
+                            }
                             if (isUserInList(currentUser.getId(), currentEvent.getEntrants())) {
                                 Toast.makeText(EventUserChoice.this, "You have already accepted this invitation!", Toast.LENGTH_SHORT).show();
                                 finish();
@@ -100,7 +109,7 @@ public class EventUserChoice extends AppCompatActivity {
                             // ✨ Load the event poster using Glide
                             String imageURL = currentEvent.getPoster();
                             if (imageURL != null && !imageURL.isEmpty()) {
-                                Glide.with(EventUserChoice.this)
+                                Glide.with(this)
                                         .load(imageURL)
                                         .placeholder(R.drawable.blankphoto)
                                         .error(R.drawable.blankphoto)
