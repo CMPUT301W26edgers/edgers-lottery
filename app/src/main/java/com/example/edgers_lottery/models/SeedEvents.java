@@ -129,11 +129,11 @@ public class SeedEvents {
         CollectionReference events = db.collection("events");
         events.get()
                 .addOnSuccessListener(querySnapshot -> {
-                    for (com.google.firebase.firestore.DocumentSnapshot document : querySnapshot.getDocuments()) {
-                        events.document(document.getId()).delete();
-                        android.util.Log.d("SeedEvents", "Deleted: " + document.getId());
-                    }
-                }
+                            for (com.google.firebase.firestore.DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                events.document(document.getId()).delete();
+                                android.util.Log.d("SeedEvents", "Deleted: " + document.getId());
+                            }
+                        }
                 )
                 .addOnFailureListener(e -> {
                     android.util.Log.e("SeedEvents", "Failed to delete events", e);

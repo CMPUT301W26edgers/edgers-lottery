@@ -35,14 +35,6 @@ import java.util.HashMap;
 import java.util.Map;
 import com.google.firebase.firestore.DocumentReference;
 
-/**
- * Activity for creating a new event or editing an existing one.
- *
- * Uses a single {@code currentEventId} field throughout:
- * - null = create mode: btnCreateEvent writes a new document and sets currentEventId.
- * - non-null = edit mode: fields pre-populated from Firestore; btnSave updates the
- *   document then calls finish() so EventDetailsOrganizer reloads via onResume().
- */
 public class CreateEditEventActivity extends AppCompatActivity {
 
     private ImageView ivImage;
@@ -50,13 +42,10 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private TextInputLayout priceLayout;
     private SwitchMaterial swGeo, swWaitlist, swPublic;
     private Slider sliderEntrants;
+    private Slider sliderWaitlist;
     private EditText eventNameInput;
     private User user;
 
-    /**
-     * Single source of truth for the event ID.
-     * Null when creating; set from intent extra (or after first save) when editing.
-     */
     private String currentEventId;
 
     @Override
@@ -86,6 +75,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         swWaitlist                = findViewById(R.id.swWaitlist);
         swPublic                  = findViewById(R.id.swPublic);
         sliderEntrants            = findViewById(R.id.sliderEntrants);
+        sliderWaitlist            = findViewById(R.id.sliderWaitlist);
         ivImage                   = findViewById(R.id.ivImage);
         eventNameInput            = findViewById(R.id.event_name);
 
@@ -94,6 +84,10 @@ public class CreateEditEventActivity extends AppCompatActivity {
         sliderEntrants.setStepSize(1);
         sliderEntrants.setEnabled(false);
 
+        sliderWaitlist.setValueFrom(1);
+        sliderWaitlist.setValueTo(100);
+        sliderWaitlist.setStepSize(1);
+
         currentEventId = getIntent().getStringExtra("event_id");
 
         if (currentEventId != null) {
@@ -101,9 +95,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Fetches the existing Firestore document and populates every UI field.
-     */
     private void loadEventData() {
         FirebaseFirestore.getInstance()
                 .collection("events")
@@ -115,31 +106,35 @@ public class CreateEditEventActivity extends AppCompatActivity {
                         return;
                     }
 
-                    String name        = doc.getString("name");
-                    String deadline    = doc.getString("date");
-                    String eventDate   = doc.getString("eventDate");
-                    String price       = doc.getString("price");
-                    String description = doc.getString("description");
+                    // Keys match Event model fields exactly
+                    String name            = doc.getString("name");
+                    String date            = doc.getString("date");
+                    String registrationEnd = doc.getString("registrationEnd");
+                    String price           = doc.getString("price");
+                    String description     = doc.getString("description");
 
-                    if (name        != null) eventNameInput.setText(name);
-                    if (deadline    != null) registrationDeadlineInput.setText(deadline);
-                    if (eventDate   != null) eventDateInput.setText(eventDate);
-                    if (price       != null) priceInput.setText(price);
-                    if (description != null) descriptionInput.setText(description);
+                    if (name            != null) eventNameInput.setText(name);
+                    if (date            != null) eventDateInput.setText(date);
+                    if (registrationEnd != null) registrationDeadlineInput.setText(registrationEnd);
+                    if (price           != null) priceInput.setText(price);
+                    if (description     != null) descriptionInput.setText(description);
 
                     Long capacity = doc.getLong("capacity");
                     if (capacity != null) {
                         sliderEntrants.setValue(Math.min(Math.max(capacity.floatValue(), 1f), 100f));
                     }
 
-                    Boolean geoRequired     = doc.getBoolean("geoRequired");
-                    Boolean waitlistEnabled = doc.getBoolean("waitlistEnabled");
-                    Boolean isPublic        = doc.getBoolean("ispublic");
-                    if (geoRequired     != null) swGeo.setChecked(geoRequired);
-                    if (waitlistEnabled != null) swWaitlist.setChecked(waitlistEnabled);
-                    if (isPublic        != null) swPublic.setChecked(isPublic);
+                    Long waitlistCapacity = doc.getLong("waitlistCapacity");
+                    if (waitlistCapacity != null) {
+                        sliderWaitlist.setValue(Math.min(Math.max(waitlistCapacity.floatValue(), 1f), 100f));
+                    }
 
-                    String encodedImage = doc.getString("image");
+                    Boolean enforceLocation = doc.getBoolean("enforceLocation");
+                    Boolean ispublic        = doc.getBoolean("ispublic");
+                    if (enforceLocation != null) swGeo.setChecked(enforceLocation);
+                    if (ispublic        != null) swPublic.setChecked(ispublic);
+
+                    String encodedImage = doc.getString("poster");
                     if (encodedImage != null && !encodedImage.isEmpty()) {
                         try {
                             byte[] bytes  = Base64.decode(encodedImage, Base64.DEFAULT);
@@ -179,7 +174,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         findViewById(R.id.btnRemove).setOnClickListener(v -> onRemoveClicked());
         findViewById(R.id.btnCreateEvent).setOnClickListener(v -> createEventAndNavigate());
 
-        // Tab-bar buttons all use currentEventId — guard against null (create mode, pre-save)
         findViewById(R.id.detailBtn).setOnClickListener(v -> {
             if (currentEventId == null) {
                 Toast.makeText(this, "Create the event first", Toast.LENGTH_SHORT).show();
@@ -238,20 +232,16 @@ public class CreateEditEventActivity extends AppCompatActivity {
         swWaitlist.setOnCheckedChangeListener((btn, isChecked) -> onWaitlistToggled(isChecked));
     }
 
-    /**
-     * Validates fields, writes a new Firestore document, stores the returned ID in
-     * currentEventId, then navigates to EventDetailsOrganizer.
-     */
     private void createEventAndNavigate() {
-        String deadline        = registrationDeadlineInput.getText().toString().trim();
-        String eventDate       = eventDateInput.getText().toString().trim();
-        String price           = priceInput.getText().toString().replace("$", "").trim();
-        String eventName       = eventNameInput.getText().toString().trim();
-        String descriptionText = descriptionInput.getText().toString().trim();
+        String name             = eventNameInput.getText().toString().trim();
+        String date             = eventDateInput.getText().toString().trim();
+        String registrationEnd  = registrationDeadlineInput.getText().toString().trim();
+        String price            = priceInput.getText().toString().replace("$", "").trim();
+        String description      = descriptionInput.getText().toString().trim();
+        int    capacity         = (int) sliderEntrants.getValue();
+        int    waitlistCapacity = (int) sliderWaitlist.getValue();
 
-        int    entrant         = (int) sliderEntrants.getValue();
-
-        if (deadline.isEmpty() || eventDate.isEmpty() || price.isEmpty() || eventName.isEmpty()) {
+        if (name.isEmpty() || date.isEmpty() || registrationEnd.isEmpty() || price.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields before continuing", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -265,17 +255,15 @@ public class CreateEditEventActivity extends AppCompatActivity {
         String newId = docRef.getId();
 
         Map<String, Object> eventData = new HashMap<>();
-        eventData.put("eventId",         newId);
-        eventData.put("id",              newId);
-        eventData.put("name",            eventName);
-        eventData.put("eventDate",       eventDate);
-        eventData.put("date",            deadline);
-        eventData.put("price",           price);
-        eventData.put("description",     descriptionText);
-        eventData.put("capacity",        entrant);
-        eventData.put("geoRequired",      swGeo.isChecked());
+        eventData.put("id",               newId);
+        eventData.put("name",             name);
+        eventData.put("date",             date);
+        eventData.put("registrationEnd",  registrationEnd);
+        eventData.put("price",            price);
+        eventData.put("description",      description);
+        eventData.put("capacity",         capacity);
+        eventData.put("waitlistCapacity", waitlistCapacity);
         eventData.put("enforceLocation",  swGeo.isChecked());
-        eventData.put("waitlistEnabled",  swWaitlist.isChecked());
         eventData.put("ispublic",         swPublic.isChecked());
         eventData.put("organizerId",     organizerId);
 
@@ -284,13 +272,17 @@ public class CreateEditEventActivity extends AppCompatActivity {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-            eventData.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+            eventData.put("poster", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
         } else {
-            eventData.put("image", null);
+            eventData.put("poster", null);
         }
 
         docRef.set(eventData)
                 .addOnSuccessListener(unused -> {
+                    currentEventId = newId;
+                    Intent intent = new Intent(this, EventDetailsOrganizer.class);
+                    intent.putExtra("event_id", currentEventId);
+                    startActivity(intent);
                     //currentEventId = newId; // now the activity knows its own ID
                     //Intent intent = new Intent(this, EventDetailsOrganizer.class);
                     //intent.putExtra("event_id", currentEventId);
@@ -353,8 +345,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     }
 
                     if (targetInput == eventDateInput) {
-                        Calendar deadline = parseDate(registrationDeadlineInput.getText().toString().trim());
-                        if (deadline != null && selected.before(deadline)) {
+                        Calendar regEnd = parseDate(registrationDeadlineInput.getText().toString().trim());
+                        if (regEnd != null && selected.before(regEnd)) {
                             Toast.makeText(this, "Event date cannot be before the registration deadline", Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -416,33 +408,29 @@ public class CreateEditEventActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Updates the Firestore document then calls finish() so EventDetailsOrganizer
-     * resurfaces and reloads the fresh data via its onResume().
-     */
     private void saveChanges() {
         if (currentEventId == null) {
             Toast.makeText(this, "No event to update", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String eventName   = eventNameInput.getText().toString().trim();
-        String eventDate   = eventDateInput.getText().toString().trim();
-        String deadline    = registrationDeadlineInput.getText().toString().trim();
-        String price       = priceInput.getText().toString().replace("$", "").trim();
-        String description = descriptionInput.getText().toString().trim();
-        int    entrants    = (int) sliderEntrants.getValue();
+        String name             = eventNameInput.getText().toString().trim();
+        String date             = eventDateInput.getText().toString().trim();
+        String registrationEnd  = registrationDeadlineInput.getText().toString().trim();
+        String price            = priceInput.getText().toString().replace("$", "").trim();
+        String description      = descriptionInput.getText().toString().trim();
+        int    capacity         = (int) sliderEntrants.getValue();
+        int    waitlistCapacity = (int) sliderWaitlist.getValue();
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put("name",            eventName);
-        updates.put("eventDate",       eventDate);
-        updates.put("date",            deadline);
-        updates.put("price",           price);
-        updates.put("description",     description);
-        updates.put("capacity",        entrants);
-        updates.put("geoRequired",      swGeo.isChecked());
+        updates.put("name",             name);
+        updates.put("date",             date);
+        updates.put("registrationEnd",  registrationEnd);
+        updates.put("price",            price);
+        updates.put("description",      description);
+        updates.put("capacity",         capacity);
+        updates.put("waitlistCapacity", waitlistCapacity);
         updates.put("enforceLocation",  swGeo.isChecked());
-        updates.put("waitlistEnabled",  swWaitlist.isChecked());
         updates.put("ispublic",         swPublic.isChecked());
 
         Drawable drawable = ivImage.getDrawable();
@@ -450,7 +438,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-            updates.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
+            updates.put("poster", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
         }
 
         FirebaseFirestore.getInstance()
