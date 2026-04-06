@@ -50,7 +50,7 @@ public class Event {
     /** List of users selected by the lottery to be invited to this event. They are removed if they decline the invitation */
     private ArrayList<User> invitedUsers;
     /** List of all users selected by the lottery to be invited to this event, regardless of if they accepted or declined */
-    private ArrayList<User> AllinvitedUsers;
+    private ArrayList<User> AllInvitedUsers;
 
     /** List of users who have confirmed their participation in this event. */
     private ArrayList<User> entrants;
@@ -94,7 +94,7 @@ public class Event {
         this.waitingList = new ArrayList<>();
         this.entrants = new ArrayList<>();
         this.declinedUsers = new ArrayList<>();
-        this.AllinvitedUsers = new ArrayList<>();
+        this.AllInvitedUsers = new ArrayList<>();
     }
 
     /**
@@ -218,9 +218,9 @@ public class Event {
     public void setInvitedUsers(ArrayList<User> invitedUsers) { this.invitedUsers = invitedUsers; }
     public ArrayList<User> getDeclinedUsers() {return declinedUsers; }
     public void setDeclinedUsers(ArrayList<User> declinedUsers) {this.declinedUsers = declinedUsers; }
-    public ArrayList<User> getAllinvitedUsers() { return AllinvitedUsers; }
+    public ArrayList<User> getAllInvitedUsers() { return AllInvitedUsers; }
 
-    public void setAllinvitedUsers(ArrayList<User> allinvitedUsers) { AllinvitedUsers = allinvitedUsers;   }
+    public void setAllInvitedUsers(ArrayList<User> allinvitedUsers) { AllInvitedUsers = allinvitedUsers;   }
     /**
      * @return the list of confirmed event entrants
      */
