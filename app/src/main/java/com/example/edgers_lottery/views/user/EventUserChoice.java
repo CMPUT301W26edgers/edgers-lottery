@@ -99,6 +99,8 @@ public class EventUserChoice extends AppCompatActivity {
                             }
                             if (currentEvent.getLocation() != null) {
                                 tvLocationName.setText(currentEvent.getLocation());
+                            } else {
+                                tvLocationName.setText("Location not specified");
                             }
                             if (currentEvent.getDate() != null && currentEvent.getTime() != null) {
                                 tvEventDate.setText(
