@@ -1,5 +1,7 @@
 package com.example.edgers_lottery.views;
 
+import static android.content.Intent.getIntent;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
