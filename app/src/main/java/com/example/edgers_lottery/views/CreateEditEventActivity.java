@@ -1,5 +1,7 @@
 package com.example.edgers_lottery.views;
 
+import static android.content.Intent.getIntent;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
@@ -45,8 +47,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private ImageView ivImage;
     private Uri imageUri;
     private String url;
-    private EditText registrationDeadlineInput, eventDateInput, priceInput, descriptionInput;
-    private TextInputLayout priceLayout;
+    private EditText registrationDeadlineInput, eventDateInput, locationInput, descriptionInput;
+    private TextInputLayout locationLayout;
     private SwitchMaterial swGeo, swWaitlist, swPublic;
     private Slider sliderEntrants;
     private Slider sliderWaitlist;
@@ -77,8 +79,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private void initViews() {
         registrationDeadlineInput = findViewById(R.id.registration_deadline);
         eventDateInput            = findViewById(R.id.event_date);
-        priceLayout               = findViewById(R.id.priceLayout);
-        priceInput                = findViewById(R.id.price);
+        locationLayout            = findViewById(R.id.locationLayout);
+        locationInput             = findViewById(R.id.location);
         descriptionInput          = findViewById(R.id.editTilDescription);
         swGeo                     = findViewById(R.id.swGeo);
         swWaitlist                = findViewById(R.id.swWaitlist);
@@ -119,13 +121,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     String name            = doc.getString("name");
                     String date            = doc.getString("date");
                     String registrationEnd = doc.getString("registrationEnd");
-                    String price           = doc.getString("price");
+                    String location        = doc.getString("location");
                     String description     = doc.getString("description");
 
                     if (name            != null) eventNameInput.setText(name);
                     if (date            != null) eventDateInput.setText(date);
                     if (registrationEnd != null) registrationDeadlineInput.setText(registrationEnd);
-                    if (price           != null) priceInput.setText(price);
+                    if (location        != null) locationInput.setText(location);
                     if (description     != null) descriptionInput.setText(description);
 
                     Long capacity = doc.getLong("capacity");
@@ -245,12 +247,12 @@ public class CreateEditEventActivity extends AppCompatActivity {
         String name             = eventNameInput.getText().toString().trim();
         String date             = eventDateInput.getText().toString().trim();
         String registrationEnd  = registrationDeadlineInput.getText().toString().trim();
-        String price            = priceInput.getText().toString().replace("$", "").trim();
+        String location         = locationInput.getText().toString().trim();
         String description      = descriptionInput.getText().toString().trim();
         int    capacity         = (int) sliderEntrants.getValue();
         int    waitlistCapacity = (int) sliderWaitlist.getValue();
 
-        if (name.isEmpty() || date.isEmpty() || registrationEnd.isEmpty() || price.isEmpty()) {
+        if (name.isEmpty() || date.isEmpty() || registrationEnd.isEmpty() || location.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields before continuing", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -270,7 +272,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("name",             name);
         eventData.put("date",             date);
         eventData.put("registrationEnd",  registrationEnd);
-        eventData.put("price",            price);
+        eventData.put("location",         location);
         eventData.put("description",      description);
         eventData.put("capacity",         capacity);
         eventData.put("waitlistCapacity", waitlistCapacity);
@@ -378,22 +380,17 @@ public class CreateEditEventActivity extends AppCompatActivity {
     }
 
     private void onSaveClicked() {
-        String priceText = priceInput.getText().toString().replace("$", "").trim();
-        if (priceText.isEmpty()) {
-            priceLayout.setError("Enter a valid price");
+        String locationText = locationInput.getText().toString().trim();
+        if (locationText.isEmpty()) {
+            locationLayout.setError("Enter a valid location");
             return;
         }
-        try {
-            Double.parseDouble(priceText);
-            priceLayout.setError(null);
-            new AlertDialog.Builder(this)
-                    .setTitle("Save changes?")
-                    .setNegativeButton("Cancel", (d, w) -> d.dismiss())
-                    .setPositiveButton("Confirm", (d, w) -> saveChanges())
-                    .show();
-        } catch (NumberFormatException e) {
-            priceLayout.setError("Enter a valid number");
-        }
+        locationLayout.setError(null);
+        new AlertDialog.Builder(this)
+                .setTitle("Save changes?")
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .setPositiveButton("Confirm", (d, w) -> saveChanges())
+                .show();
     }
 
     private void onRemoveClicked() {
@@ -428,7 +425,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         String name             = eventNameInput.getText().toString().trim();
         String date             = eventDateInput.getText().toString().trim();
         String registrationEnd  = registrationDeadlineInput.getText().toString().trim();
-        String price            = priceInput.getText().toString().replace("$", "").trim();
+        String location         = locationInput.getText().toString().trim();
         String description      = descriptionInput.getText().toString().trim();
         int    capacity         = (int) sliderEntrants.getValue();
         int    waitlistCapacity = (int) sliderWaitlist.getValue();
@@ -437,22 +434,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
         updates.put("name",             name);
         updates.put("date",             date);
         updates.put("registrationEnd",  registrationEnd);
-        updates.put("price",            price);
+        updates.put("location",         location);
         updates.put("description",      description);
         updates.put("capacity",         capacity);
         updates.put("waitlistCapacity", waitlistCapacity);
         updates.put("enforceLocation",  swGeo.isChecked());
         updates.put("ispublic",         swPublic.isChecked());
 
-        // update the event with the object
-
-//        Drawable drawable = ivImage.getDrawable();
-//        if (drawable instanceof BitmapDrawable) {
-//            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-//            updates.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
-//        }
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -493,6 +481,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
+
     private void updateUserOrganizerPermission(){
         if (!user.isOrganizer()) {
             user.setOrganizer(true);
@@ -504,7 +493,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
             startActivity(new Intent(this, OrganizerHomeActivity.class));
             finish();
         }
-
     }
 
     @Override
@@ -518,9 +506,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
             if (currentEventId != null) {
                 ImageService.uploadEventImage(imageUri, currentEventId, this);
             }
-            // update the event here with the new image
-            // do it just in case, its already set in the db
-            // currentEvent.setPoster(imageUri.toString());
         }
     }
 }

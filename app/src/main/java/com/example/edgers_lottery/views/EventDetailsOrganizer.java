@@ -195,6 +195,7 @@ import android.widget.*;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.services.LotteryService;
@@ -217,7 +218,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
     private String eventId;
     private TextView locationName, entrantLimit, description, countdown;
-    private ImageView ivQrCode;
+    private ImageView ivQrCode, ivEventImage;
 
     private FirebaseFirestore db;
 
@@ -259,8 +260,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         description  = findViewById(R.id.tvDescription);
         countdown    = findViewById(R.id.tvRegistrationCountdown);
         ivQrCode     = findViewById(R.id.ivQrCode);
-
-
+        ivEventImage = findViewById(R.id.eventImage);
         // ✅ NEW
         inviteContainer = findViewById(R.id.inviteContainer);
         btnInviteUser = findViewById(R.id.btnInviteUser);
@@ -278,9 +278,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         String dateString = doc.getString("date");
                         String desc       = doc.getString("description");
                         Long capacity     = doc.getLong("capacity");
+                        String imageURL = doc.getString("poster");
                         List<Map<String, Object>> rawinvitedUsers =
                                 (List<Map<String, Object>>) doc.get("invitedUsers");
-
                         if (rawinvitedUsers != null) {
                             invitedUsers
                                     = rawinvitedUsers;
@@ -293,6 +293,11 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         entrantLimit.setText("Entrants: " + (capacity != null ? capacity : 0));
                         description.setText("Description: " + (desc != null ? desc : ""));
 
+                        if (imageURL != null) {
+                            Glide.with(this).load(imageURL).placeholder(R.drawable.blank_event).into(ivEventImage);
+                        } else {
+                            ivEventImage.setImageResource(R.drawable.blank_event);
+                        }
                         // ✅ Store isPublic
                         Boolean isPublic = doc.getBoolean("ispublic");
                         isPublicEvent = Boolean.TRUE.equals(isPublic);

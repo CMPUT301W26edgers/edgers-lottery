@@ -68,20 +68,65 @@ public class OrganizerEventsListActivity extends AppCompatActivity {
         allEventsArray.clear();
         adapter.clear();
 
+        // ── Query 1: events the user created (organizerId == uid) ──────────
         db.collection("events")
                 .whereEqualTo("organizerId", uid)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                .addOnSuccessListener(ownedSnapshots -> {
+                    for (DocumentSnapshot document : ownedSnapshots) {
                         Event event = document.toObject(Event.class);
                         if (event != null) {
                             event.setId(document.getId());
-                            eventsArray.add(event);
-                            allEventsArray.add(event);
+                            // Avoid duplicates in case both queries return the same doc
+                            if (!containsEvent(allEventsArray, event.getId())) {
+                                eventsArray.add(event);
+                                allEventsArray.add(event);
+                            }
                         }
                     }
                     adapter.notifyDataSetChanged();
+
+                    // ── Query 2: events where user is a co-organizer ────────
+                    db.collection("events")
+                            .whereArrayContains("coOrganizers", uid)
+                            .get()
+                            .addOnSuccessListener(coOrgSnapshots -> {
+                                for (DocumentSnapshot document : coOrgSnapshots) {
+                                    Event event = document.toObject(Event.class);
+                                    if (event != null) {
+                                        event.setId(document.getId());
+                                        // Only add if not already in the list from query 1
+                                        if (!containsEvent(allEventsArray, event.getId())) {
+                                            eventsArray.add(event);
+                                            allEventsArray.add(event);
+                                        }
+                                    }
+                                }
+                                adapter.notifyDataSetChanged();
+                            })
+                            .addOnFailureListener(e -> {
+                                // Co-org query failed — owned events still show, non-critical
+                                android.widget.Toast.makeText(this,
+                                        "Could not load co-organized events: " + e.getMessage(),
+                                        android.widget.Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    android.widget.Toast.makeText(this,
+                            "Failed to load events: " + e.getMessage(),
+                            android.widget.Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    /**
+     * Returns true if the list already contains an event with the given id.
+     * Used to prevent duplicates when merging the two Firestore queries.
+     */
+    private boolean containsEvent(ArrayList<Event> list, String eventId) {
+        for (Event e : list) {
+            if (eventId.equals(e.getId())) return true;
+        }
+        return false;
     }
 
     private void filterEvents(String query) {
@@ -94,10 +139,8 @@ public class OrganizerEventsListActivity extends AppCompatActivity {
             for (Event event : allEventsArray) {
                 boolean matchesName = event.getName() != null &&
                         event.getName().toLowerCase().contains(lowerQuery);
-
                 boolean matchesDescription = event.getDescription() != null &&
                         event.getDescription().toLowerCase().contains(lowerQuery);
-
                 if (matchesName || matchesDescription) {
                     eventsArray.add(event);
                 }
@@ -106,5 +149,4 @@ public class OrganizerEventsListActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
     }
-
 }

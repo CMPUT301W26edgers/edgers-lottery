@@ -48,7 +48,6 @@ public class AdminHomeActivity extends AppCompatActivity {
         TextView export = findViewById(R.id.exportNotificationsMenu).findViewById(R.id.menuTitle);
         ImageButton homeButton = findViewById(R.id.HomeButton);
         ImageButton qrButton = findViewById(R.id.qrButton);
-        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
         ImageButton profileButton = findViewById(R.id.ProfileButton);
         ImageButton backButton = findViewById(R.id.backButton);
 
@@ -91,12 +90,6 @@ public class AdminHomeActivity extends AppCompatActivity {
 
         qrButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, QrScannerActivity.class);
-            startActivity(intent);
-            finish();
-        });
-
-        checkoutButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CheckoutActivity.class);
             startActivity(intent);
             finish();
         });

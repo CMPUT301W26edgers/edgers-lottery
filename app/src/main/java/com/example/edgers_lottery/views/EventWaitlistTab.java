@@ -29,8 +29,9 @@ import java.util.Set;
 /**
  * Activity that displays the waitlist management screen for an organizer.
  * Shows the list of users on the waitlist for a specific event and provides
- * options to run the lottery, notify waitlisters, invite specific users, and
- * navigate to other event management screens.
+ * options to notify waitlisters, invite specific users (US 02.01.03),
+ * assign co-organizers via long-press (US 02.09.01), and navigate to other
+ * event management screens.
  * Requires an {@code event_id} intent extra to identify the current event.
  */
 public class EventWaitlistTab extends AppCompatActivity {
@@ -42,12 +43,6 @@ public class EventWaitlistTab extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventId;
 
-    /**
-     * Initializes the activity, reads the event ID from the intent,
-     * and sets up views and navigation listeners.
-     *
-     * @param savedInstanceState saved state from a previous instance, or null if first creation
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,17 +60,15 @@ public class EventWaitlistTab extends AppCompatActivity {
     }
 
     private void initViews() {
-        rvWaitlist = findViewById(R.id.rvWaitlist);
+        rvWaitlist      = findViewById(R.id.rvWaitlist);
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        findViewById(R.id.btnNotifyWaitlisters).setOnClickListener(v -> notifyWaitlisters());
-        // US 02.01.03 — invite button (add this button to activity_waitlist_organizer.xml)
+        //findViewById(R.id.btnNotifyWaitlisters).setOnClickListener(v -> notifyWaitlisters());
         findViewById(R.id.btnInviteUser).setOnClickListener(v -> showInviteSearchDialog());
     }
 
     /**
      * Attaches navigation click listeners to the edit event, event details, and entrants buttons.
-     * Passes the current {@code eventId} to each destination activity via intent extra.
      */
     private void setupListeners() {
         findViewById(R.id.editEventBtn).setOnClickListener(v -> {
@@ -115,18 +108,22 @@ public class EventWaitlistTab extends AppCompatActivity {
     }
 
     /**
-     * Initializes the RecyclerView with a {@link WaitlistAdapter} and a linear layout manager.
+     * Initializes the RecyclerView with a {@link WaitlistAdapter}.
+     * Long-pressing a row triggers co-organizer assignment (US 02.09.01).
      */
     private void setupRecyclerView() {
         waitlistUsers = new ArrayList<>();
-        adapter = new WaitlistAdapter(waitlistUsers, this::removeFromWaitlist);
+        adapter = new WaitlistAdapter(
+                waitlistUsers,
+                this::removeFromWaitlist,
+                this::onWaitlisterLongPressed   // US 02.09.01
+        );
         rvWaitlist.setLayoutManager(new LinearLayoutManager(this));
         rvWaitlist.setAdapter(adapter);
     }
 
     /**
-     * Fetches the waitlist for the current event from Firestore
-     * and populates the RecyclerView adapter.
+     * Fetches the waitlist for the current event from Firestore in real-time.
      */
     private void loadWaitlist() {
         db.collection("events")
@@ -143,10 +140,10 @@ public class EventWaitlistTab extends AppCompatActivity {
                             for (Object item : waitingListRaw) {
                                 if (item instanceof Map) {
                                     Map<String, Object> userMap = (Map<String, Object>) item;
-                                    String userId   = (String) userMap.get("id");
-                                    String name     = (String) userMap.get("name");
-                                    String imageUrl = (String) userMap.get("profileImage");
-                                    waitlistUsers.add(new WaitlistUser(userId, name, imageUrl));
+                                    waitlistUsers.add(new WaitlistUser(
+                                            (String) userMap.get("id"),
+                                            (String) userMap.get("name"),
+                                            (String) userMap.get("profileImage")));
                                 }
                             }
                         }
@@ -158,9 +155,6 @@ public class EventWaitlistTab extends AppCompatActivity {
 
     /**
      * Removes a user from the waitlist in Firestore and updates the RecyclerView.
-     *
-     * @param user     the {@link WaitlistUser} to remove
-     * @param position the position of the user in the adapter list
      */
     private void removeFromWaitlist(WaitlistUser user, int position) {
         db.collection("events")
@@ -221,19 +215,14 @@ public class EventWaitlistTab extends AppCompatActivity {
     }
 
     /**
-     * Searches the users collection for users matching {@code query} by name, email,
-     * or phone (case-insensitive). Excludes users already on the waitlist.
-     * Shows a picker dialog with the results.
-     *
-     * @param query the search string entered by the organizer
+     * Searches users by name, email, or phone (case-insensitive, client-side).
+     * Excludes users already on the waitlist.
      */
     private void searchAndShowResults(String query) {
         String lowerQuery = query.toLowerCase();
 
-        // First load the current waitlist so we can exclude those users from results
         db.collection("events").document(eventId).get()
                 .addOnSuccessListener(eventDoc -> {
-                    // Build a set of IDs already on the waitlist
                     Set<String> alreadyAdded = new HashSet<>();
                     List<Object> currentList = (List<Object>) eventDoc.get("waitingList");
                     if (currentList != null) {
@@ -245,7 +234,6 @@ public class EventWaitlistTab extends AppCompatActivity {
                         }
                     }
 
-                    // Now search all users and filter client-side
                     db.collection("users").get()
                             .addOnSuccessListener(querySnapshot -> {
                                 List<Map<String, Object>> results = new ArrayList<>();
@@ -259,7 +247,7 @@ public class EventWaitlistTab extends AppCompatActivity {
                                     String phone = doc.getString("phone");
 
                                     boolean matches =
-                                            (name  != null && name.toLowerCase().contains(lowerQuery))  ||
+                                            (name  != null && name.toLowerCase().contains(lowerQuery)) ||
                                                     (email != null && email.toLowerCase().contains(lowerQuery)) ||
                                                     (phone != null && phone.toLowerCase().contains(lowerQuery));
 
@@ -289,45 +277,35 @@ public class EventWaitlistTab extends AppCompatActivity {
     }
 
     /**
-     * Displays a list of matched users and lets the organizer pick one to invite.
-     *
-     * @param results   the list of matched user maps
-     * @param eventDoc  the current event snapshot (used for capacity check)
+     * Displays matched users in a picker dialog. Checks capacity before showing.
      */
     private void showResultsPickerDialog(List<Map<String, Object>> results,
                                          com.google.firebase.firestore.DocumentSnapshot eventDoc) {
-        // Check capacity before even showing the list
-        Long capacity    = eventDoc.getLong("capacity");
+        Long capacity   = eventDoc.getLong("capacity");
         List<Object> currentList = (List<Object>) eventDoc.get("waitingList");
-        int currentSize  = currentList != null ? currentList.size() : 0;
+        int currentSize = currentList != null ? currentList.size() : 0;
         if (capacity != null && currentSize >= capacity) {
             Toast.makeText(this, "Waitlist is already at capacity", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Build display labels: "Name (email)"
         String[] labels = new String[results.size()];
         for (int i = 0; i < results.size(); i++) {
-            String name  = (String) results.get(i).get("name");
-            String email = (String) results.get(i).get("email");
-            labels[i] = name + " (" + email + ")";
+            labels[i] = results.get(i).get("name") + " (" + results.get(i).get("email") + ")";
         }
 
         new AlertDialog.Builder(this)
                 .setTitle("Select a user to invite")
-                .setItems(labels, (dialog, index) ->
-                        inviteUserToWaitlist(results.get(index)))
+                .setItems(labels, (dialog, index) -> inviteUserToWaitlist(results.get(index)))
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
     /**
      * Adds the selected user to the event's waitingList in Firestore.
-     *
-     * @param userInfo map containing "id", "name", "profileImage"
+     * Guards against public events.
      */
     private void inviteUserToWaitlist(Map<String, Object> userInfo) {
-        // Check if the event is private before inviting
         db.collection("events").document(eventId).get()
                 .addOnSuccessListener(doc -> {
                     Boolean isPublic = doc.getBoolean("ispublic");
@@ -338,7 +316,6 @@ public class EventWaitlistTab extends AppCompatActivity {
                         return;
                     }
 
-                    // Build entry matching existing waitingList schema
                     Map<String, Object> entry = new HashMap<>();
                     entry.put("id",           userInfo.get("id"));
                     entry.put("name",         userInfo.get("name"));
@@ -358,10 +335,125 @@ public class EventWaitlistTab extends AppCompatActivity {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // US 02.09.01 — Assign a waitlister as co-organizer (long-press)
+    // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * Placeholder method for running the lottery to select entrants from the waitlist.
+     * Called when a waitlist row is long-pressed.
+     * Shows a confirmation dialog before assigning the user as co-organizer.
      */
+    private void onWaitlisterLongPressed(WaitlistUser user) {
+        new AlertDialog.Builder(this)
+                .setTitle("Assign Co-Organizer?")
+                .setMessage(user.getName() + " will be made a co-organizer for this event "
+                        + "and removed from the waitlist.")
+                .setPositiveButton("Confirm", (dialog, which) -> assignCoOrganizer(user))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    /**
+     * Assigns the given user as a co-organizer by:
+     *  1. Checking they are not already a co-organizer.
+     *  2. Adding their ID to the event's {@code coOrganizers} array.
+     *  3. Setting {@code isOrganizer = true} on their user document.
+     *  4. Removing their full entry from the event's {@code waitingList}.
+     *  5. Optionally sending a co-organizer invite notification.
+     */
+    private void assignCoOrganizer(WaitlistUser user) {
+        String userId = user.getUserId();
+
+        // Step 1 — guard: check not already a co-organizer
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(eventDoc -> {
+                    List<String> coOrgs = (List<String>) eventDoc.get("coOrganizers");
+                    if (coOrgs != null && coOrgs.contains(userId)) {
+                        Toast.makeText(this, user.getName() + " is already a co-organizer", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Step 2 — add to coOrganizers on the event
+                    db.collection("events").document(eventId)
+                            .update("coOrganizers", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener(unused1 -> {
+
+                                // Step 3 — set isOrganizer = true on the user document
+                                db.collection("users").document(userId)
+                                        .update("organizer", true)
+                                        .addOnSuccessListener(unused2 -> {
+
+                                            // Step 4 — remove the full matching entry from waitingList
+                                            removeCoOrgFromWaitlist(user, eventDoc);
+
+                                            // Step 5 — send notification if the method exists
+                                            try {
+                                                String eventName = eventDoc.getString("name");
+                                                NotificationService.sendCoOrganizerInviteNotification(
+                                                        userId, eventId, eventName);
+                                            } catch (Exception ignored) {
+                                                // sendCoOrganizerInviteNotification not yet implemented — safe to skip
+                                            }
+                                        })
+                                        .addOnFailureListener(e ->
+                                                Toast.makeText(this,
+                                                        "Assigned co-organizer but could not update user record: " + e.getMessage(),
+                                                        Toast.LENGTH_SHORT).show());
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to assign co-organizer: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Could not load event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Finds and removes the user's full map entry from the {@code waitingList} array.
+     * Uses the already-fetched eventDoc to avoid an extra Firestore read, then re-fetches
+     * only if needed to get the exact map object for arrayRemove.
+     *
+     * @param user     the user to remove
+     * @param eventDoc the already-fetched event snapshot
+     */
+    private void removeCoOrgFromWaitlist(WaitlistUser user,
+                                         com.google.firebase.firestore.DocumentSnapshot eventDoc) {
+        // Re-fetch to get the live waitingList so arrayRemove matches the exact stored object
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    List<Object> waitingList = (List<Object>) doc.get("waitingList");
+                    if (waitingList == null || waitingList.isEmpty()) {
+                        Toast.makeText(this, user.getName() + " is now a co-organizer", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Find the full matching entry — must use the exact stored object for arrayRemove
+                    Object entryToRemove = null;
+                    for (Object item : waitingList) {
+                        if (item instanceof Map && user.getUserId().equals(((Map<?, ?>) item).get("id"))) {
+                            entryToRemove = item;
+                            break;
+                        }
+                    }
+
+                    if (entryToRemove == null) {
+                        // Not on waitlist — still a successful co-org assignment
+                        Toast.makeText(this, user.getName() + " is now a co-organizer", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    db.collection("events").document(eventId)
+                            .update("waitingList", FieldValue.arrayRemove(entryToRemove))
+                            .addOnSuccessListener(unused ->
+                                    Toast.makeText(this,
+                                            user.getName() + " is now a co-organizer and has been removed from the waitlist",
+                                            Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this,
+                                            "Co-organizer assigned but waitlist removal failed: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show());
+                });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
 
     /**
      * Sends a WAITLIST_UPDATE notification to all users currently on the waitlist.

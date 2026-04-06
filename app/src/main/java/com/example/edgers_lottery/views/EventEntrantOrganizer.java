@@ -13,14 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.WaitlistUser;
 import com.example.edgers_lottery.models.WaitlistAdapter;
-import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
 
 /**
  * Activity that displays the entrant management screen for an organizer.
@@ -30,6 +30,9 @@ import java.util.Date;
  * Long-pressing a user row lets the organizer assign them as a co-organizer
  * (US 02.09.01), which adds them to the event's coOrganizers list and removes
  * them from the waitlist pool.
+ *
+ * Co-organizers are verified against the event's {@code coOrganizers} array
+ * or {@code organizerId} before being granted access to manage this screen.
  */
 public class EventEntrantOrganizer extends AppCompatActivity {
 
@@ -39,12 +42,11 @@ public class EventEntrantOrganizer extends AppCompatActivity {
     private List<WaitlistUser> entrantUsers;
     private FirebaseFirestore db;
     private String eventId;
-    private List<Map<String, Object>> invitedUsers = new ArrayList<>();
+    private List<Map<String, Object>> invitedUsers    = new ArrayList<>();
     private List<Map<String, Object>> AllInvitedUsers = new ArrayList<>();
-    private List<Map<String, Object>> declinedUsers = new ArrayList<>();
-    private List<Map<String, Object>> acceptedUsers = new ArrayList<>();
+    private List<Map<String, Object>> declinedUsers   = new ArrayList<>();
+    private List<Map<String, Object>> acceptedUsers   = new ArrayList<>();
     private String currentView = "allInvited";
-
 
     /**
      * Initializes the activity, reads the event ID from the intent,
@@ -62,27 +64,76 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         initViews();
         setupListeners();
         setupRecyclerView();
+
         if (eventId != null) {
-            loadEntrants();
+            // Verify the current user is the organizer or a co-organizer before loading
+            verifyAccessThenLoad();
         }
-        db.collection("events")
-                .document(eventId)
-                .get()
+    }
+
+    /**
+     * Verifies the current Firebase user is either the event's organizer or listed
+     * in its {@code coOrganizers} array before loading entrant data.
+     *
+     * This mirrors the loadMyEvents() pattern from OrganizerEventsListActivity,
+     * which checks organizerId == uid, extended here to also cover coOrganizers.
+     */
+    private void verifyAccessThenLoad() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "No logged in user found", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        String uid = currentUser.getUid();
+
+        db.collection("events").document(eventId).get()
                 .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        List<Map<String, Object>> rawAllInvitedUsers =
-                                (List<Map<String, Object>>) doc.get("AllInvitedUsers");
-                        List<Map<String, Object>> rawDeclinedUsers =
-                                (List<Map<String, Object>>) doc.get("declinedUsers");
-                        List<Map<String, Object>> rawAcceptedUsers =
-                                (List<Map<String, Object>>) doc.get("entrants");
-                        AllInvitedUsers  = rawAllInvitedUsers != null ? rawAllInvitedUsers : new ArrayList<>();
-                        declinedUsers   = rawDeclinedUsers   != null ? rawDeclinedUsers   : new ArrayList<>();
-                        acceptedUsers   = rawAcceptedUsers   != null ? rawAcceptedUsers   : new ArrayList<>();
-                    } else {
+                    if (!doc.exists()) {
                         Toast.makeText(this, "Event not found", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
                     }
+
+                    // Check if user is the primary organizer
+                    String organizerId = doc.getString("organizerId");
+                    boolean isPrimaryOrganizer = uid.equals(organizerId);
+
+                    // Check if user is in the coOrganizers array
+                    List<String> coOrgs = (List<String>) doc.get("coOrganizers");
+                    boolean isCoOrganizer = coOrgs != null && coOrgs.contains(uid);
+
+                    if (!isPrimaryOrganizer && !isCoOrganizer) {
+                        Toast.makeText(this, "You do not have permission to manage this event", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+
+                    // Access granted — load all data
+                    loadEntrants();
+                    loadFilterLists(doc);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to verify access: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    finish();
                 });
+    }
+
+    /**
+     * Loads the AllInvitedUsers, declinedUsers, and entrants arrays from an already-fetched
+     * document snapshot. Called after access is verified to avoid a redundant Firestore read.
+     *
+     * @param doc the already-fetched event DocumentSnapshot
+     */
+    private void loadFilterLists(com.google.firebase.firestore.DocumentSnapshot doc) {
+        List<Map<String, Object>> rawAllInvitedUsers = (List<Map<String, Object>>) doc.get("AllInvitedUsers");
+        List<Map<String, Object>> rawDeclinedUsers   = (List<Map<String, Object>>) doc.get("declinedUsers");
+        List<Map<String, Object>> rawAcceptedUsers   = (List<Map<String, Object>>) doc.get("entrants");
+
+        AllInvitedUsers = rawAllInvitedUsers != null ? rawAllInvitedUsers : new ArrayList<>();
+        declinedUsers   = rawDeclinedUsers   != null ? rawDeclinedUsers   : new ArrayList<>();
+        acceptedUsers   = rawAcceptedUsers   != null ? rawAcceptedUsers   : new ArrayList<>();
     }
 
     /**
@@ -152,20 +203,21 @@ public class EventEntrantOrganizer extends AppCompatActivity {
             adapter.notifyDataSetChanged();
             tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
         });
-        BtnChosen.setOnClickListener(v-> {
+
+        BtnChosen.setOnClickListener(v -> {
             currentView = "allInvited";
             entrantUsers.clear();
-
             for (Map<String, Object> userMap : AllInvitedUsers) {
-                String userId = (String) userMap.get("id");
-                String name = (String) userMap.get("name");
-                String imageUrl = (String) userMap.get("profileImage");
-                entrantUsers.add(new WaitlistUser(userId, name, imageUrl));
+                entrantUsers.add(new WaitlistUser(
+                        (String) userMap.get("id"),
+                        (String) userMap.get("name"),
+                        (String) userMap.get("profileImage")));
             }
             adapter.notifyDataSetChanged();
             tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
         });
-        BtnCancelled.setOnClickListener(v->{
+
+        BtnCancelled.setOnClickListener(v -> {
             currentView = "declined";
             entrantUsers.clear();
             for (Map<String, Object> userMap : declinedUsers) {
@@ -193,8 +245,8 @@ public class EventEntrantOrganizer extends AppCompatActivity {
     }
 
     /**
-     * Loads confirmed entrants from the "entrants" array in Firestore.
-     * Each entry is a full user object; we read id, name, and profileImage.
+     * Loads confirmed entrants from the "AllInvitedUsers" array in Firestore via snapshot listener.
+     * Stays in sync with real-time changes.
      */
     private void loadEntrants() {
         db.collection("events")
@@ -220,14 +272,17 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                         }
                         adapter.notifyDataSetChanged();
                         tvEntrantCount.setText("Entrants for Event: " + entrantUsers.size());
+
+                        // Also keep the filter lists in sync with real-time updates
+                        loadFilterLists(documentSnapshot);
                     }
                 });
     }
 
     /**
-     * Removes a user from the "entrants" array in Firestore and updates the RecyclerView.
+     * Moves a user from the "entrants" array to the "declinedUsers" array in Firestore.
      *
-     * @param user     the {@link WaitlistUser} to remove
+     * @param user     the {@link WaitlistUser} to move
      * @param position the position of the user in the adapter list
      */
     private void removeFromEntrants(WaitlistUser user, int position) {
@@ -273,10 +328,8 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                             break;
                         }
                     }
-
                     if (!alreadyDeclined) {
                         declined.add(movedUser);
-                        //declined.add(movedUser);
                     }
 
                     db.collection("events")
@@ -294,17 +347,14 @@ public class EventEntrantOrganizer extends AppCompatActivity {
 
                                 entrantUsers.remove(position);
                                 adapter.notifyItemRemoved(position);
-
                                 tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
                                 Toast.makeText(this, "User moved to declined", Toast.LENGTH_SHORT).show();
                             })
-                            .addOnFailureListener(err -> {
-                                Toast.makeText(this, "Failed to update user: " + err.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
+                            .addOnFailureListener(err ->
+                                    Toast.makeText(this, "Failed to update user: " + err.getMessage(), Toast.LENGTH_SHORT).show());
                 })
-                .addOnFailureListener(err -> {
-                    Toast.makeText(this, "Failed to load event: " + err.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(err ->
+                        Toast.makeText(this, "Failed to load event: " + err.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -338,26 +388,26 @@ public class EventEntrantOrganizer extends AppCompatActivity {
     private void assignCoOrganizer(WaitlistUser user) {
         String userId = user.getUserId();
 
-        // Step 1 — guard: check not already a co-organizer for this event
         db.collection("events").document(eventId).get()
                 .addOnSuccessListener(eventDoc -> {
+                    // Guard: already a co-organizer?
                     List<String> coOrgs = (List<String>) eventDoc.get("coOrganizers");
                     if (coOrgs != null && coOrgs.contains(userId)) {
                         Toast.makeText(this, user.getName() + " is already a co-organizer", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    // Step 2 — add to coOrganizers on the event
+                    // Step 1 — add to coOrganizers on the event
                     db.collection("events").document(eventId)
                             .update("coOrganizers", FieldValue.arrayUnion(userId))
                             .addOnSuccessListener(unused1 -> {
 
-                                // Step 3 — set isOrganizer = true on the user document
+                                // Step 2 — set isOrganizer = true on the user document
                                 db.collection("users").document(userId)
-                                        .update("isOrganizer", true)
+                                        .update("organizer", true)
                                         .addOnSuccessListener(unused2 ->
 
-                                                // Step 4 — remove from waitingList
+                                                // Step 3 — remove from waitingList
                                                 removeCoOrgFromWaitlist(user)
                                         )
                                         .addOnFailureListener(e ->
