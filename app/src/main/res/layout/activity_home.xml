@@ -89,7 +89,7 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="0dp"
         android:scrollbars="none"
-        app:layout_constraintBottom_toTopOf="@+id/eventListView"
+        app:layout_constraintBottom_toTopOf="@+id/view_switcher"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,13 +103,13 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btnFavorites"
+                android:id="@+id/btnCarousel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:backgroundTint="@color/headerGray"
                 android:stateListAnimator="@null"
-                android:text="♡ Favorites"
+                android:text="♡ Carousel Mode"
                 android:textAllCaps="false"
                 android:textColor="@color/black"
                 app:cornerRadius="20dp" />
@@ -162,15 +162,26 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <ListView
-        android:id="@+id/eventListView"
-        android:layout_width="416dp"
-        android:layout_height="580dp"
-        android:layout_marginHorizontal="1dp"
+    <FrameLayout
+        android:id="@+id/view_switcher"
         app:layout_constraintBottom_toTopOf="@+id/action_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filter_buttons_scroll" />
+        app:layout_constraintTop_toBottomOf="@+id/filter_buttons_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ListView
+            android:id="@+id/eventListView"
+            android:layout_width="match_parent"
+            android:layout_height="580dp"
+            android:layout_marginHorizontal="1dp"
+            android:visibility="gone" />
+        <com.yuyakaido.android.cardstackview.CardStackView
+            android:id="@+id/card_stack_view"
+            android:layout_width="match_parent"
+            android:layout_height="580dp"
+            android:visibility="visible"/>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/action_bar"

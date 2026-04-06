@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -19,9 +21,17 @@ import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.models.EventArrayAdapter;
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.EventCarouselAdapter;
 import com.example.edgers_lottery.models.User;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
+import com.yuyakaido.android.cardstackview.CardStackListener;
+import com.yuyakaido.android.cardstackview.CardStackView;
+import com.yuyakaido.android.cardstackview.Direction;
+import com.yuyakaido.android.cardstackview.StackFrom;
+import com.yuyakaido.android.cardstackview.SwipeableMethod;
+
 import java.util.ArrayList;
 
 /**
@@ -41,10 +51,26 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     ArrayList<Event> filteredEventsArray = new ArrayList<>();
     ListView eventsList;
     EventArrayAdapter adapter;
+    EventCarouselAdapter carouselAdapter;
+    CardStackLayoutManager cardStackLayoutManager;
+    CardStackView cardStackView;
 //    String keyword = "";
     boolean capacity_bool = false;
+    boolean carousel_bool = false;
     String availabilityStart = "";
     String availabilityEnd = "";
+    ImageButton profileButton ;
+    Button historyButton;
+    ImageButton qrButton;
+    ImageButton checkoutButton;
+    ImageButton notificationsButton;
+    Button carouselButton;
+    Button filterButton ;
+    Button organizerButton;
+    Button adminButton;
+    SearchView searchView;
+    HorizontalScrollView filter_buttons_scroll;
+    LinearLayout linearLayout13; // holds the search bar
 
     /**
      * Displays an alert dialog showing the given user's name and email.
@@ -159,87 +185,34 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
             return;
         }
 
-        ImageButton profileButton = findViewById(R.id.ProfileButton);
-        Button historyButton = findViewById(R.id.btnHistory);
-        ImageButton qrButton = findViewById(R.id.qrButton);
-        ImageButton checkoutButton = findViewById(R.id.checkoutButton);
-        ImageButton notificationsButton = findViewById(R.id.ProfileNotification);
-//        Button favoritesButton = findViewById(R.id.btnFavorites);
-        Button filterButton = findViewById(R.id.btnFilter);
-        Button organizerButton = findViewById(R.id.btnOrganizerMode);
-        Button adminButton = findViewById(R.id.btnAdminMode);
-        SearchView searchView = findViewById(R.id.searchView);
 
+        findViews();
         if (user.isOrganizer()) {
             organizerButton.setText("\uD83D\uDCC4 Organizer Mode");
         } else {
             organizerButton.setText("\uD83D\uDCC4 Create Event");
         }
-
-        profileButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ProfileActivity.class);
-            startActivity(intent);
-            finish();
-        });
-
-        qrButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, QrScannerActivity.class);
-            startActivity(intent);
-        });
-
-        checkoutButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CheckoutActivity.class);
-            startActivity(intent);
-        });
-
-        notificationsButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ExportNotificationsActivity.class);
-            startActivity(intent);
-        });
-
+        if ("ADMIN".equals(user.getRole())) {
+            adminButton.setVisibility(View.VISIBLE);
+        } else {
+            adminButton.setVisibility(View.INVISIBLE);
+        }
+        setListeners();
+        setupCardStack(); // setup carousel view
         // view events here!
-        eventsList = findViewById(R.id.eventListView);
         adapter = new EventArrayAdapter(this, eventsArray);
         eventsList.setAdapter(adapter);
         db = FirebaseFirestore.getInstance();
         loadEvents();
-        // REMOVE if onResume() works and loads list changes instantly
-//        db.collection("events").get()
-//                .addOnSuccessListener(queryDocumentSnapshots -> {
-//                    for (DocumentSnapshot document : queryDocumentSnapshots) {
-//                        Event event = document.toObject(Event.class);
-//                        adapter.add(event);
-//                    }
-//                    adapter.notifyDataSetChanged();
-//                })
-//                .addOnFailureListener(e -> {
-//                    android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
-//                });
-
-        eventsList.setOnItemClickListener((parent, view, position, id) -> {
-            Event selectedEvent = eventsArray.get(position);
-            Intent intent = new Intent(this, EventDetailsActivity.class);
-            intent.putExtra("eventId", selectedEvent.getId());
-            startActivity(intent);
-        });
-
-        historyButton.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, EventHistoryActivity.class);
-            startActivity(intent);
-        });
-
-        filterButton.setOnClickListener(v -> {
-            FilterEventsFragment filterEventsFragment = new FilterEventsFragment();
-            filterEventsFragment.show(getSupportFragmentManager(), "filter_events");
-            android.util.Log.d(TAG, "At Capacity:" + capacity_bool + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
-        });
+        // carousel view
+        carouselAdapter = new EventCarouselAdapter(this, eventsArray);
+        cardStackView.setAdapter(carouselAdapter);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false; // not needed since we filter on every keystroke
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) {
@@ -247,50 +220,12 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                     adapter.clear();
                     adapter.addAll(filteredEventsArray.isEmpty() ? eventsArray : filteredEventsArray);
                     adapter.notifyDataSetChanged();
+
                 } else {
                     filterEvents(newText);
                 }
                 return true;
             }
-        });
-        organizerButton.setOnClickListener(v -> {
-            if (user.isOrganizer()){
-                new AlertDialog.Builder(this)
-                        .setTitle("Switch to Organizer")
-                        .setMessage("Are you sure you want to switch to the organizer view?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            user.setRole("ORGANIZER");
-                            Intent intent = new Intent(this, OrganizerHomeActivity.class);
-                            startActivity(intent);
-                            finish();
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .show();
-            } else{ // create first event, if they dont create one then they shouldnt be an organizer
-                Intent intent = new Intent(this, CreateEditEventActivity.class);
-                startActivity(intent);
-                finish();
-            }
-
-        });
-
-        if ("ADMIN".equals(user.getRole())) {
-            adminButton.setVisibility(View.VISIBLE);
-        } else {
-            adminButton.setVisibility(View.INVISIBLE);
-        }
-
-        adminButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Switch to Admin")
-                    .setMessage("Are you sure you want to switch to Admin view?")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        Intent intent = new Intent(this, AdminHomeActivity.class);
-                        startActivity(intent);
-                        finish();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
         });
     }
 // this causes a bug where it reloads all events after a user clicks back to the home screen after searching
@@ -321,9 +256,185 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
                         }
                     }
                     adapter.notifyDataSetChanged();
+                    carouselAdapter.setEvents(allEventsArray);
+                    carouselAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
                     android.util.Log.e(TAG, "Failed to fetch events: " + e.getMessage());
                 });
+    }
+    private void findViews(){
+        profileButton = findViewById(R.id.ProfileButton);
+        historyButton = findViewById(R.id.btnHistory);
+        qrButton = findViewById(R.id.qrButton);
+        checkoutButton = findViewById(R.id.checkoutButton);
+        notificationsButton = findViewById(R.id.ProfileNotification);
+        filterButton = findViewById(R.id.btnFilter);
+        organizerButton = findViewById(R.id.btnOrganizerMode);
+        adminButton = findViewById(R.id.btnAdminMode);
+        searchView = findViewById(R.id.searchView);
+        carouselButton = findViewById(R.id.btnCarousel);
+        cardStackView = findViewById(R.id.card_stack_view);
+        eventsList = findViewById(R.id.eventListView);
+        filter_buttons_scroll = findViewById(R.id.filter_buttons_scroll);
+        linearLayout13 = findViewById(R.id.linearLayout13);
+    }
+    private void setListeners(){
+        profileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileActivity.class);
+            startActivity(intent);
+            finish();
+        });
+        qrButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, QrScannerActivity.class);
+            startActivity(intent);
+        });
+        checkoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CheckoutActivity.class);
+            startActivity(intent);
+        });
+        notificationsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ExportNotificationsActivity.class);
+            startActivity(intent);
+        });
+        eventsList.setOnItemClickListener((parent, view, position, id) -> {
+            Event selectedEvent = eventsArray.get(position);
+            Intent intent = new Intent(this, EventDetailsActivity.class);
+            intent.putExtra("eventId", selectedEvent.getId());
+            startActivity(intent);
+        });
+        historyButton.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, EventHistoryActivity.class);
+            startActivity(intent);
+        });
+        filterButton.setOnClickListener(v -> {
+            FilterEventsFragment filterEventsFragment = new FilterEventsFragment();
+            filterEventsFragment.show(getSupportFragmentManager(), "filter_events");
+            android.util.Log.d(TAG, "At Capacity:" + capacity_bool + ", Start:" + availabilityStart + ", End:" + availabilityEnd);
+        });
+        organizerButton.setOnClickListener(v -> {
+            if (user.isOrganizer()){
+                new AlertDialog.Builder(this)
+                        .setTitle("Switch to Organizer")
+                        .setMessage("Are you sure you want to switch to the organizer view?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            user.setRole("ORGANIZER");
+                            Intent intent = new Intent(this, OrganizerHomeActivity.class);
+                            startActivity(intent);
+                            finish();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            } else{ // create first event, if they dont create one then they shouldnt be an organizer
+                Intent intent = new Intent(this, CreateEditEventActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        adminButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Switch to Admin")
+                    .setMessage("Are you sure you want to switch to Admin view?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        Intent intent = new Intent(this, AdminHomeActivity.class);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+        carouselButton.setOnClickListener(v -> {
+            if (!carousel_bool) { // entering carousel mode
+                carouselButton.setText("♡ List Mode");
+                cardStackView.setVisibility(View.VISIBLE);
+                eventsList.setVisibility(GONE);
+                filter_buttons_scroll.setVisibility(GONE);
+                linearLayout13.setVisibility(GONE);
+
+                carouselAdapter.setEvents(allEventsArray);
+                carouselAdapter.notifyDataSetChanged();
+                cardStackLayoutManager.scrollToPosition(0);
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Carousel Instructions")
+                        .setMessage("Swipe card to the left to skip, right to view details")
+                        .setPositiveButton("OK", (dialog, which) -> dialog.dismiss()).show();
+            } else{ // entering list mode
+                carouselButton.setText("♡ Carousel Mode");
+                cardStackView.setVisibility(GONE);
+                filter_buttons_scroll.setVisibility(View.VISIBLE);
+                eventsList.setVisibility(View.VISIBLE);
+                linearLayout13.setVisibility(View.VISIBLE);
+            }
+            carousel_bool = !carousel_bool;
+        });
+    }
+    /**
+     * Sets up the CardStackLayoutManager with swipe settings and listener.
+     * https://www.geeksforgeeks.org/android/tinder-swipe-view-with-example-in-android/
+     */
+    private void setupCardStack() {
+        cardStackLayoutManager = new CardStackLayoutManager(this, new CardStackListener() {
+            @Override
+            public void onCardDragging(Direction direction, float ratio) {
+
+            }
+            @Override
+            public void onCardSwiped(Direction direction) {
+                int position = cardStackLayoutManager.getTopPosition();
+
+                // Handle the swipe action
+                if (direction == Direction.Right && position > 0) {
+                    Event event = allEventsArray.get(position - 1);
+                    Intent intent = new Intent(HomeActivity.this, EventDetailsActivity.class);
+                    intent.putExtra("eventId", event.getId());
+                    startActivity(intent);
+                } else if (direction == Direction.Left) {
+                    Toast.makeText(HomeActivity.this, "Skipped", Toast.LENGTH_SHORT).show();
+                }
+
+                // Check end of deck AFTER handling the swipe, not before
+                if (position >= allEventsArray.size()) {
+                    new AlertDialog.Builder(HomeActivity.this)
+                            .setTitle("You've seen all events!")
+                            .setMessage("Nothing left to see here!")
+                            .setPositiveButton("Start Over", (dialog, which) -> {
+                                carouselAdapter.setEvents(allEventsArray);
+                                carouselAdapter.notifyDataSetChanged();
+                                cardStackLayoutManager.scrollToPosition(0);
+                            })
+                            .setNegativeButton("Switch to List", (dialog, which) -> {
+                                carousel_bool = true;
+                                carouselButton.performClick();
+                            })
+                            .show();
+                }
+            }
+            // dont do anything with these at all
+            @Override
+            public void onCardRewound() {}
+
+            @Override
+            public void onCardCanceled() {}
+
+            @Override
+            public void onCardAppeared(View view, int position) {}
+
+            @Override
+            public void onCardDisappeared(View view, int position) {}
+        });
+
+        // Stack configuration
+        cardStackLayoutManager.setStackFrom(StackFrom.None);
+        cardStackLayoutManager.setVisibleCount(3);       // how many cards peek behind
+        cardStackLayoutManager.setTranslationInterval(8.0f);
+        cardStackLayoutManager.setScaleInterval(0.95f);
+        cardStackLayoutManager.setSwipeThreshold(0.3f);
+        cardStackLayoutManager.setMaxDegree(20.0f);
+        cardStackLayoutManager.setDirections(Direction.HORIZONTAL); // left and right only
+        cardStackLayoutManager.setCanScrollHorizontal(true);
+        cardStackLayoutManager.setCanScrollVertical(false);
+        cardStackLayoutManager.setSwipeableMethod(SwipeableMethod.AutomaticAndManual);
+        cardStackView.setLayoutManager(cardStackLayoutManager);
     }
 }
