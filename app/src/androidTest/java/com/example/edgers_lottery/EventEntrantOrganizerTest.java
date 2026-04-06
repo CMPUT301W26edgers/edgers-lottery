@@ -225,4 +225,92 @@ public class EventEntrantOrganizerTest {
         String label = "Entrants for Event: " + 0;
         assertEquals("Entrants for Event: 0", label);
     }
+    // -----------------------------------------------------------------------
+// cancelUser (AllInvited → Declined) logic tests
+// -----------------------------------------------------------------------
+
+    /**
+     * Simulates cancelling a user:
+     * - removes from AllInvitedUsers
+     * - adds to declinedUsers
+     */
+    private void cancelUser(
+            List<Map<String, Object>> allInvited,
+            List<Map<String, Object>> declined,
+            String targetUserId
+    ) {
+        Map<String, Object> movedUser = null;
+
+        for (int i = 0; i < allInvited.size(); i++) {
+            Map<String, Object> user = allInvited.get(i);
+            if (targetUserId.equals(user.get("id"))) {
+                movedUser = user;
+                allInvited.remove(i);
+                break;
+            }
+        }
+
+        if (movedUser == null) return;
+
+        boolean alreadyDeclined = false;
+        for (Map<String, Object> d : declined) {
+            if (targetUserId.equals(d.get("id"))) {
+                alreadyDeclined = true;
+                break;
+            }
+        }
+
+        if (!alreadyDeclined) {
+            declined.add(movedUser);
+        }
+    }
+
+    @Test
+    public void cancelUser_movesUserCorrectly() {
+        List<Map<String, Object>> allInvited = new ArrayList<>();
+        List<Map<String, Object>> declined = new ArrayList<>();
+
+        Map<String, Object> user = new HashMap<>();
+        user.put("id", "u1");
+        user.put("name", "Alice");
+
+        allInvited.add(user);
+
+        cancelUser(allInvited, declined, "u1");
+
+        // Removed from invited
+        assertEquals(0, allInvited.size());
+
+        // Added to declined
+        assertEquals(1, declined.size());
+        assertEquals("u1", declined.get(0).get("id"));
+    }
+
+    @Test
+    public void cancelUser_doesNotDuplicateInDeclined() {
+        List<Map<String, Object>> allInvited = new ArrayList<>();
+        List<Map<String, Object>> declined = new ArrayList<>();
+
+        Map<String, Object> user = new HashMap<>();
+        user.put("id", "u1");
+
+        allInvited.add(user);
+        declined.add(user); // already declined
+
+        cancelUser(allInvited, declined, "u1");
+
+        // Should still only have 1 declined
+        assertEquals(1, declined.size());
+    }
+
+    @Test
+    public void cancelUser_userNotFound_doesNothing() {
+        List<Map<String, Object>> allInvited = new ArrayList<>();
+        List<Map<String, Object>> declined = new ArrayList<>();
+
+        cancelUser(allInvited, declined, "u999");
+
+        assertEquals(0, allInvited.size());
+        assertEquals(0, declined.size());
+    }
 }
