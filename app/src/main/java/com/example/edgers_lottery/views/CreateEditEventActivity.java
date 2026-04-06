@@ -55,7 +55,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private EditText eventNameInput;
     private User user;
 
-
     private String currentEventId;
     private static final int PICK_IMAGE_REQUEST = 1;
 
