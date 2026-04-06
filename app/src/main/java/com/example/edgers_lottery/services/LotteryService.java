@@ -45,6 +45,7 @@ public class LotteryService {
                             // list of users not invited to the event
                             ArrayList<User> notInvitedList;
                             // the capacity of the event
+                            ArrayList<User> AllinvitedUsers;
                             int eventCapacity;
                             // the remaining capacity of the event if the organizer is rerunning the lottery
                             int remainingCapacity;
@@ -89,13 +90,31 @@ public class LotteryService {
                                 // update the event object with the new lists
                                 event.setInvitedUsers(chosenList);
                                 event.setWaitingList(notInvitedList);
+                                if (event.getAllinvitedUsers() != null){
+                                    AllinvitedUsers = event.getAllinvitedUsers();
+                                } else {
+                                    AllinvitedUsers = new ArrayList<>();
+                                }
+                                for (User u : chosenList) {
+                                    boolean exists = false;
+                                    for (User existing : AllinvitedUsers) {
+                                        if (existing.getId().equals(u.getId())) {
+                                            exists = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!exists) {
+                                        AllinvitedUsers.add(u);
+                                    }
+                                }
                                 // update the document in the database and hand off final data to notification service
                                 final ArrayList<User> finalChosenList = chosenList;
                                 final ArrayList<User> finalNotInvitedList = notInvitedList;
 
                                 db.collection("events").document(eventId)
                                         .update("invitedUsers", chosenList,
-                                                "waitingList", notInvitedList)
+                                                "waitingList", notInvitedList,
+                                                "AllInvitedUsers", AllinvitedUsers )
                                         .addOnSuccessListener(aVoid -> {
                                             android.util.Log.d("LotteryService", "Lottery complete");
                                             // hand off results to NotificationService once DB is confirmed updated

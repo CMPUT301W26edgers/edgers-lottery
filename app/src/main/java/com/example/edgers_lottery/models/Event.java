@@ -47,11 +47,16 @@ public class Event {
     /** List of users currently on the waiting list for this event. */
     private ArrayList<User> waitingList;
 
-    /** List of users selected by the lottery to be invited to this event. */
+    /** List of users selected by the lottery to be invited to this event. They are removed if they decline the invitation */
     private ArrayList<User> invitedUsers;
+    /** List of all users selected by the lottery to be invited to this event, regardless of if they accepted or declined */
+    private ArrayList<User> AllinvitedUsers;
 
     /** List of users who have confirmed their participation in this event. */
     private ArrayList<User> entrants;
+    /** List of users who have declined their participation in this event when invited **/
+    private ArrayList<User> declinedUsers;
+
 
     /** Whether entrants are required to be at the event location to participate. */
     private boolean enforceLocation;
@@ -61,6 +66,8 @@ public class Event {
      * Default no-argument constructor required by Firestore for deserialization.
      */
     public Event() {}
+
+
 
     /**
      * Constructs a new Event with all core fields.
@@ -86,6 +93,8 @@ public class Event {
         this.registrationEnd = registrationEnd;
         this.waitingList = new ArrayList<>();
         this.entrants = new ArrayList<>();
+        this.declinedUsers = new ArrayList<>();
+        this.AllinvitedUsers = new ArrayList<>();
     }
 
     /**
@@ -207,7 +216,11 @@ public class Event {
      * @param invitedUsers the invited users list to set
      */
     public void setInvitedUsers(ArrayList<User> invitedUsers) { this.invitedUsers = invitedUsers; }
+    public ArrayList<User> getDeclinedUsers() {return declinedUsers; }
+    public void setDeclinedUsers(ArrayList<User> declinedUsers) {this.declinedUsers = declinedUsers; }
+    public ArrayList<User> getAllinvitedUsers() { return AllinvitedUsers; }
 
+    public void setAllinvitedUsers(ArrayList<User> allinvitedUsers) { AllinvitedUsers = allinvitedUsers;   }
     /**
      * @return the list of confirmed event entrants
      */

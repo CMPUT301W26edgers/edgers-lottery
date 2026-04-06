@@ -14,6 +14,12 @@ import com.example.edgers_lottery.R;
  */
 public class AdminImageFullscreenActivity extends AppCompatActivity {
 
+    /**
+     * Called when the activity is created.
+     * Displays the selected image in full screen.
+     *
+     * @param savedInstanceState previously saved instance state, or null
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
