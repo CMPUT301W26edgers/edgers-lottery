@@ -37,6 +37,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Base64;
+import android.view.View;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +55,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private Slider sliderWaitlist;
     private EditText eventNameInput;
     private User user;
-
+    private Button btnCreateEvent;
+    private Button btnSave;
 
     private String currentEventId;
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -64,7 +66,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_create_end_event);
-        // get the current user
         user = CurrentUser.get();
         if (user == null) {
             Toast.makeText(this, "No user found", Toast.LENGTH_SHORT).show();
@@ -89,6 +90,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
         sliderWaitlist            = findViewById(R.id.sliderWaitlist);
         ivImage                   = findViewById(R.id.ivImage);
         eventNameInput            = findViewById(R.id.event_name);
+        btnCreateEvent            = findViewById(R.id.btnCreateEvent);
+        btnSave                   = findViewById(R.id.btnSave);
 
         sliderEntrants.setValueFrom(1);
         sliderEntrants.setValueTo(100);
@@ -104,6 +107,19 @@ public class CreateEditEventActivity extends AppCompatActivity {
         if (currentEventId != null) {
             loadEventData();
         }
+
+        updateButtonVisibility();
+    }
+
+    /** Shows Create button when no event exists yet, Save button once one does. */
+    private void updateButtonVisibility() {
+        if (currentEventId == null) {
+            btnCreateEvent.setVisibility(View.VISIBLE);
+            btnSave.setVisibility(View.GONE);
+        } else {
+            btnCreateEvent.setVisibility(View.GONE);
+            btnSave.setVisibility(View.VISIBLE);
+        }
     }
 
     private void loadEventData() {
@@ -117,7 +133,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // Keys match Event model fields exactly
                     String name            = doc.getString("name");
                     String date            = doc.getString("date");
                     String registrationEnd = doc.getString("registrationEnd");
@@ -159,7 +174,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        // Back always just pops this screen
         findViewById(R.id.btnBack).setOnClickListener(v -> {
             new androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Leaving Create Page?")
@@ -177,7 +191,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
-
         });
 
         findViewById(R.id.btnAddImage).setOnClickListener(v -> pickImage());
@@ -214,7 +227,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
             intent.putExtra("event_id", currentEventId);
             startActivity(intent);
         });
-//      Button commentsBtn = findViewById(R.id.commentsBtn);
 
         findViewById(R.id.commentsBtn).setOnClickListener(v -> {
             if (currentEventId == null) {
@@ -232,7 +244,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 return;
             }
             Intent intent = new Intent(this, OrganizerWaitlistMapActivity.class);
-            intent.putExtra("event_id", currentEventId); // Using "event_id" to match your teammate's intent keys
+            intent.putExtra("event_id", currentEventId);
             startActivity(intent);
         });
 
@@ -282,7 +294,6 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("waitingList", new ArrayList<>());
         eventData.put("entrants",    new ArrayList<>());
 
-        // Handle image → Base64
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -296,6 +307,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
         docRef.set(eventData)
                 .addOnSuccessListener(unused -> {
                     currentEventId = newId;
+                    updateButtonVisibility(); // swap Create → Save now that event exists
 
                     if (imageUri != null) {
                         ImageService.uploadEventImage(imageUri, newId, this);
@@ -455,10 +467,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
                 .update(updates)
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Event updated!", Toast.LENGTH_SHORT).show();
-                    // confirm user roles as an organizer
                     updateUserOrganizerPermission();
-
-                    finish(); // pops back to EventDetailsOrganizer → onResume() reloads data
+                    finish();
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
@@ -485,7 +495,7 @@ public class CreateEditEventActivity extends AppCompatActivity {
     private void updateUserOrganizerPermission(){
         if (!user.isOrganizer()) {
             user.setOrganizer(true);
-            CurrentUser.set(user);// update current user
+            CurrentUser.set(user);
             FirebaseFirestore.getInstance()
                     .collection("users")
                     .document(user.getId())
@@ -499,9 +509,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
-            imageUri = data.getData(); // the image the user picked
-            Glide.with(this).load(imageUri).circleCrop().into(ivImage); // load the image into the ImageView
-
+            imageUri = data.getData();
+            Glide.with(this).load(imageUri).circleCrop().into(ivImage);
             url = imageUri.toString();
             if (currentEventId != null) {
                 ImageService.uploadEventImage(imageUri, currentEventId, this);
