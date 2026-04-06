@@ -316,7 +316,9 @@ public class EventDetailsActivity extends AppCompatActivity {
         // Setup the waitlist viewer dialog
         waitlistButton.setOnClickListener(v -> {
             StringBuilder list = new StringBuilder();
-
+            for (User u : waitingList) {
+                list.append(u.getName()).append("\n");
+            }
             new AlertDialog.Builder(this)
                     .setTitle("Waitlist (" + waitingList.size() + " users)")
                     .setMessage(list.toString())
