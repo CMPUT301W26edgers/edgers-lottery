@@ -90,8 +90,8 @@ public class LotteryService {
                                 // update the event object with the new lists
                                 event.setInvitedUsers(chosenList);
                                 event.setWaitingList(notInvitedList);
-                                if (event.getAllinvitedUsers() != null){
-                                    AllinvitedUsers = event.getAllinvitedUsers();
+                                if (event.getAllInvitedUsers() != null){
+                                    AllinvitedUsers = event.getAllInvitedUsers();
                                 } else {
                                     AllinvitedUsers = new ArrayList<>();
                                 }

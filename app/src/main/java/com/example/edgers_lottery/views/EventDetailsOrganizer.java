@@ -457,28 +457,28 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                             .get()
                             .addOnSuccessListener(eventDoc -> {
 
-                                List<Map<String, Object>> waitlist =
-                                        (List<Map<String, Object>>) eventDoc.get("waitingList");
+                                List<Map<String, Object>> AllInvitedList =
+                                        (List<Map<String, Object>>) eventDoc.get("AllInvitedUsers");
 
-                                if (waitlist == null) {
-                                    waitlist = new ArrayList<>();
+                                if (AllInvitedList == null) {
+                                    AllInvitedList = new ArrayList<>();
                                 }
 
                                 // ✅ Prevent duplicates (by id)
                                 String newUserId = (String) userData.get("id");
 
-                                for (Map<String, Object> user : waitlist) {
+                                for (Map<String, Object> user : AllInvitedList) {
                                     if (newUserId.equals(user.get("id"))) {
                                         Toast.makeText(this, "User already in waitlist", Toast.LENGTH_SHORT).show();
                                         return;
                                     }
                                 }
 
-                                waitlist.add(userData);
+                                AllInvitedList.add(userData);
 
                                 db.collection("events")
                                         .document(eventId)
-                                        .update("waitingList", waitlist)
+                                        .update("AllInvitedUsers", AllInvitedList)
                                         .addOnSuccessListener(unused -> {
                                             String invitedUserId = (String) userData.get("id");
 
