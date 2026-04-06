@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="#F2ECFF"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
         android:layout_height="20dp"
+        android:background="#DBC5FF"
         android:orientation="vertical"
-        android:background="@color/headerGray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent"></LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout5"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/headerGray"
+        android:background="#DBC5FF"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
-        >
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
 
         <TextView
             android:id="@+id/ProfileTab"
@@ -54,7 +53,7 @@
             android:id="@+id/ProfileNotification"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:backgroundTint="@color/headerGray"
+            android:backgroundTint="#DBC5FF"
             android:contentDescription="@string/notification"
             app:srcCompat="@drawable/notification_icon" />
     </LinearLayout>
@@ -63,9 +62,9 @@
         android:id="@+id/linearLayout13"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="25dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="0dp"
-        android:layout_marginHorizontal="25dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -94,8 +93,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout13"
-        >
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout13">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -108,7 +106,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/headerGray"
+                android:backgroundTint="#DBC5FF"
                 android:stateListAnimator="@null"
                 android:text="♡ Carousel Mode"
                 android:textAllCaps="false"
@@ -120,7 +118,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/headerGray"
+                android:backgroundTint="#DBC5FF"
                 android:stateListAnimator="@null"
                 android:text="⏱ History"
                 android:textAllCaps="false"
@@ -132,7 +130,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/headerGray"
+                android:backgroundTint="#DBC5FF"
                 android:stateListAnimator="@null"
                 android:text="📄 Filter Events"
                 android:textAllCaps="false"
@@ -143,7 +141,7 @@
                 android:id="@+id/btnOrganizerMode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/headerGray"
+                android:backgroundTint="#DBC5FF"
                 android:stateListAnimator="@null"
                 android:text="📄 Organizer Mode"
                 android:textAllCaps="false"
@@ -154,7 +152,8 @@
                 android:id="@+id/btnAdminMode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/headerGray"
+                android:background="#F5F0FF"
+                android:backgroundTint="#DBC5FF"
                 android:stateListAnimator="@null"
                 android:text="📄 Admin Mode"
                 android:textAllCaps="false"
@@ -165,23 +164,25 @@
 
     <FrameLayout
         android:id="@+id/view_switcher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/action_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filter_buttons_scroll"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        app:layout_constraintTop_toBottomOf="@+id/filter_buttons_scroll">
+
         <ListView
             android:id="@+id/eventListView"
             android:layout_width="match_parent"
             android:layout_height="580dp"
             android:layout_marginHorizontal="1dp"
             android:visibility="gone" />
+
         <com.yuyakaido.android.cardstackview.CardStackView
             android:id="@+id/card_stack_view"
             android:layout_width="match_parent"
             android:layout_height="580dp"
-            android:visibility="visible"/>
+            android:visibility="visible" />
     </FrameLayout>
 
     <LinearLayout
@@ -198,7 +199,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:background="#F2ECFF"
             android:contentDescription="@string/home"
             app:srcCompat="@drawable/home_selected" />
 
@@ -207,10 +208,9 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:background="#F2ECFF"
             android:contentDescription="@string/qrCode"
             app:srcCompat="@drawable/camera" />
-
 
 
         <ImageButton
@@ -218,7 +218,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:background="#F2ECFF"
             android:contentDescription="@string/profile"
             app:srcCompat="@drawable/profile" />
     </LinearLayout>

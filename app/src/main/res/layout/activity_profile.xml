@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F2ECFF"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
@@ -10,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:orientation="vertical"
-        android:background="@color/headerGray"
+        android:background="#DBC5FF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:orientation="vertical"
-        android:background="@color/headerGray"
+        android:background="#DBC5FF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
@@ -43,8 +44,8 @@
 
     <LinearLayout
         android:id="@+id/linearLayout6"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
@@ -53,8 +54,9 @@
 
         <ImageView
             android:id="@+id/profileImageView"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp"
             android:contentDescription="@string/profile"
             app:srcCompat="@drawable/default_avatar" />
 
@@ -233,7 +235,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="#F2ECFF"
             android:contentDescription="@string/home"
             app:srcCompat="@drawable/home" />
 
@@ -242,7 +244,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="#F2ECFF"
             android:contentDescription="@string/qrCode"
             app:srcCompat="@drawable/camera" />
 
@@ -251,7 +253,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="#F2ECFF"
             android:contentDescription="@string/profile"
             app:srcCompat="@drawable/profile_selected" />
     </LinearLayout>
@@ -266,7 +268,7 @@
         app:layout_constraintStart_toStartOf="@+id/linearLayout6"
         app:layout_constraintTop_toTopOf="@+id/linearLayout6"
         app:layout_constraintVertical_bias="1.0"
-        android:backgroundTint="@color/white"
+        android:backgroundTint="#F2ECFF"
         app:srcCompat="@drawable/edit_icon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
