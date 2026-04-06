@@ -88,6 +88,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             case "WAITLIST_UPDATE":
                 message = "The organizer has sent you an update for " + n.getEventName();
                 break;
+            case "CO_ORGANIZER_INVITE":
+                message = "You have been assigned as a co-organizer for " + n.getEventName();
+                break;
             default:
                 message = n.getEventName();
         }

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.WaitlistUser;
 import com.example.edgers_lottery.models.WaitlistAdapter;
+import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -338,6 +339,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
      *  1. Adding their ID to the event's {@code coOrganizers} array.
      *  2. Setting {@code isOrganizer = true} on their user document.
      *  3. Removing them from the event's {@code waitingList}.
+     *  4. Sending a CO_ORGANIZER_INVITE notification to the user.
      *
      * @param user the {@link WaitlistUser} to promote
      */
@@ -361,11 +363,22 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                                 // Step 3 — set isOrganizer = true on the user document
                                 db.collection("users").document(userId)
                                         .update("isOrganizer", true)
-                                        .addOnSuccessListener(unused2 ->
+                                        .addOnSuccessListener(unused2 -> {
 
-                                                // Step 4 — remove from waitingList
-                                                removeCoOrgFromWaitlist(user)
-                                        )
+                                            // Step 4 — send co-organizer invite notification to the user
+                                            db.collection("events").document(eventId).get()
+                                                    .addOnSuccessListener(doc -> {
+                                                        String eventName = doc.getString("name");
+                                                        NotificationService.sendCoOrganizerInviteNotification(
+                                                                userId,
+                                                                eventId,
+                                                                eventName
+                                                        );
+                                                    });
+
+                                            // Step 5 — remove from waitingList
+                                            removeCoOrgFromWaitlist(user);
+                                        })
                                         .addOnFailureListener(e ->
                                                 Toast.makeText(this,
                                                         "Assigned co-organizer but could not update user record: " + e.getMessage(),
