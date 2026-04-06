@@ -17,9 +17,9 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.edgers_lottery.models.CurrentUser;
-import com.example.edgers_lottery.models.User;
-import com.example.edgers_lottery.views.EventCommentsActivity;
+import com.example.edgers_lottery.models.core.CurrentUser;
+import com.example.edgers_lottery.models.core.User;
+import com.example.edgers_lottery.views.user.EventCommentsActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;

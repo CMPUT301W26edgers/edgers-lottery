@@ -121,6 +121,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:context=".views.OrganizerWaitlistMapActivity" />
+        tools:context=".views.organizer.OrganizerWaitlistMapActivity" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,7 @@ package com.example.edgers_lottery;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.edgers_lottery.views.AdminHomeActivity;
+import com.example.edgers_lottery.views.admin.AdminHomeActivity;
 
 import org.junit.Rule;
 import org.junit.Test;

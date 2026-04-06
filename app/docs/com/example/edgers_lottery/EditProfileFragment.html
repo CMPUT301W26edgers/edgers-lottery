@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">androidx.fragment.app.Fragment
 <div class="inheritance">androidx.fragment.app.DialogFragment
-<div class="inheritance">com.example.edgers_lottery.views.EditProfileFragment</div>
+<div class="inheritance">com.example.edgers_lottery.views.user.EditProfileFragment</div>
 </div>
 </div>
 </div>
@@ -151,7 +151,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="EditProfileFragment.html" title="class in com.example.edgers_lottery">EditProfileFragment</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(com.example.edgers_lottery.models.User)" class="member-name-link">newInstance</a><wbr>(<a href="User.html" title="class in com.example.edgers_lottery">User</a>&nbsp;user)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#newInstance(com.example.edgers_lottery.models.core.User)" class="member-name-link">newInstance</a><wbr>(<a href="User.html" title="class in com.example.edgers_lottery">User</a>&nbsp;user)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates a new instance of <a href="EditProfileFragment.html" title="class in com.example.edgers_lottery"><code>EditProfileFragment</code></a> with the given user
  passed as a serializable argument.</div>
@@ -206,7 +206,7 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="newInstance(com.example.edgers_lottery.models.User)">
+<section class="detail" id="newInstance(com.example.edgers_lottery.models.core.User)">
 <h3>newInstance</h3>
 <div class="member-signature"><span class="annotations">@NonNull
 </span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="EditProfileFragment.html" title="class in com.example.edgers_lottery">EditProfileFragment</a></span>&nbsp;<span class="element-name">newInstance</span><wbr><span class="parameters">(<a href="User.html" title="class in com.example.edgers_lottery">User</a>&nbsp;user)</span></div>
@@ -245,7 +245,7 @@ loadScripts(document, 'script');</script>
  android.os.Bundle&nbsp;savedInstanceState)</span></div>
 <div class="block">Inflates the fragment layout, pre-populates fields with the current user's data,
  and builds the alert dialog with Cancel and Edit buttons.
- On confirmation, delegates to <code>EditProfileFragment.EditProfileDialogListener.editUser(com.example.edgers_lottery.models.User, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)</code>.</div>
+ On confirmation, delegates to <code>EditProfileFragment.EditProfileDialogListener.editUser(com.example.edgers_lottery.models.core.User, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)</code>.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>onCreateDialog</code>&nbsp;in class&nbsp;<code>androidx.fragment.app.DialogFragment</code></dd>

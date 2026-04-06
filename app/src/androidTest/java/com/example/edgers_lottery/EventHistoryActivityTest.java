@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
-import com.example.edgers_lottery.models.Event;
-import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.models.core.Event;
+import com.example.edgers_lottery.models.core.User;
 
 /**
  * Unit tests for the core filtering logic used in EventHistoryActivity.

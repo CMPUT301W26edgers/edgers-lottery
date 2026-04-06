@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F2ECFF"
-    tools:context=".views.EventDetailsActivity"
+    tools:context=".views.user.EventDetailsActivity"
     android:fitsSystemWindows="true">
 
     <ImageView

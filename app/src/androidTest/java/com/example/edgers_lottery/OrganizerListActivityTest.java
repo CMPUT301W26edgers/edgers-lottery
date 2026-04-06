@@ -7,7 +7,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.edgers_lottery.views.OrganizerListActivity;
+import com.example.edgers_lottery.views.organizer.OrganizerListActivity;
 
 import org.junit.Rule;
 import org.junit.Test;

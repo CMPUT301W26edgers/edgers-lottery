@@ -1,15 +1,12 @@
 package com.example.edgers_lottery.services;
 
-import android.widget.Toast;
-
-import com.example.edgers_lottery.models.Event;
-import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.models.core.Event;
+import com.example.edgers_lottery.models.core.User;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 /**
  * Service class for running the event lottery on a waitlist of users.

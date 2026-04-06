@@ -3,8 +3,8 @@ package com.example.edgers_lottery.services;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.example.edgers_lottery.models.Comment;
-import com.example.edgers_lottery.models.CurrentUser;
+import com.example.edgers_lottery.models.core.Comment;
+import com.example.edgers_lottery.models.core.CurrentUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;

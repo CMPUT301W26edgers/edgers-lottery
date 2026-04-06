@@ -11,7 +11,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.edgers_lottery.views.AdminUserProfileActivity;
+import com.example.edgers_lottery.views.admin.AdminUserProfileActivity;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

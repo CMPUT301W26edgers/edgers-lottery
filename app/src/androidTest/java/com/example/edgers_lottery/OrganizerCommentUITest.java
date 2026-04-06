@@ -3,7 +3,6 @@ package com.example.edgers_lottery;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -18,9 +17,9 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.edgers_lottery.models.CurrentUser;
-import com.example.edgers_lottery.models.User;
-import com.example.edgers_lottery.views.EventCommentsOrganizer;
+import com.example.edgers_lottery.models.core.CurrentUser;
+import com.example.edgers_lottery.models.core.User;
+import com.example.edgers_lottery.views.organizer.EventCommentsOrganizer;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;

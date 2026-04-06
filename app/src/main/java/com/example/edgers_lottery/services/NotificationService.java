@@ -2,9 +2,9 @@ package com.example.edgers_lottery.services;
 
 import android.util.Log;
 
-import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.models.core.User;
 import com.google.firebase.Timestamp;
-import com.example.edgers_lottery.models.WaitlistUser;
+import com.example.edgers_lottery.models.core.WaitlistUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;

@@ -155,7 +155,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
-import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.models.core.User;
 
 /**
  * Unit tests for the core logic in EventUserChoice.

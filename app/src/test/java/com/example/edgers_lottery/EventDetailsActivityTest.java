@@ -8,8 +8,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import static org.junit.Assert.*;
 
-import com.example.edgers_lottery.models.User;
-import com.example.edgers_lottery.views.EventDetailsActivity;
+import com.example.edgers_lottery.models.core.User;
+import com.example.edgers_lottery.views.user.EventDetailsActivity;
 
 
 public class EventDetailsActivityTest {

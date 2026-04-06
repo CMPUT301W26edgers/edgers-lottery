@@ -1,6 +1,6 @@
 package com.example.edgers_lottery.services;
 
-import com.example.edgers_lottery.models.Comment;
+import com.example.edgers_lottery.models.core.Comment;
 
 import java.util.ArrayList;
 

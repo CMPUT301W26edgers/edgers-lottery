@@ -10,22 +10,20 @@ import static org.hamcrest.CoreMatchers.anything;
 import static org.junit.Assert.assertTrue;
 
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.edgers_lottery.models.CurrentUser;
-import com.example.edgers_lottery.models.Event;
-import com.example.edgers_lottery.models.User;
-import com.example.edgers_lottery.views.AdminHomeActivity;
+import com.example.edgers_lottery.models.core.CurrentUser;
+import com.example.edgers_lottery.models.core.Event;
+import com.example.edgers_lottery.models.core.User;
+import com.example.edgers_lottery.views.admin.AdminHomeActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +31,6 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.HashMap;
-import java.util.Map;
 
 import android.view.View;
 import android.widget.Adapter;

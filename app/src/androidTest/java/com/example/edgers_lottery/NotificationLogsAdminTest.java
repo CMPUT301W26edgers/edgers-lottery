@@ -14,9 +14,9 @@ import static org.junit.Assert.assertTrue;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.edgers_lottery.models.CurrentUser;
-import com.example.edgers_lottery.models.User;
-import com.example.edgers_lottery.views.AdminHomeActivity;
+import com.example.edgers_lottery.models.core.CurrentUser;
+import com.example.edgers_lottery.models.core.User;
+import com.example.edgers_lottery.views.admin.AdminHomeActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 

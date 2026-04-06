@@ -2,9 +2,9 @@ package com.example.edgers_lottery;
 
 import static org.junit.Assert.*;
 
-import com.example.edgers_lottery.models.AppNotification;
-import com.example.edgers_lottery.models.User;
-import com.example.edgers_lottery.models.WaitlistUser;
+import com.example.edgers_lottery.models.core.AppNotification;
+import com.example.edgers_lottery.models.core.User;
+import com.example.edgers_lottery.models.core.WaitlistUser;
 import com.example.edgers_lottery.services.NotificationService;
 
 import org.junit.Test;

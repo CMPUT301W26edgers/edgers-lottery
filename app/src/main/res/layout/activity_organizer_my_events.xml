@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="#F2ECFF"
-    tools:context=".views.OrganizerEventsListActivity">
+    tools:context=".views.organizer.OrganizerEventsListActivity">
 
     <!-- Top spacing / status bar area -->
     <LinearLayout

@@ -28,45 +28,45 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBAaCA5x_5tubQHFrWCLlOfV9hWEDzf2tI" />
 
-        <activity android:name=".views.StartActivity"
+        <activity android:name=".views.user.StartActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".views.QrScannerActivity"/>
-        <activity android:name=".views.OrganizerHomeActivity"/>
-        <activity android:name=".views.NewUserActivity"/>
-        <activity android:name=".views.HomeActivity"
+        <activity android:name=".views.user.QrScannerActivity"/>
+        <activity android:name=".views.organizer.OrganizerHomeActivity"/>
+        <activity android:name=".views.user.NewUserActivity"/>
+        <activity android:name=".views.user.HomeActivity"
             android:windowSoftInputMode="adjustNothing"/>
-        <activity android:name=".views.AdminHomeActivity"/>
-        <activity android:name=".views.LoginActivity"/>
-        <activity android:name=".views.CheckoutActivity"/>
-        <activity android:name=".views.ProfileActivity"/>
-        <activity android:name=".views.OrganizerListActivity"/>
-        <activity android:name=".views.CreateEditEventActivity"
+        <activity android:name=".views.admin.AdminHomeActivity"/>
+        <activity android:name=".views.user.LoginActivity"/>
+        <activity android:name=".views.user.CheckoutActivity"/>
+        <activity android:name=".views.user.ProfileActivity"/>
+        <activity android:name=".views.organizer.OrganizerListActivity"/>
+        <activity android:name=".views.organizer.CreateEditEventActivity"
             android:windowSoftInputMode="adjustPan"/>
-        <activity android:name=".views.EventDetailsActivity"/>
-        <activity android:name=".views.EventDetailsOrganizer"/>
-        <activity android:name=".views.EventUserChoice"/>
-        <activity android:name=".views.EventWaitlistTab"/>
-        <activity android:name=".views.EventEntrantOrganizer"/>
-        <activity android:name=".views.AdminEventListActivity" />
-        <activity android:name=".views.AdminUserListActivity" />
-        <activity android:name=".views.AdminUserProfileActivity" />
-        <activity android:name=".views.AdminImagesViewActivity" />
-        <activity android:name=".views.AdminImageFullscreenActivity" />
-        <activity android:name=".views.OrganizerEventsListActivity" />
-        <activity android:name=".views.ExportNotificationsActivity" />
-        <activity android:name=".views.EventHistoryActivity" android:exported="false"/>
-        <activity android:name=".views.OrganizerWaitlistMapActivity" android:exported="false" />
-        <activity android:name=".views.EventCommentsOrganizer"
+        <activity android:name=".views.user.EventDetailsActivity"/>
+        <activity android:name=".views.organizer.EventDetailsOrganizer"/>
+        <activity android:name=".views.user.EventUserChoice"/>
+        <activity android:name=".views.organizer.EventWaitlistTab"/>
+        <activity android:name=".views.organizer.EventEntrantOrganizer"/>
+        <activity android:name=".views.admin.AdminEventListActivity" />
+        <activity android:name=".views.admin.AdminUserListActivity" />
+        <activity android:name=".views.admin.AdminUserProfileActivity" />
+        <activity android:name=".views.admin.AdminImagesViewActivity" />
+        <activity android:name=".views.admin.AdminImageFullscreenActivity" />
+        <activity android:name=".views.organizer.OrganizerEventsListActivity" />
+        <activity android:name=".views.user.ExportNotificationsActivity" />
+        <activity android:name=".views.user.EventHistoryActivity" android:exported="false"/>
+        <activity android:name=".views.organizer.OrganizerWaitlistMapActivity" android:exported="false" />
+        <activity android:name=".views.organizer.EventCommentsOrganizer"
             android:windowSoftInputMode="adjustPan"/>
-        <activity android:name=".views.EventCommentsActivity"
+        <activity android:name=".views.user.EventCommentsActivity"
             android:windowSoftInputMode="adjustPan"/>
         <activity
-            android:name=".views.AdminNotificationLogActivity"
+            android:name=".views.admin.AdminNotificationLogActivity"
             android:exported="false" />
 
 

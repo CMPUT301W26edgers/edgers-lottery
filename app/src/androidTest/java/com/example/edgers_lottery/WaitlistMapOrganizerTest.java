@@ -18,11 +18,11 @@ import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiSelector;
 
-import com.example.edgers_lottery.models.CurrentUser;
-import com.example.edgers_lottery.models.Event;
-import com.example.edgers_lottery.models.User;
-import com.example.edgers_lottery.views.EventDetailsActivity;
-import com.example.edgers_lottery.views.EventDetailsOrganizer;
+import com.example.edgers_lottery.models.core.CurrentUser;
+import com.example.edgers_lottery.models.core.Event;
+import com.example.edgers_lottery.models.core.User;
+import com.example.edgers_lottery.views.user.EventDetailsActivity;
+import com.example.edgers_lottery.views.organizer.EventDetailsOrganizer;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 

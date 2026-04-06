@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-import com.example.edgers_lottery.models.WaitlistUser;
+import com.example.edgers_lottery.models.core.WaitlistUser;
 
 /**
  * Unit tests for the pure logic used in EventWaitlistTab.

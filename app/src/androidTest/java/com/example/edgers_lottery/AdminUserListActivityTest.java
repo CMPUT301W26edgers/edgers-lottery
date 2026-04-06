@@ -13,7 +13,7 @@ import static org.hamcrest.CoreMatchers.anything;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.example.edgers_lottery.views.AdminUserListActivity;
+import com.example.edgers_lottery.views.admin.AdminUserListActivity;
 
 import org.junit.Rule;
 import org.junit.Test;

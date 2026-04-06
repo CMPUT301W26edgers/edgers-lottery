@@ -4,7 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.junit.Assert.*;
 
-import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.models.core.User;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
