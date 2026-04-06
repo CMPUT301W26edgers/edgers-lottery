@@ -13,6 +13,7 @@ import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -169,6 +170,11 @@ public class EventUserChoice extends AppCompatActivity {
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(EventUserChoice.this, "Invitation declined successfully.", Toast.LENGTH_SHORT).show();
+                    NotificationService.sendCancelledNotification(
+                            currentUser.getId(),
+                            currentEventId,
+                            currentEvent.getName()
+                    );
                     finish();
                 })
                 .addOnFailureListener(e -> {

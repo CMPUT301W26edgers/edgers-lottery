@@ -83,4 +83,8 @@ dependencies {
     // Organizer's Events Map Of Waitlist Entrants
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+
+    //J-unit Libs
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    androidTestImplementation("org.mockito:mockito-android:5.11.0")
 }
