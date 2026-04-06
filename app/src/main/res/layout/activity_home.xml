@@ -4,13 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F2ECFF"
-    android:fitsSystemWindows="true">
+    android:background="#F2ECFF">
 
     <LinearLayout
         android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_height="40dp"
         android:background="#DBC5FF"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
