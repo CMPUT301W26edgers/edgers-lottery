@@ -68,7 +68,6 @@ public class EventWaitlistTab extends AppCompatActivity {
         rvWaitlist = findViewById(R.id.rvWaitlist);
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        findViewById(R.id.btnNotifyWaitlisters).setOnClickListener(v -> notifyWaitlisters());
         // US 02.01.03 — invite button (add this button to activity_waitlist_organizer.xml)
         findViewById(R.id.btnInviteUser).setOnClickListener(v -> showInviteSearchDialog());
     }
@@ -370,7 +369,9 @@ public class EventWaitlistTab extends AppCompatActivity {
 
     /**
      * Sends a WAITLIST_UPDATE notification to all users currently on the waitlist.
+     * deprecated method
      */
+    /*
     private void notifyWaitlisters() {
         if (waitlistUsers.isEmpty()) {
             Toast.makeText(this, "No users on the waitlist to notify", Toast.LENGTH_SHORT).show();
@@ -385,6 +386,7 @@ public class EventWaitlistTab extends AppCompatActivity {
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to notify: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
+    */
 
     /**
      * Called when a waitlist row is long-pressed.
