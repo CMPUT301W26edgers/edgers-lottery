@@ -252,11 +252,13 @@ public class CreateEditEventActivity extends AppCompatActivity {
             Toast.makeText(this, "Please fill in all fields before continuing", Toast.LENGTH_SHORT).show();
             return;
         }
+
         FirebaseUser deviceUser = FirebaseAuth.getInstance().getCurrentUser();
         if (deviceUser == null){
             Toast.makeText(this, "No logged in user found", Toast.LENGTH_SHORT).show();
             return;
         }
+
         String organizerId = deviceUser.getUid();
         DocumentReference docRef = FirebaseFirestore.getInstance().collection("events").document();
         String newId = docRef.getId();
@@ -272,37 +274,9 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("waitlistCapacity", waitlistCapacity);
         eventData.put("enforceLocation",  swGeo.isChecked());
         eventData.put("ispublic",         swPublic.isChecked());
-        eventData.put("organizerId",     organizerId);
-        eventData.put("poster", null);
+        eventData.put("organizerId",      organizerId);
 
-
-//        Drawable drawable = ivImage.getDrawable();
-//        if (drawable instanceof BitmapDrawable) {
-//            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-//            eventData.put("image", Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT));
-//        } else {
-//            eventData.put("image", null);
-//        }
-
-        docRef.set(eventData)
-                .addOnSuccessListener(unused -> {
-                    //currentEventId = newId; // now the activity knows its own ID
-                    //Intent intent = new Intent(this, EventDetailsOrganizer.class);
-                    //intent.putExtra("event_id", currentEventId);
-                    //startActivity(intent);
-                    if (imageUri != null) {
-                        ImageService.uploadEventImage(imageUri, newId, this);
-                    }
-                    if (user.isOrganizer()){
-                        Intent intent = new Intent(this, OrganizerEventsListActivity.class);
-                        startActivity(intent);
-
-                    }else{
-                        Toast.makeText(this, "Event created! You are now an organizer!", Toast.LENGTH_SHORT).show();
-                        updateUserOrganizerPermission(); // make sure user is organizer now and send them to home screen for organizers now
-                    }
+        // Handle image → Base64
         Drawable drawable = ivImage.getDrawable();
         if (drawable instanceof BitmapDrawable) {
             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
@@ -316,12 +290,21 @@ public class CreateEditEventActivity extends AppCompatActivity {
         docRef.set(eventData)
                 .addOnSuccessListener(unused -> {
                     currentEventId = newId;
-                    Intent intent = new Intent(this, EventDetailsOrganizer.class);
-                    intent.putExtra("event_id", currentEventId);
-                    startActivity(intent);
+
+                    if (imageUri != null) {
+                        ImageService.uploadEventImage(imageUri, newId, this);
+                    }
+
+                    if (user.isOrganizer()) {
+                        startActivity(new Intent(this, OrganizerEventsListActivity.class));
+                    } else {
+                        Toast.makeText(this, "Event created! You are now an organizer!", Toast.LENGTH_SHORT).show();
+                        updateUserOrganizerPermission();
+                    }
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, "Failed to save event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void pickImage() {

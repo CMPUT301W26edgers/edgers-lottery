@@ -97,13 +97,23 @@
 
                 <Button
                     android:id="@+id/mapBtn"
-                    android:id="@+id/capacityBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginStart="8dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
                     android:text="Map"
+                    android:textSize="12sp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:cornerRadius="18dp"/>
+
+                <Button
+                    android:id="@+id/capacityBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
                     android:text="Capacity"
                     android:textSize="12sp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
