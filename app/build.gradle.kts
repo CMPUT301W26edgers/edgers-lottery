@@ -83,6 +83,9 @@ dependencies {
     // Organizer's Events Map Of Waitlist Entrants
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+    // carousel dependencies
+    implementation ("com.github.yuyakaido:CardStackView:v2.3.4")
+    implementation ("com.github.bumptech.glide:glide:4.13.2")
 
     //J-unit Libs
     testImplementation("org.mockito:mockito-core:5.11.0")
