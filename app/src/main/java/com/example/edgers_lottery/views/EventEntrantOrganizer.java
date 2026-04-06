@@ -186,6 +186,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         });
     }
 
+
     private void setupRecyclerView() {
         entrantUsers = new ArrayList<>();
         adapter = new WaitlistAdapter(entrantUsers, (user, position) -> {

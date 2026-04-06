@@ -4,7 +4,11 @@
     <selectionStates>
       <SelectionState runConfigName="App">
         <option name="selectionMode" value="DROPDOWN" />
+<<<<<<< entrant-ui-changes
+        <DropdownSelection timestamp="2026-04-06T17:46:08.798903Z">
+=======
         <DropdownSelection timestamp="2026-04-06T17:59:21.574601Z">
+>>>>>>> main
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=RFCY60V43NK" />
@@ -13,9 +17,12 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
+<<<<<<< entrant-ui-changes
+=======
       <SelectionState runConfigName="NotificationServiceTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+>>>>>>> main
     </selectionStates>
   </component>
 </project>
