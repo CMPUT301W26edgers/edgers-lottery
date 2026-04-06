@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:background="#F4F4F9"
+    android:background="#F2ECFF"
     tools:context=".views.EventHistoryActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="#DBC5FF"
         android:elevation="4dp"
         android:paddingVertical="16dp"
         android:paddingHorizontal="20dp"
@@ -28,7 +28,7 @@
                 android:id="@+id/backButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:backgroundTint="@color/white"
+                android:backgroundTint="#DBC5FF"
                 android:contentDescription="@string/backButton"
                 app:srcCompat="@drawable/left_arrow_small" />
         </LinearLayout>
@@ -40,7 +40,7 @@
             android:text="My Events History"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="#212121"/>
+            android:textColor="#4B0082"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -49,6 +49,7 @@
         android:layout_height="match_parent"
         android:padding="16dp"
         android:clipToPadding="false"
+
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_event_history" />
 

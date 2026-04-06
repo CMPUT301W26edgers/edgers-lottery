@@ -35,7 +35,7 @@
             android:padding="10dp"
             android:text="@string/home"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="#4B0082"
             android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -141,6 +141,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#DBC5FF"
+                android:layout_marginEnd="8dp"
                 android:stateListAnimator="@null"
                 android:text="📄 Organizer Mode"
                 android:textAllCaps="false"
@@ -151,7 +152,6 @@
                 android:id="@+id/btnAdminMode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#F5F0FF"
                 android:backgroundTint="#DBC5FF"
                 android:stateListAnimator="@null"
                 android:text="📄 Admin Mode"

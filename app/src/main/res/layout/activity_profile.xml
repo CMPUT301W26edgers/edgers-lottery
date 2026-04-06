@@ -36,7 +36,7 @@
             android:layout_gravity="center"
             android:text="@string/profile"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="#4B0082"
             android:textSize="24sp"
             android:textStyle="bold" />
 

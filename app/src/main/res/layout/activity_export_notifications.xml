@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="#F7F7F7">
+    android:background="#F2ECFF">
 
     <!-- Header Banner -->
     <LinearLayout
         android:id="@+id/headerBanner"
         android:layout_width="match_parent"
         android:layout_height="72dp"
-        android:background="#1A1A1A"
+        android:background="#DBC5FF"
         android:gravity="center_vertical"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
@@ -25,7 +25,7 @@
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_arrow_back"
-            android:tint="#FFFFFF"
+            android:tint="#4B0082"
             android:contentDescription="Back" />
 
         <TextView
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Notifications"
-            android:textColor="#FFFFFF"
+            android:textColor="#4B0082"
             android:textSize="20sp"
             android:textStyle="bold"
             android:paddingStart="12dp"
