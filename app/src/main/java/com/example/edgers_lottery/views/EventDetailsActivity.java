@@ -100,7 +100,9 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     /** The Firestore document ID of the event being displayed. */
     private String eventId;
+    /** Displays remaining time until registration closes. */
     private TextView registrationEndsText;
+    /** Displays message when user is already registered. */
     private TextView alreadyRegisteredText;
 
     /** Client used to retrieve the device's GPS coordinates for waitlist geolocation validation. */
@@ -209,11 +211,18 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * Populates the UI with event details and configures the join/leave waitlist button
-     * based on the current user's waitlist status and available capacity.
-     * Also sets up the waitlist viewer dialog button.
+     * Populates the UI with event details and dynamically configures behavior based on:
+     * - whether the user is already registered
+     * - whether the event is full
+     * - whether the user has a pending invitation
      *
-     * @param event the {@link Event} object to display
+     * Key behaviors:
+     * - Displays event information (name, date, location, capacity)
+     * - Switches UI into "Accept / Decline" mode if invite is pending
+     * - Enables joining, leaving, or blocking actions based on capacity
+     *
+     * @param event the Event object to display
+     * @param isPendingInvite whether the user accessed this event via invitation
      */
     private void showEvent(Event event, boolean isPendingInvite) {
         eventNameText.setText(event.getName());

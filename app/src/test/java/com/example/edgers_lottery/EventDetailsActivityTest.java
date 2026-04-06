@@ -16,10 +16,14 @@ public class EventDetailsActivityTest {
     private ArrayList<User> waitingList;
     private User user1;
     private User user2;
+    private ArrayList<User> allInvitedUsers;
+    private ArrayList<User> declinedUsers;
 
     @Before
     public void setUp() {
         waitingList = new ArrayList<>();
+        allInvitedUsers = new ArrayList<>();
+        declinedUsers = new ArrayList<>();
 
         user1 = new User();
         user1.setId("u1");
@@ -28,6 +32,15 @@ public class EventDetailsActivityTest {
         user2 = new User();
         user2.setId("u2");
         user2.setName("Alice");
+    }
+    private void acceptInvite(User user, ArrayList<User> waitingList, ArrayList<User> invitedList) {
+        EventDetailsActivity.addUserToList(user, waitingList);
+        EventDetailsActivity.removeUserFromListSafely(user.getId(), invitedList);
+    }
+
+    private void declineInvite(User user, ArrayList<User> declinedList, ArrayList<User> invitedList) {
+        EventDetailsActivity.addUserToList(user, declinedList);
+        EventDetailsActivity.removeUserFromListSafely(user.getId(), invitedList);
     }
 
     @Test
@@ -126,5 +139,60 @@ public class EventDetailsActivityTest {
         boolean result = EventDetailsActivity.isWaitlistFull(3, waitingList);
 
         assertFalse(result);
+    }
+    @Test
+    public void acceptInvite_addsUserToWaitingList() {
+        allInvitedUsers.add(user1);
+
+        acceptInvite(user1, waitingList, allInvitedUsers);
+
+        assertTrue(EventDetailsActivity.isUserInList("u1", waitingList));
+    }
+
+    @Test
+    public void acceptInvite_removesUserFromAllInvitedUsers() {
+        allInvitedUsers.add(user1);
+
+        acceptInvite(user1, waitingList, allInvitedUsers);
+
+        assertFalse(EventDetailsActivity.isUserInList("u1", allInvitedUsers));
+    }
+
+    @Test
+    public void acceptInvite_doesNotDuplicateUserInWaitingList() {
+        waitingList.add(user1);
+        allInvitedUsers.add(user1);
+
+        acceptInvite(user1, waitingList, allInvitedUsers);
+
+        assertEquals(1, waitingList.size());
+    }
+
+    @Test
+    public void declineInvite_addsUserToDeclinedUsers() {
+        allInvitedUsers.add(user1);
+
+        declineInvite(user1, declinedUsers, allInvitedUsers);
+
+        assertTrue(EventDetailsActivity.isUserInList("u1", declinedUsers));
+    }
+
+    @Test
+    public void declineInvite_removesUserFromAllInvitedUsers() {
+        allInvitedUsers.add(user1);
+
+        declineInvite(user1, declinedUsers, allInvitedUsers);
+
+        assertFalse(EventDetailsActivity.isUserInList("u1", allInvitedUsers));
+    }
+
+    @Test
+    public void declineInvite_doesNotDuplicateUserInDeclinedUsers() {
+        declinedUsers.add(user1);
+        allInvitedUsers.add(user1);
+
+        declineInvite(user1, declinedUsers, allInvitedUsers);
+
+        assertEquals(1, declinedUsers.size());
     }
 }
