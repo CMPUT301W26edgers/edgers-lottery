@@ -29,8 +29,8 @@ import java.util.Set;
 /**
  * Activity that displays the waitlist management screen for an organizer.
  * Shows the list of users on the waitlist for a specific event and provides
- * options to run the lottery, notify waitlisters, invite specific users, and
- * navigate to other event management screens.
+ * options to notify waitlisters, invite specific users, assign co-organizers,
+ * and navigate to other event management screens.
  * Requires an {@code event_id} intent extra to identify the current event.
  */
 public class EventWaitlistTab extends AppCompatActivity {
@@ -64,12 +64,13 @@ public class EventWaitlistTab extends AppCompatActivity {
         }
     }
 
+    /**
+     * Binds views and attaches click listeners to the back, notify, and invite buttons.
+     */
     private void initViews() {
         rvWaitlist = findViewById(R.id.rvWaitlist);
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        findViewById(R.id.btnNotifyWaitlisters).setOnClickListener(v -> notifyWaitlisters());
-        // US 02.01.03 — invite button (add this button to activity_waitlist_organizer.xml)
         findViewById(R.id.btnInviteUser).setOnClickListener(v -> showInviteSearchDialog());
     }
 
@@ -123,7 +124,7 @@ public class EventWaitlistTab extends AppCompatActivity {
         adapter = new WaitlistAdapter(
                 waitlistUsers,
                 this::removeFromWaitlist,
-                this::onWaitlisterLongPressed  // US 02.09.01
+                this::onWaitlisterLongPressed
         );
         rvWaitlist.setLayoutManager(new LinearLayoutManager(this));
         rvWaitlist.setAdapter(adapter);
@@ -198,6 +199,8 @@ public class EventWaitlistTab extends AppCompatActivity {
                 });
     }
 
+
+
     // ─────────────────────────────────────────────────────────────────────────
     // US 02.01.03 — Invite specific entrants to a private event's waiting list
     // ─────────────────────────────────────────────────────────────────────────
@@ -235,10 +238,8 @@ public class EventWaitlistTab extends AppCompatActivity {
     private void searchAndShowResults(String query) {
         String lowerQuery = query.toLowerCase();
 
-        // First load the current waitlist so we can exclude those users from results
         db.collection("events").document(eventId).get()
                 .addOnSuccessListener(eventDoc -> {
-                    // Build a set of IDs already on the waitlist
                     Set<String> alreadyAdded = new HashSet<>();
                     List<Object> currentList = (List<Object>) eventDoc.get("waitingList");
                     if (currentList != null) {
@@ -250,7 +251,6 @@ public class EventWaitlistTab extends AppCompatActivity {
                         }
                     }
 
-                    // Now search all users and filter client-side
                     db.collection("users").get()
                             .addOnSuccessListener(querySnapshot -> {
                                 List<Map<String, Object>> results = new ArrayList<>();
@@ -296,21 +296,19 @@ public class EventWaitlistTab extends AppCompatActivity {
     /**
      * Displays a list of matched users and lets the organizer pick one to invite.
      *
-     * @param results   the list of matched user maps
-     * @param eventDoc  the current event snapshot (used for capacity check)
+     * @param results  the list of matched user maps
+     * @param eventDoc the current event snapshot (used for capacity check)
      */
     private void showResultsPickerDialog(List<Map<String, Object>> results,
                                          com.google.firebase.firestore.DocumentSnapshot eventDoc) {
-        // Check capacity before even showing the list
-        Long capacity    = eventDoc.getLong("capacity");
+        Long capacity = eventDoc.getLong("capacity");
         List<Object> currentList = (List<Object>) eventDoc.get("waitingList");
-        int currentSize  = currentList != null ? currentList.size() : 0;
+        int currentSize = currentList != null ? currentList.size() : 0;
         if (capacity != null && currentSize >= capacity) {
             Toast.makeText(this, "Waitlist is already at capacity", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Build display labels: "Name (email)"
         String[] labels = new String[results.size()];
         for (int i = 0; i < results.size(); i++) {
             String name  = (String) results.get(i).get("name");
@@ -328,11 +326,11 @@ public class EventWaitlistTab extends AppCompatActivity {
 
     /**
      * Adds the selected user to the event's waitingList in Firestore.
+     * Only works for private events — public events allow users to join directly.
      *
      * @param userInfo map containing "id", "name", "profileImage"
      */
     private void inviteUserToWaitlist(Map<String, Object> userInfo) {
-        // Check if the event is private before inviting
         db.collection("events").document(eventId).get()
                 .addOnSuccessListener(doc -> {
                     Boolean isPublic = doc.getBoolean("ispublic");
@@ -343,7 +341,6 @@ public class EventWaitlistTab extends AppCompatActivity {
                         return;
                     }
 
-                    // Build entry matching existing waitingList schema
                     Map<String, Object> entry = new HashMap<>();
                     entry.put("id",           userInfo.get("id"));
                     entry.put("name",         userInfo.get("name"));
@@ -363,28 +360,8 @@ public class EventWaitlistTab extends AppCompatActivity {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Placeholder method for running the lottery to select entrants from the waitlist.
-     */
-
-    /**
-     * Sends a WAITLIST_UPDATE notification to all users currently on the waitlist.
-     */
-    private void notifyWaitlisters() {
-        if (waitlistUsers.isEmpty()) {
-            Toast.makeText(this, "No users on the waitlist to notify", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        db.collection("events").document(eventId).get()
-                .addOnSuccessListener(doc -> {
-                    String eventName = doc.getString("name");
-                    NotificationService.sendWaitlistUpdateNotifications(waitlistUsers, eventId, eventName);
-                    Toast.makeText(this, "Waitlisters notified!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to notify: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }
+    // US 02.09.01 — Assign a waitlisted user as co-organizer
+    // ─────────────────────────────────────────────────────────────────────────
 
     /**
      * Called when a waitlist row is long-pressed.
