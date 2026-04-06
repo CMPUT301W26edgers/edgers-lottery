@@ -68,7 +68,6 @@ public class EventWaitlistTab extends AppCompatActivity {
         rvWaitlist = findViewById(R.id.rvWaitlist);
         tvWaitlistCount = findViewById(R.id.tvWaitlistCount);
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        findViewById(R.id.btnNotifyWaitlisters).setOnClickListener(v -> notifyWaitlisters());
         // US 02.01.03 — invite button (add this button to activity_waitlist_organizer.xml)
         findViewById(R.id.btnInviteUser).setOnClickListener(v -> showInviteSearchDialog());
     }

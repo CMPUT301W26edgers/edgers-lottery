@@ -57,15 +57,6 @@
             app:srcCompat="@drawable/camera" />
 
         <ImageButton
-            android:id="@+id/checkoutButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:contentDescription="@string/checkout"
-            app:srcCompat="@drawable/cart" />
-
-        <ImageButton
             android:id="@+id/ProfileButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
