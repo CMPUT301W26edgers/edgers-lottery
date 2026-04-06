@@ -22,6 +22,8 @@ import com.example.edgers_lottery.services.ImageService;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.slider.Slider;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import androidx.appcompat.app.AlertDialog;
 
@@ -275,6 +277,8 @@ public class CreateEditEventActivity extends AppCompatActivity {
         eventData.put("enforceLocation",  swGeo.isChecked());
         eventData.put("ispublic",         swPublic.isChecked());
         eventData.put("organizerId",      organizerId);
+        eventData.put("waitingList", new ArrayList<>());
+        eventData.put("entrants",    new ArrayList<>());
 
         // Handle image → Base64
         Drawable drawable = ivImage.getDrawable();

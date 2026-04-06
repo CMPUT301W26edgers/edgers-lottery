@@ -142,26 +142,10 @@
         android:textColor="#000000"
         android:layout_marginBottom="12dp"
         android:layout_marginStart="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btnRunLottery"
+        app:layout_constraintBottom_toTopOf="@id/btnInviteUser"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <!-- Run Lottery Button -->
-    <Button
-        android:id="@+id/btnRunLottery"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="#2ECC71"
-        android:elevation="6dp"
-        android:text="🧑‍🤝‍🧑 Run Lottery"
-        android:textColor="#FFFFFF"
-        app:cornerRadius="25dp"
-        app:layout_constraintBottom_toTopOf="@id/btnInviteUser"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
     <!-- Invite User Button (US 02.01.03) -->
     <Button
         android:id="@+id/btnInviteUser"
