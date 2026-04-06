@@ -18,6 +18,9 @@ import java.util.List;
  * RecyclerView adapter that displays a list of waitlisted users.
  * Each row shows the user's profile image, name, and a remove button.
  * Removal events are dispatched through {@link OnRemoveClickListener}.
+ *
+ * Optionally accepts an {@link OnLongClickListener} — when provided, long-pressing
+ * a row triggers that callback (used for co-organizer assignment, US 02.09.01).
  */
 public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHolder> {
 
@@ -25,7 +28,6 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
      * Listener interface for handling removal of a waitlisted user.
      */
     public interface OnRemoveClickListener {
-
         /**
          * Called when the remove button is clicked for a waitlisted user.
          *
@@ -35,26 +37,51 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         void onRemove(WaitlistUser user, int position);
     }
 
-    private List<WaitlistUser> users;
-    private OnRemoveClickListener removeListener;
+    /**
+     * Listener interface for handling a long-press on a waitlisted user row.
+     * Used to trigger co-organizer assignment (US 02.09.01).
+     */
+    public interface OnLongClickListener {
+        /**
+         * Called when a row is long-pressed.
+         *
+         * @param user the {@link WaitlistUser} that was long-pressed
+         */
+        void onLongClick(WaitlistUser user);
+    }
+
+    private final List<WaitlistUser> users;
+    private final OnRemoveClickListener removeListener;
+    private final OnLongClickListener longClickListener; // nullable
 
     /**
-     * Constructs a new adapter for the given waitlist.
+     * Constructs an adapter without a long-click listener.
+     * Existing call sites remain unchanged.
      *
      * @param users          the list of {@link WaitlistUser} objects to display
      * @param removeListener the listener to notify when a user is removed
      */
     public WaitlistAdapter(List<WaitlistUser> users, OnRemoveClickListener removeListener) {
-        this.users = users;
-        this.removeListener = removeListener;
+        this(users, removeListener, null);
+    }
+
+    /**
+     * Constructs an adapter with an optional long-click listener.
+     *
+     * @param users             the list of {@link WaitlistUser} objects to display
+     * @param removeListener    the listener to notify when a user is removed
+     * @param longClickListener the listener to notify on row long-press, or null to disable
+     */
+    public WaitlistAdapter(List<WaitlistUser> users,
+                           OnRemoveClickListener removeListener,
+                           OnLongClickListener longClickListener) {
+        this.users             = users;
+        this.removeListener    = removeListener;
+        this.longClickListener = longClickListener;
     }
 
     /**
      * Inflates the row layout for a waitlist item and returns a new {@link ViewHolder}.
-     *
-     * @param parent   the parent ViewGroup into which the new view will be added
-     * @param viewType the view type of the new view
-     * @return a new {@link ViewHolder} holding the inflated row view
      */
     @NonNull
     @Override
@@ -66,17 +93,14 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
 
     /**
      * Binds a {@link WaitlistUser} to the given {@link ViewHolder}, setting the name,
-     * remove button listener, and profile image if available.
-     *
-     * @param holder   the ViewHolder to bind data into
-     * @param position the index of the item in the list
+     * remove button listener, optional long-press listener, and profile image.
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         WaitlistUser user = users.get(position);
         holder.tvName.setText(user.getName());
 
-        // Safety check for removal
+        // Remove button
         holder.btnRemove.setOnClickListener(v -> {
             int currentPosition = holder.getAdapterPosition();
             if (currentPosition != RecyclerView.NO_POSITION) {
@@ -84,18 +108,25 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
             }
         });
 
-        String profileImageUrl = user.getProfileImage();
+        // Long-press to assign co-organizer (only wired when listener is provided)
+        if (longClickListener != null) {
+            holder.itemView.setOnLongClickListener(v -> {
+                longClickListener.onLongClick(user);
+                return true; // consume the event
+            });
+        } else {
+            holder.itemView.setOnLongClickListener(null);
+        }
 
-        // Use Glide to load the URL, just like the comments feature!
+        // Profile image
+        String profileImageUrl = user.getProfileImage();
         if (profileImageUrl != null && !profileImageUrl.trim().isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(profileImageUrl)
-                    .circleCrop() // Makes the image circular
-                    .placeholder(R.drawable.default_avatar) 
-                    // .error(R.drawable.default_avatar)       
+                    .circleCrop()
+                    .placeholder(R.drawable.default_avatar)
                     .into(holder.ivProfile);
         } else {
-            // Fallback if the user has no profile picture saved
             holder.ivProfile.setImageResource(R.drawable.default_avatar);
         }
     }
@@ -107,7 +138,8 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
     public int getItemCount() { return users.size(); }
 
     /**
-     * ViewHolder that holds references to the profile image, name, and remove button for a single waitlist row.
+     * ViewHolder that holds references to the profile image, name, and remove button
+     * for a single waitlist row.
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivProfile;
@@ -120,7 +152,7 @@ public class WaitlistAdapter extends RecyclerView.Adapter<WaitlistAdapter.ViewHo
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivProfile = itemView.findViewById(R.id.ivProfile);
-            tvName = itemView.findViewById(R.id.tvName);
+            tvName    = itemView.findViewById(R.id.tvName);
             btnRemove = itemView.findViewById(R.id.btnRemove);
         }
     }
