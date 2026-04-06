@@ -56,8 +56,33 @@ public class AdminUserListActivity extends AppCompatActivity {
     public void removeUser(String userId) {
         db.collection("users")
                 .document(userId)
-                .delete()
-                .addOnSuccessListener(aVoid -> loadUsers());
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    User user = documentSnapshot.toObject(User.class);
+                    boolean isOrganizer = user != null && Boolean.TRUE.equals(user.isOrganizer());
+
+                    if (isOrganizer) {
+                        db.collection("events")
+                                .whereEqualTo("organizerId", userId)
+                                .get()
+                                .addOnSuccessListener(queryDocumentSnapshots -> {
+                                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                        db.collection("events").document(document.getId()).delete();
+                                    }
+                                    db.collection("users").document(userId).delete()
+                                            .addOnSuccessListener(aVoid -> loadUsers());
+                                })
+                                .addOnFailureListener(e -> {
+                                    android.util.Log.e("AdminUserListActivity", "Failed to delete events for organizer: " + userId, e);
+                                });
+                    } else {
+                        db.collection("users").document(userId).delete()
+                                .addOnSuccessListener(aVoid -> loadUsers());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("AdminUserListActivity", "Failed to fetch user for deletion: " + userId, e);
+                });
     }
 
     /**
