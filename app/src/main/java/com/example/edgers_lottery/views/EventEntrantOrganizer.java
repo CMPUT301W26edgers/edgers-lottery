@@ -184,6 +184,10 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         rvEntrants.setAdapter(adapter);
     }
 
+    /**
+     * Loads confirmed entrants from the "entrants" array in Firestore.
+     * Each entry is a full user object; we read id, name, and profileImage.
+     */
     private void loadEntrants() {
         db.collection("events")
                 .document(eventId)
@@ -193,7 +197,8 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                         return;
                     }
                     if (documentSnapshot != null && documentSnapshot.exists()) {
-                        List<Object> entrantsRaw = (List<Object>) documentSnapshot.get("waitingList");
+                        // Pull from "entrants" array (confirmed lottery picks)
+                        List<Object> entrantsRaw = (List<Object>) documentSnapshot.get("entrants");
                         entrantUsers.clear();
                         if (entrantsRaw != null) {
                             for (Object item : entrantsRaw) {
@@ -212,12 +217,18 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Removes a user from the "entrants" array in Firestore and updates the RecyclerView.
+     *
+     * @param user     the {@link WaitlistUser} to remove
+     * @param position the position of the user in the adapter list
+     */
     private void removeFromEntrants(WaitlistUser user, int position) {
         db.collection("events")
                 .document(eventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    List<Object> entrantsRaw = new ArrayList<>((List<Object>) documentSnapshot.get("waitingList"));
+                    List<Object> entrantsRaw = new ArrayList<>((List<Object>) documentSnapshot.get("entrants"));
                     if (entrantsRaw != null) {
                         for (int i = 0; i < entrantsRaw.size(); i++) {
                             Object item = entrantsRaw.get(i);
@@ -230,7 +241,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                         }
                         db.collection("events")
                                 .document(eventId)
-                                .update("waitingList", entrantsRaw)
+                                .update("entrants", entrantsRaw)
                                 .addOnSuccessListener(aVoid -> {
                                     entrantUsers.remove(position);
                                     adapter.notifyItemRemoved(position);
