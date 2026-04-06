@@ -76,7 +76,7 @@ public class EventEntrantOrganizer extends AppCompatActivity {
                                 (List<Map<String, Object>>) doc.get("declinedUsers");
                         List<Map<String, Object>> rawAcceptedUsers =
                                 (List<Map<String, Object>>) doc.get("entrants");
-                        allinvitedUsers = rawAllInvitedUsers != null ? rawAllInvitedUsers : new ArrayList<>();
+                        AllInvitedUsers  = rawAllInvitedUsers != null ? rawAllInvitedUsers : new ArrayList<>();
                         declinedUsers   = rawDeclinedUsers   != null ? rawDeclinedUsers   : new ArrayList<>();
                         acceptedUsers   = rawAcceptedUsers   != null ? rawAcceptedUsers   : new ArrayList<>();
                     } else {
@@ -141,6 +141,11 @@ public class EventEntrantOrganizer extends AppCompatActivity {
         BtnTotal.setOnClickListener(v-> {
             currentView = "accepted";
             entrantUsers.clear();
+
+            for (Map<String, Object> userMap : acceptedUsers) {
+                tvEntrantCount.setText("Chosen Entrants: " + entrantUsers.size());
+            }
+        });
 
         BtnTotal.setOnClickListener(v -> {
             entrantUsers.clear();
