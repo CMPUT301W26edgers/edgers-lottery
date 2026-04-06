@@ -101,9 +101,14 @@ public class EventUserChoice extends AppCompatActivity {
                                 tvLocationName.setText(currentEvent.getLocation());
                             }
                             if (currentEvent.getDate() != null && currentEvent.getTime() != null) {
-                                tvEventDate.setText(currentEvent.getDate() + " at " + currentEvent.getTime());
+                                tvEventDate.setText(
+                                        "📅 " + EventArrayAdapter.formatDate(currentEvent.getDate())
+                                                + " at " + currentEvent.getTime()
+                                );
                             } else if (currentEvent.getDate() != null) {
-                                tvEventDate.setText(currentEvent.getDate());
+                                tvEventDate.setText(
+                                        "📅 " + EventArrayAdapter.formatDate(currentEvent.getDate())
+                                );
                             }
 
                             // ✨ Load the event poster using Glide
