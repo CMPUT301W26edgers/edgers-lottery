@@ -60,7 +60,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
     ImageButton profileButton ;
     Button historyButton;
     ImageButton qrButton;
-    ImageButton checkoutButton;
     ImageButton notificationsButton;
     Button carouselButton;
     Button filterButton ;
@@ -269,7 +268,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         profileButton = findViewById(R.id.ProfileButton);
         historyButton = findViewById(R.id.btnHistory);
         qrButton = findViewById(R.id.qrButton);
-        checkoutButton = findViewById(R.id.checkoutButton);
         notificationsButton = findViewById(R.id.ProfileNotification);
         filterButton = findViewById(R.id.btnFilter);
         organizerButton = findViewById(R.id.btnOrganizerMode);
@@ -288,10 +286,6 @@ public class HomeActivity extends AppCompatActivity implements EditProfileFragme
         });
         qrButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, QrScannerActivity.class);
-            startActivity(intent);
-        });
-        checkoutButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CheckoutActivity.class);
             startActivity(intent);
         });
         notificationsButton.setOnClickListener(v -> {

@@ -8,8 +8,9 @@
     <LinearLayout
         android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="20dp"
         android:orientation="vertical"
+        android:background="@color/headerGray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -111,13 +112,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
 
-        <ImageButton
-            android:id="@+id/NotificationButton"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/notification"
-            android:backgroundTint="@color/headerGray"
-            app:srcCompat="@drawable/notification_icon" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -250,15 +245,6 @@
             android:backgroundTint="@color/white"
             android:contentDescription="@string/qrCode"
             app:srcCompat="@drawable/camera" />
-
-        <ImageButton
-            android:id="@+id/checkoutButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/white"
-            android:contentDescription="@string/checkout"
-            app:srcCompat="@drawable/cart" />
 
         <ImageButton
             android:id="@+id/ProfileButton"
