@@ -241,6 +241,38 @@
                         app:cornerRadius="24dp"/>
 
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp">
+
+                    <Button
+                        android:id="@+id/btnChosenEntrants"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="View Chosen"
+                        android:textColor="#FFFFFF"
+                        android:visibility="gone"
+                        android:backgroundTint="#6076AC"
+                        android:elevation="6dp"
+                        app:cornerRadius="24dp"/>
+
+                    <Button
+                        android:id="@+id/btnCancelledEntrants"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="View No-Show"
+                        android:visibility="gone"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#6076AC"
+                        android:elevation="6dp"
+                        app:cornerRadius="24dp"/>
+
+                </LinearLayout>
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>

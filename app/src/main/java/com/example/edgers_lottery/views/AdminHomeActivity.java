@@ -79,8 +79,7 @@ public class AdminHomeActivity extends AppCompatActivity {
         });
 
         export.setOnClickListener(v -> {
-            // placeholder
-            Intent intent = new Intent(this, AdminEventListActivity.class);
+            Intent intent = new Intent(this, AdminNotificationLogActivity.class);
             startActivity(intent);
         });
 
@@ -116,6 +115,15 @@ public class AdminHomeActivity extends AppCompatActivity {
 
         loadAdminProfile(profileImage, username, userID);
     }
+
+    /**
+     * Loads the currently authenticated admin's profile information
+     * from Firestore and displays it in the UI.
+     *
+     * @param profileImage ImageView for displaying profile picture
+     * @param username TextView for displaying username
+     * @param userID TextView for displaying user ID
+     */
     private void loadAdminProfile(ImageView profileImage, TextView username, TextView userID) {
         String uid = auth.getCurrentUser().getUid();
 

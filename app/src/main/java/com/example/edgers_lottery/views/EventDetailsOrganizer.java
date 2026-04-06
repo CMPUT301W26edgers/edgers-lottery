@@ -189,12 +189,14 @@ package com.example.edgers_lottery.views;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.services.LotteryService;
 import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.*;
@@ -204,6 +206,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -223,6 +226,8 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private View inviteContainer;
     private Button btnInviteUser;
 
+    private List<Map<String, Object>> invitedUsers = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -237,6 +242,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         if (eventId == null) {
             Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     @Override
@@ -254,11 +260,13 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         countdown    = findViewById(R.id.tvRegistrationCountdown);
         ivQrCode     = findViewById(R.id.ivQrCode);
 
+
         // ✅ NEW
         inviteContainer = findViewById(R.id.inviteContainer);
         btnInviteUser = findViewById(R.id.btnInviteUser);
-    }
 
+
+    }
     private void loadEventFromFirestore() {
         db.collection("events")
                 .document(eventId)
@@ -270,6 +278,16 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         String dateString = doc.getString("date");
                         String desc       = doc.getString("description");
                         Long capacity     = doc.getLong("capacity");
+                        List<Map<String, Object>> rawinvitedUsers =
+                                (List<Map<String, Object>>) doc.get("invitedUsers");
+
+                        if (rawinvitedUsers != null) {
+                            invitedUsers
+                                    = rawinvitedUsers;
+                        } else {
+                            invitedUsers = new ArrayList<>();
+                        }
+
 
                         locationName.setText(eventName != null ? eventName : "Unnamed Event");
                         entrantLimit.setText("Entrants: " + (capacity != null ? capacity : 0));
@@ -359,7 +377,35 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         findViewById(R.id.btnRunLottery).setOnClickListener(v -> {
             LotteryService.sampleWaitlist(eventId, result -> {
                 Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+
             });
+        });
+        findViewById(R.id.btnChosenEntrants).setOnClickListener(v -> {
+            if (invitedUsers == null || invitedUsers.isEmpty()) {
+                Toast.makeText(this, "No invited users", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            StringBuilder list = new StringBuilder();
+
+            for (Map<String, Object> user : invitedUsers) {
+                String name = (String) user.get("name");
+                String email = (String) user.get("email");
+
+                list.append(name != null ? name : "Unknown")
+                        .append(" (")
+                        .append(email != null ? email : "No email")
+                        .append(")\n");
+            }
+
+            new AlertDialog.Builder(EventDetailsOrganizer.this)
+                    .setTitle("Invited Users (" + invitedUsers.size() + ")")
+                    .setMessage(list.toString())
+                    .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
+        findViewById(R.id.btnCancelledEntrants).setOnClickListener(v-> {
+
         });
 
         // ✅ INVITE BUTTON
@@ -405,36 +451,39 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         return;
                     }
 
-                    // Get event waitlist
+                    // Get event invitedUsers instead of waitingList
                     db.collection("events")
                             .document(eventId)
                             .get()
                             .addOnSuccessListener(eventDoc -> {
 
-                                List<Map<String, Object>> waitlist =
-                                        (List<Map<String, Object>>) eventDoc.get("waitingList");
+                                List<Map<String, Object>> invitedUsers =
+                                        (List<Map<String, Object>>) eventDoc.get("invitedUsers");
 
-                                if (waitlist == null) {
-                                    waitlist = new ArrayList<>();
+                                if (invitedUsers == null) {
+                                    invitedUsers = new ArrayList<>();
                                 }
 
-                                // ✅ Prevent duplicates (by id)
+                                // Prevent duplicates by id
                                 String newUserId = (String) userData.get("id");
 
-                                for (Map<String, Object> user : waitlist) {
+                                for (Map<String, Object> user : invitedUsers) {
                                     if (newUserId.equals(user.get("id"))) {
-                                        Toast.makeText(this, "User already in waitlist", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(this, "User already invited", Toast.LENGTH_SHORT).show();
                                         return;
                                     }
                                 }
 
-                                waitlist.add(userData);
+                                invitedUsers.add(userData);
+
+                                final List<Map<String, Object>> finalInvitedUsers = invitedUsers;
 
                                 db.collection("events")
                                         .document(eventId)
-                                        .update("waitingList", waitlist)
+                                        .update("invitedUsers", finalInvitedUsers)
                                         .addOnSuccessListener(unused -> {
                                             String invitedUserId = (String) userData.get("id");
+                                            android.util.Log.d("InviteDebug", "invitedUserId = " + invitedUserId);
 
                                             NotificationService.sendPrivateEventInvite(
                                                     invitedUserId,
@@ -451,6 +500,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                 );
     }
+
 
     private Bitmap generateQrCode(String content) throws WriterException {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(

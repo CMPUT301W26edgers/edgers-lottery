@@ -13,9 +13,12 @@ import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.models.User;
+import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Activity that allows a user to accept or decline an event invitation.
@@ -151,10 +154,27 @@ public class EventUserChoice extends AppCompatActivity {
             removeUserFromListSafely(currentUser.getId(), currentEvent.getInvitedUsers());
         }
 
+        if (currentEvent.getDeclinedUsers() == null) {
+            currentEvent.setDeclinedUsers(new ArrayList<>());
+        }
+
+        if (!currentEvent.getDeclinedUsers().contains(currentUser)) {
+            currentEvent.getDeclinedUsers().add(currentUser);
+            Toast.makeText(EventUserChoice.this, "TONYKONG ", Toast.LENGTH_LONG).show();
+        }
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("invitedUsers", currentEvent.getInvitedUsers());
+        updates.put("declinedUsers", currentEvent.getDeclinedUsers());
+
         db.collection("events").document(currentEventId)
-                .update("invitedUsers", currentEvent.getInvitedUsers())
+                .update(updates)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(EventUserChoice.this, "Invitation declined successfully.", Toast.LENGTH_SHORT).show();
+                    NotificationService.sendCancelledNotification(
+                            currentUser.getId(),
+                            currentEventId,
+                            currentEvent.getName()
+                    );
                     finish();
                 })
                 .addOnFailureListener(e -> {
@@ -195,6 +215,7 @@ public class EventUserChoice extends AppCompatActivity {
         if (currentEvent.getInvitedUsers() != null) {
             removeUserFromListSafely(currentUser.getId(), currentEvent.getInvitedUsers());
         }
+
 
         db.collection("events").document(currentEventId)
                 .update(

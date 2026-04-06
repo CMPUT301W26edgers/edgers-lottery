@@ -29,6 +29,12 @@ public class AdminImagesViewActivity extends AppCompatActivity {
     private List<StorageReference> imageRefs = new ArrayList<>();
     private AdminImagesViewAdapter adapter;
 
+    /**
+     * Called when the activity is created.
+     * Sets up the RecyclerView and loads all images from Firebase Storage.
+     *
+     * @param savedInstanceState previously saved instance state, or null
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +53,10 @@ public class AdminImagesViewActivity extends AppCompatActivity {
         loadAllImages();
     }
 
-    // Load all images from firebase storage
+    /**
+     * Loads all profile and event images from Firebase Storage
+     * and displays them in the grid view.
+     */
     @SuppressLint("NotifyDataSetChanged")
     private void loadAllImages() {
         // Load profile images
