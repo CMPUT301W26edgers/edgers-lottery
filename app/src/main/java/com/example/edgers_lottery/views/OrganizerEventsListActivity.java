@@ -35,7 +35,8 @@ public class OrganizerEventsListActivity extends AppCompatActivity {
         eventsList.setAdapter(adapter);
         db = FirebaseFirestore.getInstance();
         backButton.setOnClickListener(v -> finish());
-        loadMyEvents();
+
+        // loadMyEvents() removed from here to prevent duplicate calls when the activity starts.
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -58,15 +59,23 @@ public class OrganizerEventsListActivity extends AppCompatActivity {
         });
     }
 
+    // ADDED: onResume() triggers every time the screen becomes visible to the user.
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadMyEvents();
+    }
+
     private void loadMyEvents() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
 
         String uid = currentUser.getUid();
 
+        // Clear existing data to prevent duplicating list items on resume
         eventsArray.clear();
         allEventsArray.clear();
-        adapter.clear();
+        adapter.notifyDataSetChanged();
 
         db.collection("events")
                 .whereEqualTo("organizerId", uid)
@@ -106,5 +115,4 @@ public class OrganizerEventsListActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
     }
-
 }

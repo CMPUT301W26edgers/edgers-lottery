@@ -67,7 +67,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         switch (n.getType() != null ? n.getType() : "") {
 
             case "PRIVATE_EVENT_INVITE":
-                message = "You have been selected for a private event: " + n.getEventName();
+                message = "You have been invited to a private event: " + n.getEventName();
                 break;
 
             case "SELECTED":

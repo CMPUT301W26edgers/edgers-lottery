@@ -457,30 +457,28 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                             .get()
                             .addOnSuccessListener(eventDoc -> {
 
-                                List<Map<String, Object>> invitedUsers =
-                                        (List<Map<String, Object>>) eventDoc.get("invitedUsers");
+                                List<Map<String, Object>> AllInvitedList =
+                                        (List<Map<String, Object>>) eventDoc.get("AllInvitedUsers");
 
-                                if (invitedUsers == null) {
-                                    invitedUsers = new ArrayList<>();
+                                if (AllInvitedList == null) {
+                                    AllInvitedList = new ArrayList<>();
                                 }
 
                                 // Prevent duplicates by id
                                 String newUserId = (String) userData.get("id");
 
-                                for (Map<String, Object> user : invitedUsers) {
+                                for (Map<String, Object> user : AllInvitedList) {
                                     if (newUserId.equals(user.get("id"))) {
                                         Toast.makeText(this, "User already invited", Toast.LENGTH_SHORT).show();
                                         return;
                                     }
                                 }
 
-                                invitedUsers.add(userData);
-
-                                final List<Map<String, Object>> finalInvitedUsers = invitedUsers;
+                                AllInvitedList.add(userData);
 
                                 db.collection("events")
                                         .document(eventId)
-                                        .update("invitedUsers", finalInvitedUsers)
+                                        .update("AllInvitedUsers", AllInvitedList)
                                         .addOnSuccessListener(unused -> {
                                             String invitedUserId = (String) userData.get("id");
                                             android.util.Log.d("InviteDebug", "invitedUserId = " + invitedUserId);

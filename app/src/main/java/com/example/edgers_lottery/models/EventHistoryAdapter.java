@@ -98,6 +98,11 @@ public class EventHistoryAdapter extends RecyclerView.Adapter<EventHistoryAdapte
                 Intent intent = new Intent(context, EventDetailsActivity.class);
                 intent.putExtra("eventId", currentEvent.getId());
                 context.startActivity(intent);
+            } else if (status.equals("Pending Invite")) {
+                Intent intent = new Intent(context, EventDetailsActivity.class);
+                intent.putExtra("eventId", currentEvent.getId());
+                intent.putExtra("isPendingInvite", true);
+                context.startActivity(intent);
             }
         });
     }
@@ -124,6 +129,10 @@ public class EventHistoryAdapter extends RecyclerView.Adapter<EventHistoryAdapte
             return "In waitlist";
         } else if (isUserInList(currentUserId, event.getEntrants())) {
             return "Accepted";
+        } else if (isUserInList(currentUserId, event.getDeclinedUsers())) {
+            return "Rejected";
+        } else if (isUserInList(currentUserId, event.getAllInvitedUsers())) {
+            return "Pending Invite";
         } else {
             return "Rejected";
         }

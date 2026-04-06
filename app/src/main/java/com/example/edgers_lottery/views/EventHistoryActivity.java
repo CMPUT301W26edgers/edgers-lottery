@@ -1,5 +1,6 @@
 package com.example.edgers_lottery.views;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageButton;
@@ -67,6 +68,7 @@ public class EventHistoryActivity extends AppCompatActivity {
         fetchUserEventHistory();
     }
 
+
     /**
      * Fetches all events from Firestore and filters them locally to find events
      * the current user is involved in. Updates the RecyclerView adapter on completion.
@@ -78,6 +80,7 @@ public class EventHistoryActivity extends AppCompatActivity {
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Event event = document.toObject(Event.class);
                     event.setId(document.getId());
+
                     if (isUserInEvent(event)) {
                         eventList.add(event);
                     }
@@ -98,6 +101,7 @@ public class EventHistoryActivity extends AppCompatActivity {
     private boolean isUserInEvent(Event event) {
         return checkListForUser(event.getWaitingList()) ||
                 checkListForUser(event.getInvitedUsers()) ||
+                checkListForUser(event.getAllInvitedUsers()) ||
                 checkListForUser(event.getEntrants());
     }
 
