@@ -87,15 +87,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
-            android:id="@+id/btnRefresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/headerGray"
-            android:text="Refresh"
-            android:textAllCaps="false"
-            android:textColor="@color/black"
-            app:cornerRadius="20dp" />
+
     </LinearLayout>
 
     <!-- Event list -->

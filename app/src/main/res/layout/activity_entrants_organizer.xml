@@ -162,7 +162,7 @@
             android:layout_weight="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chosen entrants"
+            android:text="Invited entrants"
             android:layout_margin="2dp"
             />
         <Button
