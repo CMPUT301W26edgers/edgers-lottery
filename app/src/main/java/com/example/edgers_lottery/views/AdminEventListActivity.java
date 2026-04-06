@@ -7,8 +7,10 @@ import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
 import com.example.edgers_lottery.models.EventArrayAdapter;
+import com.example.edgers_lottery.models.User;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -34,6 +36,8 @@ public class AdminEventListActivity extends AppCompatActivity {
     /** Instance of FirebaseFirestore used for database operations. */
     private FirebaseFirestore db;
 
+    protected User user;
+
     /**
      * Initializes the activity, sets up the user interface components, and configures
      * click listeners for navigation.
@@ -58,6 +62,8 @@ public class AdminEventListActivity extends AppCompatActivity {
         eventsList.setAdapter(adapter);
 
         db = FirebaseFirestore.getInstance();
+
+        user = CurrentUser.get();
 
         // 3. Handle Clicks on an Event
         // Navigates to EventDetailsActivity, passing the specific event's ID so the

@@ -2,6 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -81,8 +82,6 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     app:cornerRadius="18dp"/>
 
-
-
                 <Button
                     android:id="@+id/entrantBtn"
                     android:layout_width="wrap_content"
@@ -127,6 +126,7 @@
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     app:cornerRadius="20dp"/>
+
                 <Button
                     android:id="@+id/editEventBtn"
                     android:layout_width="wrap_content"
@@ -147,32 +147,33 @@
             android:id="@+id/cvImageUpload"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="12dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#FFFFFF"
-            app:layout_constraintTop_toBottomOf="@id/tabLayout">
+            app:layout_constraintTop_toBottomOf="@id/tabLayout"
+            tools:layout_editor_absoluteX="-171dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/ivImage"
                     android:layout_width="44dp"
                     android:layout_height="44dp"
-                    android:src="@drawable/volleyball_background"/>
+                    android:src="@drawable/volleyball_background" />
 
                 <Button
                     android:id="@+id/btnAddImage"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Add Images"
-                    android:textAllCaps="false"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                    android:textAllCaps="false" />
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
@@ -249,12 +250,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/priceLayout"
+                android:id="@+id/locationLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="10dp"
-                android:hint="Price"
+                android:hint="Location"
                 app:boxBackgroundMode="filled"
                 app:boxCornerRadiusTopStart="20dp"
                 app:boxCornerRadiusTopEnd="20dp"
@@ -262,10 +263,10 @@
                 app:boxCornerRadiusBottomEnd="20dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/price"
+                    android:id="@+id/location"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="$"/>
+                    android:layout_height="wrap_content"/>
+
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>

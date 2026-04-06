@@ -223,6 +223,19 @@
                             android:text="View Waitlist"
                             android:textColor="@android:color/white" />
                     </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/already_registered_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="✅ You are already registered for this event"
+                        android:textColor="#2E7D32"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:visibility="gone" />
+
                     <Button
                         android:id="@+id/btnViewComments"
                         android:layout_width="match_parent"

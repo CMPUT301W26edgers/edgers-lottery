@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edgers_lottery.R;
+import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.NotificationLogAdapter;
 import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.models.UserListAdapter;
@@ -46,6 +47,8 @@ public class AdminNotificationLogActivity extends AppCompatActivity {
     /** Custom adapter used to display the users in a read-only visual state. */
     private UserListAdapter adapter;
 
+    protected  User user;
+
     /**
      * Initializes the activity, configures the UI components, and triggers the initial
      * data fetch. The {@link UserListAdapter} is intentionally initialized in 'read-only'
@@ -63,6 +66,7 @@ public class AdminNotificationLogActivity extends AppCompatActivity {
         userListView = findViewById(R.id.adminNotificationsUserList);
         backButton = findViewById(R.id.backButton);
         users = new ArrayList<>();
+        user = CurrentUser.get();
 
         // Reuse the existing UserListAdapter, but pass 'true' to enable read-only mode!
         adapter = new UserListAdapter(this, users, true);

@@ -9,9 +9,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.edgers_lottery.R;
 import com.example.edgers_lottery.models.CurrentUser;
 import com.example.edgers_lottery.models.Event;
+import com.example.edgers_lottery.models.EventArrayAdapter;
 import com.example.edgers_lottery.models.User;
 import com.example.edgers_lottery.services.NotificationService;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,12 +25,13 @@ import java.util.Map;
 /**
  * Activity that allows a user to accept or decline an event invitation.
  * Loads the event from Firestore using the {@code eventId} intent extra,
- * displays event details, and updates the entrants and invited users lists in Firestore
- * based on the user's choice.
+ * displays event details (including the poster), and updates the entrants
+ * and invited users lists in Firestore based on the user's choice.
  */
 public class EventUserChoice extends AppCompatActivity {
 
     private ImageView btnBack;
+    private ImageView eventposter; // ✨ Added for the event poster
     private Button btnAcceptInvite;
     private Button btnRejectInvite;
     private TextView tvDescriptionTitle;
@@ -39,6 +42,7 @@ public class EventUserChoice extends AppCompatActivity {
     private User currentUser;
     private Event currentEvent;
     private String currentEventId;
+    private TextView registrationEndsText;
 
     private FirebaseFirestore db;
 
@@ -57,12 +61,14 @@ public class EventUserChoice extends AppCompatActivity {
         currentUser = CurrentUser.get();
 
         btnBack = findViewById(R.id.btn_back);
+        eventposter = findViewById(R.id.iv_event_poster); // ✨ Bind the ImageView
         btnAcceptInvite = findViewById(R.id.btn_accept_invite);
         btnRejectInvite = findViewById(R.id.btn_decline_invite);
         tvDescriptionTitle = findViewById(R.id.tv_description_title);
         tvLocationName = findViewById(R.id.tv_location_name);
         tvEventDate = findViewById(R.id.tv_event_date);
         tvDescriptionBody = findViewById(R.id.tv_description_body);
+        registrationEndsText = findViewById(R.id.tv_registration_deadline);
 
         currentEventId = getIntent().getStringExtra("eventId");
 
@@ -72,13 +78,20 @@ public class EventUserChoice extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             currentEvent = documentSnapshot.toObject(Event.class);
                             currentEvent.setId(documentSnapshot.getId());
-
+                            if (currentEvent.getRegistrationEnd() != null) {
+                                registrationEndsText.setText(
+                                        EventArrayAdapter.timeUntilRegistration(currentEvent.getRegistrationEnd())
+                                );
+                            } else {
+                                registrationEndsText.setText("Unknown Registration End Date");
+                            }
                             if (isUserInList(currentUser.getId(), currentEvent.getEntrants())) {
                                 Toast.makeText(EventUserChoice.this, "You have already accepted this invitation!", Toast.LENGTH_SHORT).show();
                                 finish();
                                 return;
                             }
 
+                            // Populate text fields
                             tvDescriptionTitle.setText(currentEvent.getName());
 
                             if (currentEvent.getDescription() != null) {
@@ -88,10 +101,28 @@ public class EventUserChoice extends AppCompatActivity {
                                 tvLocationName.setText(currentEvent.getLocation());
                             }
                             if (currentEvent.getDate() != null && currentEvent.getTime() != null) {
-                                tvEventDate.setText(currentEvent.getDate() + " at " + currentEvent.getTime());
+                                tvEventDate.setText(
+                                        "📅 " + EventArrayAdapter.formatDate(currentEvent.getDate())
+                                                + " at " + currentEvent.getTime()
+                                );
                             } else if (currentEvent.getDate() != null) {
-                                tvEventDate.setText(currentEvent.getDate());
+                                tvEventDate.setText(
+                                        "📅 " + EventArrayAdapter.formatDate(currentEvent.getDate())
+                                );
                             }
+
+                            // ✨ Load the event poster using Glide
+                            String imageURL = currentEvent.getPoster();
+                            if (imageURL != null && !imageURL.isEmpty()) {
+                                Glide.with(this)
+                                        .load(imageURL)
+                                        .placeholder(R.drawable.blankphoto)
+                                        .error(R.drawable.blankphoto)
+                                        .into(eventposter);
+                            } else {
+                                eventposter.setImageResource(R.drawable.blankphoto);
+                            }
+
                         } else {
                             Toast.makeText(this, "Event no longer exists.", Toast.LENGTH_SHORT).show();
                             finish();
